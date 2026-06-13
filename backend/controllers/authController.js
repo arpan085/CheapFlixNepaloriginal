@@ -2,28 +2,38 @@ const prisma = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Register User
+/* =========================
+   REGISTER USER
+========================= */
 exports.register = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, phone, userType, category, experience, price, bio } = req.body;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      phone,
+      userType,
+      category,
+      experience,
+      price,
+      bio
+    } = req.body;
 
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email }
     });
 
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         email,
@@ -32,16 +42,13 @@ exports.register = async (req, res) => {
         lastName,
         phone,
         role: userType === 'provider' ? 'provider' : 'user',
-      },
+        status: 'active'
+      }
     });
 
-    // ✅ CREATE PROVIDER PROFILE IF PROVIDER
     let providerId = null;
-    if (userType === 'provider') {
-      if (!category || !price) {
-        return res.status(400).json({ error: 'Category and price are required for providers' });
-      }
 
+    if (userType === 'provider') {
       const provider = await prisma.provider.create({
         data: {
           userId: user.id,
@@ -49,29 +56,27 @@ exports.register = async (req, res) => {
           bio: bio || '',
           experience: experience || 0,
           verified: false,
-          rating: 0,
-        },
+          rating: 0
+        }
       });
 
       providerId = provider.id;
 
-      // ✅ CREATE DEFAULT SERVICE FOR PROVIDER (USE ACTUAL PROVIDER ID)
       await prisma.service.create({
         data: {
           providerId: provider.id,
           name: `${category} Services`,
           description: bio || `Professional ${category} services`,
-          price: parseFloat(price),
-          duration: 60,
-        },
+          price: parseFloat(price || 0),
+          duration: 60
+        }
       });
     }
 
-    // Generate token
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE }
+      { expiresIn: process.env.JWT_EXPIRE || "7d" }
     );
 
     res.status(201).json({
@@ -83,51 +88,45 @@ exports.register = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        category: userType === 'provider' ? category : undefined,
-        providerId: providerId,
-      },
+        providerId
+      }
     });
+
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Register error:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Login User
+/* =========================
+   LOGIN USER
+========================= */
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+      return res.status(400).json({ error: 'Email and password required' });
     }
 
-    // Find user
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email }
     });
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isValidPassword) {
+    if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Check if user is active
-    if (user.status !== 'active') {
-      return res.status(403).json({ error: 'Your account has been suspended' });
-    }
-
-    // Generate token
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRE }
+      { expiresIn: process.env.JWT_EXPIRE || "7d" }
     );
 
     res.status(200).json({
@@ -138,20 +137,26 @@ exports.login = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role,
-      },
+        role: user.role
+      }
     });
+
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Logout (optional - mostly handled on frontend)
+/* =========================
+   LOGOUT
+========================= */
 exports.logout = (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
 };
 
-// Get current user
+/* =========================
+   GET CURRENT USER
+========================= */
 exports.getCurrentUser = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
@@ -165,12 +170,12 @@ exports.getCurrentUser = async (req, res) => {
         address: true,
         city: true,
         role: true,
-        status: true,
-        avatar: true,
-      },
+        status: true
+      }
     });
 
     res.status(200).json(user);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
