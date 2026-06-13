@@ -14,7 +14,7 @@
   } else {
     // Production: Check if we have a custom backend URL
     // Update the RENDER_BACKEND_URL below with your Render backend URL
-    const RENDER_BACKEND_URL = 'https://cheapflix-nepal-backend.onrender.com/api';
+    const RENDER_BACKEND_URL = 'https://cheapflixnepal-backend.onrender.com/api';
     API_BASE_URL = RENDER_BACKEND_URL;
   }
   
