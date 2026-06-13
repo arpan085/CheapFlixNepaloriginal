@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: cheapflix-nepal-backend
+    runtime: node
+    region: oregon
+    buildCommand: npm install && npx prisma migrate deploy && npx prisma generate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cheapflix-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+
+databases:
+  - name: cheapflix-db
+    databaseName: cheapflix
+    user: cheapflix_user
+    region: oregon

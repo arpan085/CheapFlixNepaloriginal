@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model - For customers
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  avatar    String?
+  address   String?
+  city      String?
+  role      String     @default("user") // user, provider, admin
+  status    String     @default("active") // active, inactive, suspended
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  bookings  Booking[]
+  reviews   Review[]
+  notifications Notification[]
+  provider  Provider?
+  messages  Message[] // Messages sent by this user
+  messagesReceived Message[] @relation("MessagesReceived") // Messages received by this user
+}
+
+// Provider Model - For service providers
+model Provider {
+  id          String     @id @default(cuid())
+  userId      String     @unique
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String     // Electrician, Plumber, etc.
+  bio         String?
+  experience  Int?       // Years of experience
+  rating      Float      @default(0)
+  verified    Boolean    @default(false)
+  documents   String?    // JSON array of document paths
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  services    Service[]
+  bookings    Booking[]
+  reviews     Review[]
+  notifications Notification[]
+}
+
+// Service Model - Services offered by providers
+model Service {
+  id          String     @id @default(cuid())
+  providerId  String
+  provider    Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float
+  duration    Int?       // In minutes
+  availability String?   // JSON array of available time slots
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  bookings    Booking[]
+}
+
+// Booking Model
+model Booking {
+  id          String     @id @default(cuid())
+  bookingRef  String     @unique
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerId  String
+  provider    Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  serviceId   String
+  service     Service    @relation(fields: [serviceId], references: [id])
+  
+  status      String     @default("pending") // pending, confirmed, in_progress, completed, cancelled
+  date        DateTime
+  startTime   String
+  duration    String     // "1 hour", "2 hours", etc.
+  location    String
+  notes       String?
+  
+  totalAmount Float
+  paymentMethod String?
+  paymentStatus String @default("unpaid") // unpaid, paid
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  review      Review?
+  notifications Notification[]
+  messages    Message[]
+}
+
+// Notification Model - For provider booking requests
+model Notification {
+  id          String     @id @default(cuid())
+  bookingId   String
+  booking     Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  providerId  String
+  provider    Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        String     // "booking_request", "booking_accepted", "booking_rejected", etc.
+  title       String
+  message     String
+  status      String     @default("unread") // unread, read
+  action      String?    // "accept", "reject", "cancel"
+  actionDate  DateTime?
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Review Model
+model Review {
+  id          String     @id @default(cuid())
+  bookingId   String     @unique
+  booking     Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerId  String
+  provider    Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  rating      Int        // 1-5
+  comment     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// Message Model - For chat between users and providers
+model Message {
+  id          String     @id @default(cuid())
+  bookingId   String
+  booking     Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId  String
+  receiver    User       @relation("MessagesReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  text        String
+  attachment  String?    // URL or path to file if any
+  isRead      Boolean    @default(false)
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  @@index([bookingId])
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+// Admin Model
+model Admin {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  password    String
+  name        String
+  permissions String?    // JSON array of permissions
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
