@@ -1,0 +1,9 @@
+[build]
+  base = "frontend"
+  publish = "."
+  command = "echo 'Frontend ready'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
