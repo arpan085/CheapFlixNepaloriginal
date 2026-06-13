@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome Back - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/auth.css">
+  <script src="../config.js"></script>
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <button type="button" class="auth-back-btn" onclick="window.location.href='../index.html'" title="Go back to home">✕</button>
+      
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Sign in to access your account</p>
+      </div>
+
+      <!-- Email/Phone Tabs -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-tab="email">📧 Email</button>
+        <button type="button" class="auth-tab" data-tab="phone">📱 Phone</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <!-- Email Input -->
+        <div id="email-tab" class="tab-content">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="form-group-input-wrapper">
+              <span class="form-group-icon">✉️</span>
+              <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone Input -->
+        <div id="phone-tab" class="tab-content" style="display: none;">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <div class="form-group-input-wrapper">
+              <span class="form-group-icon">📱</span>
+              <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="form-group-input-wrapper">
+            <span class="form-group-icon">🔒</span>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">👁️</button>
+          </div>
+        </div>
+
+        <!-- Remember me & Forgot Password -->
+        <div class="form-actions">
+          <div class="form-group checkbox">
+            <input type="checkbox" id="remember" name="remember">
+            <label for="remember">Remember me</label>
+          </div>
+          <a href="#forgot">Forgot password?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-block">Sign In</button>
+        <span class="error-msg" id="formError"></span>
+      </form>
+
+      <!-- OAuth Divider -->
+      <div class="oauth-divider">
+        <span class="oauth-divider-text">Or continue with</span>
+      </div>
+
+      <!-- OAuth Buttons -->
+      <div class="oauth-buttons">
+        <button type="button" class="btn-oauth" onclick="loginWithGoogle()">
+          <span class="btn-oauth-icon">🔵</span>
+          <span>Google</span>
+        </button>
+        <button type="button" class="btn-oauth" onclick="loginWithFacebook()">
+          <span class="btn-oauth-icon">f</span>
+          <span>Facebook</span>
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="register.html">Sign up</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script>
+    // Tab switching
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        
+        this.classList.add('active');
+        document.getElementById(this.dataset.tab + '-tab').style.display = 'block';
+      });
+    });
+
+    // Password visibility toggle
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+    }
+
+    // OAuth functions
+    function loginWithGoogle() {
+      alert('Google OAuth integration coming soon!');
+    }
+
+    function loginWithFacebook() {
+      alert('Facebook OAuth integration coming soon!');
+    }
+
+    // Form submission
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const formError = document.getElementById('formError');
+      
+      const loginIdentifier = email || phone;
+      
+      if (!loginIdentifier || !password) {
+        formError.textContent = 'Please fill in all fields';
+        return;
+      }
+
+      formError.textContent = '';
+      
+      try {
+        const response = await fetch(window.CONFIG.getApiUrl('/auth/login'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email: email || null, 
+            phone: phone || null, 
+            password 
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          if (data.user.role === 'admin') {
+            window.location.href = 'admin-dashboard.html';
+          } else if (data.user.role === 'provider') {
+            window.location.href = 'provider-dashboard.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        } else {
+          formError.textContent = data.error || 'Login failed';
+        }
+      } catch (error) {
+        formError.textContent = 'Connection error. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Dashboard - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../config.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #F8F9FB;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Header */
+    .navbar {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand h1 {
+      font-size: 1.5rem;
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .btn {
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-secondary {
+      background: #E5E7EB;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #D1D5DB;
+    }
+
+    /* Layout */
+    .provider-dashboard {
+      display: flex;
+      min-height: calc(100vh - 70px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: white;
+      border-right: 1px solid #E5E7EB;
+      padding: 2rem 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      border-bottom: 1px solid #F3F4F6;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      color: #666;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      border-left: 4px solid transparent;
+    }
+
+    .menu-link:hover {
+      background: #F3F4F6;
+      color: #6366f1;
+    }
+
+    .menu-link.active {
+      background: #EEF2FF;
+      color: #6366f1;
+      border-left-color: #6366f1;
+    }
+
+    .menu-icon {
+      font-size: 1.25rem;
+    }
+
+    /* Main Content */
+    .dashboard-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+      color: #6b7280;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .stat-card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .stat-change {
+      color: #10b981;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Dashboard Sections */
+    .dashboard-section {
+      display: none;
+    }
+
+    .dashboard-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Booking Cards */
+    .bookings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .booking-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #6366f1;
+      transition: all 0.3s ease;
+    }
+
+    .booking-card:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .booking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+
+    .booking-customer {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 1.1rem;
+    }
+
+    .booking-status {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+
+    .status-confirmed {
+      background: #DCFCE7;
+      color: #15803D;
+    }
+
+    .status-in-progress {
+      background: #DBEAFE;
+      color: #0C4A6E;
+    }
+
+    .status-completed {
+      background: #DBEAFE;
+      color: #0C4A6E;
+    }
+
+    .status-cancelled {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .booking-detail {
+      margin: 0.8rem 0;
+      font-size: 0.95rem;
+      color: #4b5563;
+    }
+
+    .booking-detail strong {
+      color: #1f2937;
+    }
+
+    .booking-amount {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-top: 1rem;
+    }
+
+    .booking-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #6366f1;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #4f46e5;
+    }
+
+    .btn-secondary-light {
+      background: #F3F4F6;
+      color: #1f2937;
+    }
+
+    .btn-secondary-light:hover {
+      background: #E5E7EB;
+    }
+
+    /* Services */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .service-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .service-card:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .service-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .service-desc {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .service-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-top: 1px solid #F3F4F6;
+    }
+
+    .service-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #6366f1;
+    }
+
+    .service-duration {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    /* Reviews */
+    .reviews-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .review-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+
+    .review-customer {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .review-rating {
+      color: #FCD34D;
+      font-size: 1.1rem;
+    }
+
+    .review-text {
+      color: #4b5563;
+      line-height: 1.6;
+      margin: 0.75rem 0;
+    }
+
+    .review-date {
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
+    /* Profile Section */
+    .profile-form {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: #1f2937;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn-form {
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .btn-primary-form {
+      background: #6366f1;
+      color: white;
+    }
+
+    .btn-primary-form:hover {
+      background: #4f46e5;
+    }
+
+    .btn-cancel {
+      background: #F3F4F6;
+      color: #1f2937;
+    }
+
+    .btn-cancel:hover {
+      background: #E5E7EB;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: 12px;
+      color: #6b7280;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .provider-dashboard {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #E5E7EB;
+        padding: 0;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+      }
+
+      .sidebar-menu li {
+        border-bottom: none;
+        border-right: 1px solid #E5E7EB;
+      }
+
+      .menu-link {
+        padding: 1rem;
+        white-space: nowrap;
+      }
+
+      .dashboard-content {
+        padding: 1.5rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bookings-grid,
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .navbar .container {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <h1>🏢 Cheapflix Nepal</h1>
+      </div>
+      <div class="navbar-menu">
+        <span class="nav-link" id="userName">Welcome</span>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="provider-dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="#overview" class="menu-link active" data-section="overview"><span class="menu-icon">📊</span> Overview</a></li>
+        <li><a href="#bookings" class="menu-link" data-section="bookings"><span class="menu-icon">📅</span> Bookings</a></li>
+        <li><a href="#services" class="menu-link" data-section="services"><span class="menu-icon">🛠️</span> My Services</a></li>
+        <li><a href="#reviews" class="menu-link" data-section="reviews"><span class="menu-icon">⭐</span> Reviews</a></li>
+        <li><a href="#profile" class="menu-link" data-section="profile"><span class="menu-icon">👤</span> Profile</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+      <!-- Overview Section -->
+      <section id="overview" class="dashboard-section active">
+        <div class="section-header">
+          <h2>Dashboard Overview</h2>
+          <p>Welcome back! Here's your performance summary</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-icon">📅</div>
+            <div class="stat-label">Total Bookings</div>
+            <div class="stat-value" id="totalBookings">0</div>
+            <div class="stat-change">This month</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-icon">⭐</div>
+            <div class="stat-label">Your Rating</div>
+            <div class="stat-value" id="avgRating">4.8</div>
+            <div class="stat-change">Out of 5 stars</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-icon">💰</div>
+            <div class="stat-label">Total Earnings</div>
+            <div class="stat-value" id="totalEarnings">Rs 0</div>
+            <div class="stat-change">From completed bookings</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-icon">✅</div>
+            <div class="stat-label">Verified Status</div>
+            <div class="stat-value" id="verificationStatus">⏳</div>
+            <div class="stat-change">Pending admin approval</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bookings Section -->
+      <section id="bookings" class="dashboard-section">
+        <div class="section-header">
+          <h2>Your Bookings</h2>
+          <p>Manage and track all your service bookings</p>
+        </div>
+
+        <div class="bookings-grid" id="bookingsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h3>No Bookings Yet</h3>
+            <p>Your bookings will appear here. Start by getting verified by our admins!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services Section -->
+      <section id="services" class="dashboard-section">
+        <div class="section-header">
+          <h2>My Services</h2>
+          <p>Manage the services you offer</p>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <button class="btn btn-primary" onclick="addService()" style="padding: 0.8rem 2rem;">+ Add New Service</button>
+        </div>
+
+        <div class="services-grid" id="servicesList">
+          <div class="empty-state">
+            <div class="empty-state-icon">🎯</div>
+            <h3>No Services Yet</h3>
+            <p>Add your first service to start accepting bookings!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Reviews Section -->
+      <section id="reviews" class="dashboard-section">
+        <div class="section-header">
+          <h2>Customer Reviews</h2>
+          <p>See what customers are saying about your work</p>
+        </div>
+
+        <div class="reviews-list" id="reviewsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">💬</div>
+            <h3>No Reviews Yet</h3>
+            <p>Complete bookings to receive reviews from customers</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile Section -->
+      <section id="profile" class="dashboard-section">
+        <div class="section-header">
+          <h2>Your Profile</h2>
+          <p>Update your professional information</p>
+        </div>
+
+        <form class="profile-form" id="profileForm" onsubmit="handleProfileUpdate(event)">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="profileName" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="profileEmail" readonly>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select id="profileCategory" disabled>
+              <option>Electrician</option>
+              <option>Plumber</option>
+              <option>Barber</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Professional Bio</label>
+            <textarea id="profileBio" placeholder="Tell customers about your experience and skills..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Years of Experience</label>
+            <input type="number" id="profileExp" min="0" max="99" placeholder="0">
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="profilePhone" placeholder="Your contact number">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-form btn-primary-form">Save Changes</button>
+            <button type="button" class="btn-form btn-cancel" onclick="resetForm()">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    console.log('📊 Provider Dashboard Script Starting...');
+    let currentUser = null;
+    let currentToken = null;
+
+    // Fallback API URL helper - in case config.js didn't load
+    if (!window.getApiUrl) {
+      window.getApiUrl = (endpoint) => {
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+        return baseUrl + '/api' + endpoint;
+      };
+    }
+
+    // ✅ DEFINE ALL FUNCTIONS FIRST (before calling them)
+
+    window.switchSection = function(event, sectionId) {
+      event.preventDefault();
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.menu-link').forEach(m => m.classList.remove('active'));
+      const section = document.getElementById(sectionId);
+      if (section) section.classList.add('active');
+      const linkEl = event.currentTarget || (event.target && event.target.closest ? event.target.closest('.menu-link') : null);
+      if (linkEl) linkEl.classList.add('active');
+    };
+
+    async function updateVerificationStatus() {
+      try {
+        const providerResponse = await fetch(window.getApiUrl('/providers'), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!providerResponse.ok) {
+          console.warn('Failed to fetch providers for verification status');
+          return;
+        }
+        const providersData = await providerResponse.json();
+        const providersList = Array.isArray(providersData) ? providersData : (providersData.data || providersData.providers || []);
+        const currentProvider = providersList.find(p => String(p.userId) === String(currentUser.id) || String(p.user?.id) === String(currentUser.id));
+        const statusEl = document.getElementById('verificationStatus');
+        let statusChangeEl = null;
+        document.querySelectorAll('.stat-card').forEach(card => {
+          const labelEl = card.querySelector('.stat-label');
+          if (labelEl && labelEl.textContent && labelEl.textContent.trim() === 'Verified Status') {
+            statusChangeEl = card.querySelector('.stat-change');
+          }
+        });
+        if (currentProvider && currentProvider.verified) {
+          if (statusEl) statusEl.textContent = '✅';
+          if (statusChangeEl) statusChangeEl.textContent = 'Verified';
+        } else {
+          if (statusEl) statusEl.textContent = '⏳';
+          if (statusChangeEl) statusChangeEl.textContent = 'Pending admin approval';
+        }
+      } catch (err) {
+        console.error('Error updating verification status:', err);
+      }
+    }
+
+    async function loadBookings() {
+      try {
+        const providerResponse = await fetch(window.getApiUrl('/providers'), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!providerResponse.ok) throw new Error('Failed to get providers');
+        const providersData = await providerResponse.json();
+        const currentProvider = providersData.data?.find(p => p.userId === currentUser.id);
+        if (!currentProvider) {
+          document.getElementById('bookingsList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><h3>No Provider Profile</h3></div>';
+          return;
+        }
+        const bookingsResponse = await fetch(window.getApiUrl(`/bookings/provider/${currentProvider.id}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!bookingsResponse.ok) throw new Error('Failed to load bookings');
+        const bookingsData = await bookingsResponse.json();
+        const bookings = bookingsData.data || [];
+        const bookingsList = document.getElementById('bookingsList');
+        if (bookings.length === 0) {
+          bookingsList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><h3>No Bookings Yet</h3></div>';
+          return;
+        }
+        bookingsList.innerHTML = bookings.map(booking => {
+          const isPending = booking.status === 'pending';
+          const acceptBtn = isPending ? `<button class="btn-small btn-primary" onclick="acceptBooking('${booking.id}')">Accept</button>` : '';
+          const rejectBtn = isPending ? `<button class="btn-small btn-secondary-light" onclick="rejectBooking('${booking.id}')">Reject</button>` : '';
+          const customerName = `${booking.user?.firstName || 'Customer'} ${booking.user?.lastName || ''}`;
+          return `
+          <div class="booking-card">
+            <div class="booking-header">
+              <div class="booking-customer">${customerName}</div>
+              <span class="booking-status status-${booking.status}">${booking.status}</span>
+            </div>
+            <div class="booking-detail"><strong>Booking Ref:</strong> ${booking.bookingRef}</div>
+            <div class="booking-detail"><strong>Service:</strong> ${booking.service?.name || 'Service'}</div>
+            <div class="booking-detail"><strong>Date:</strong> ${new Date(booking.date).toLocaleDateString()}</div>
+            <div class="booking-detail"><strong>Duration:</strong> ${booking.duration}</div>
+            <div class="booking-amount">Rs ${booking.totalAmount}</div>
+            <div class="booking-actions">
+              <button class="btn-small btn-primary" onclick="viewBookingDetails('${booking.id}')">View Details</button>
+              <button class="btn-small btn-secondary-light" onclick="openChat('${booking.id}', '${customerName}', '${booking.user?.id}')">Message</button>
+              ${acceptBtn}
+              ${rejectBtn}
+            </div>
+          </div>
+        `}).join('');
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+        document.getElementById('bookingsList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error Loading Bookings</h3></div>';
+      }
+    }
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch(window.getApiUrl(`/notifications/user/${currentUser.id}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!response.ok) throw new Error('Failed to load notifications');
+        const data = await response.json();
+        const notifications = data.data || [];
+        const unreadCount = notifications.filter(n => !n.isRead).length;
+        console.log(`📬 You have ${unreadCount} unread notifications`);
+      } catch (err) {
+        console.error('Error loading notifications:', err);
+      }
+    }
+
+    async function viewBookingDetails(bookingId) {
+      try {
+        const response = await fetch(window.getApiUrl(`/bookings/${bookingId}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!response.ok) throw new Error('Failed to load booking');
+        const data = await response.json();
+        const booking = data.data || data;
+        window.showBookingDetails(booking);
+      } catch (err) {
+        console.error('Error:', err);
+        alert('❌ Error loading booking details');
+      }
+    }
+
+    async function openChat(bookingId, customerName, receiverId) {
+      window.openChat(bookingId, customerName || 'Customer', receiverId);
+    }
+
+    window.acceptBooking = async function(bookingId) {
+      try {
+        const notifRes = await fetch(window.getApiUrl(`/notifications/user/${currentUser.id}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!notifRes.ok) throw new Error('Failed to load notifications');
+        const notifData = await notifRes.json();
+        const notifications = notifData.data || [];
+        const notif = notifications.find(n => (n.booking && (n.booking.id === bookingId || n.bookingId === bookingId)) || n.bookingId === bookingId);
+        if (!notif) throw new Error('Notification not found for booking');
+        const resp = await fetch(window.getApiUrl(`/notifications/${notif.id}/accept`), {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.error || 'Accept failed');
+        }
+        alert('✅ Booking accepted');
+        await loadBookings();
+        await loadNotifications();
+      } catch (err) {
+        console.error('Accept error:', err);
+        alert('❌ Error accepting booking: ' + (err.message || err));
+      }
+    };
+
+    window.rejectBooking = async function(bookingId) {
+      try {
+        const reason = prompt('Optional rejection reason (leave empty for default):');
+        const notifRes = await fetch(window.getApiUrl(`/notifications/user/${currentUser.id}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!notifRes.ok) throw new Error('Failed to load notifications');
+        const notifData = await notifRes.json();
+        const notifications = notifData.data || [];
+        const notif = notifications.find(n => (n.booking && (n.booking.id === bookingId || n.bookingId === bookingId)) || n.bookingId === bookingId);
+        if (!notif) throw new Error('Notification not found for booking');
+        const resp = await fetch(window.getApiUrl(`/notifications/${notif.id}/reject`), {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.error || 'Reject failed');
+        }
+        alert('✅ Booking rejected');
+        await loadBookings();
+        await loadNotifications();
+      } catch (err) {
+        console.error('Reject error:', err);
+        alert('❌ Error rejecting booking: ' + (err.message || err));
+      }
+    };
+
+    async function loadServices() {
+      try {
+        const providerResponse = await fetch(window.getApiUrl('/providers'), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!providerResponse.ok) throw new Error('Failed to get providers');
+        const providersData = await providerResponse.json();
+        const currentProvider = providersData.data?.find(p => p.userId === currentUser.id);
+        if (!currentProvider) {
+          document.getElementById('servicesList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><h3>No Services Yet</h3></div>';
+          return;
+        }
+        const services = currentProvider.services || [];
+        const servicesList = document.getElementById('servicesList');
+        if (services.length === 0) {
+          servicesList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><h3>No Services Yet</h3></div>';
+          return;
+        }
+        servicesList.innerHTML = services.map(service => `
+          <div class="service-card">
+            <div class="service-name">${service.name}</div>
+            <div class="service-desc">${service.description}</div>
+            <div class="service-meta">
+              <div class="service-price">Rs ${service.price}</div>
+              <div class="service-duration">⏱️ ${service.duration || 60} min</div>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+              <button class="btn-small btn-primary" style="flex: 1;" onclick="editService('${service.id}')">Edit</button>
+              <button class="btn-small btn-secondary-light" style="flex: 1;" onclick="deleteService('${service.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error('Error loading services:', err);
+        document.getElementById('servicesList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error Loading Services</h3></div>';
+      }
+    }
+
+    window.editService = function(serviceId) {
+      alert('✏️ Edit service ' + serviceId + ' - coming soon!');
+    };
+
+    window.deleteService = function(serviceId) {
+      alert('🗑️ Delete service ' + serviceId + ' - coming soon!');
+    };
+
+    window.addService = function() {
+      alert('Add Service form coming soon! You\'ll be able to add new services here.');
+    };
+
+    window.handleProfileUpdate = function(event) {
+      event.preventDefault();
+      alert('Profile updated successfully!');
+    };
+
+    window.resetForm = function() {
+      window.loadProviderData();
+    };
+
+    window.logout = function() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    };
+
+    window.attachMenuListeners = function() {
+      document.querySelectorAll('.menu-link[data-section]').forEach(link => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          const sectionId = link.getAttribute('data-section');
+          window.switchSection(event, sectionId);
+        });
+      });
+    };
+
+    window.loadProviderData = function() {
+      document.getElementById('profileName').value = `${currentUser.firstName} ${currentUser.lastName || ''}`;
+      document.getElementById('profileEmail').value = currentUser.email;
+      document.getElementById('profileCategory').value = currentUser.category || 'Electrician';
+      document.getElementById('profilePhone').value = currentUser.phone || '';
+      updateVerificationStatus();
+      loadBookings();
+      loadNotifications();
+      loadServices();
+    };
+
+    // ✅ INITIALIZATION CODE (after all functions are defined)
+    function initializeDashboard() {
+      currentToken = localStorage.getItem('token');
+      try {
+        currentUser = JSON.parse(localStorage.getItem('user'));
+      } catch (e) {
+        currentUser = null;
+      }
+
+      if (!currentToken || !currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (currentUser.role === 'admin') {
+        window.location.href = 'admin-dashboard.html';
+        return;
+      }
+
+      if (currentUser.role !== 'provider') {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      document.getElementById('userName').textContent = `Welcome, ${currentUser.firstName} 👋`;
+      window.loadProviderData();
+      window.attachMenuListeners();
+    }
+
+    // Call initialization when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeDashboard);
+    } else {
+      initializeDashboard();
+    }
+  </script>
+
+  <!-- MODALS AND OVERLAYS -->
+  <style>
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #666;
+    }
+
+    .detail-value {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+      max-width: 600px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .message {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .message.sent {
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      word-wrap: break-word;
+    }
+
+    .message.received .message-bubble {
+      background: #e5e7eb;
+      color: #333;
+    }
+
+    .message.sent .message-bubble {
+      background: #6366f1;
+      color: white;
+    }
+
+    .message-time {
+      font-size: 0.75rem;
+      color: #999;
+      margin-top: 0.25rem;
+    }
+
+    .chat-input-box {
+      padding: 1rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .chat-input-box input {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .chat-input-box button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .chat-input-box button:hover {
+      background: #4f46e5;
+    }
+
+    .empty-messages {
+      text-align: center;
+      color: #999;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+  </style>
+
+  <!-- BOOKING DETAILS MODAL -->
+  <div id="bookingModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>📋 Booking Details</h2>
+        <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+      </div>
+      <div class="modal-body" id="bookingModalContent">
+        <!-- Content filled by JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-form btn-secondary-form" onclick="closeModal('bookingModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT MODAL -->
+  <div id="chatModal" class="modal-overlay">
+    <div class="modal" style="max-width: 600px; width: 90%; height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h2>💬 Chat with <span id="chatWith">Customer</span></h2>
+        <button class="modal-close" onclick="closeModal('chatModal')">✕</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-messages">
+          <div style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
+          <div>No messages yet. Start the conversation!</div>
+        </div>
+      </div>
+      <div class="chat-input-box">
+        <input type="text" id="chatInput" placeholder="Type your message...">
+        <button onclick="sendChatMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER INFO MODAL -->
+  <div id="userInfoModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>👤 Customer Information</h2>
+        <button class="modal-close" onclick="closeModal('userInfoModal')">✕</button>
+      </div>
+      <div class="modal-body" id="userInfoContent">
+        <!-- Content filled by JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-form btn-secondary-form" onclick="closeModal('userInfoModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROVIDER INFO MODAL -->
+  <div id="providerInfoModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>🏢 Provider Information</h2>
+        <button class="modal-close" onclick="closeModal('providerInfoModal')">✕</button>
+      </div>
+      <div class="modal-body" id="providerInfoContent">
+        <!-- Content filled by JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-form btn-secondary-form" onclick="closeModal('providerInfoModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal utilities
+    window.openModal = function(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.add('active');
+    };
+
+    window.closeModal = function(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.remove('active');
+    };
+
+    // Close modal when clicking outside
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('active');
+      }
+    });
+
+    // Show booking details in modal instead of alert
+    window.showBookingDetails = function(booking) {
+      const content = `
+        <div class="detail-row">
+          <span class="detail-label">Booking Ref:</span>
+          <span class="detail-value">${booking.bookingRef}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Customer:</span>
+          <span class="detail-value">${booking.user?.firstName || ''} ${booking.user?.lastName || ''}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Service:</span>
+          <span class="detail-value">${booking.service?.name || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Date:</span>
+          <span class="detail-value">${new Date(booking.date).toLocaleDateString()}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Time:</span>
+          <span class="detail-value">${booking.startTime || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Duration:</span>
+          <span class="detail-value">${booking.duration || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount:</span>
+          <span class="detail-value">Rs ${booking.totalAmount}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value" style="text-transform: capitalize; color: ${booking.status === 'confirmed' ? '#16a34a' : booking.status === 'pending' ? '#f59e0b' : '#6b7280'};">${booking.status}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Notes:</span>
+          <span class="detail-value">${booking.notes || 'None'}</span>
+        </div>
+      `;
+      document.getElementById('bookingModalContent').innerHTML = content;
+      window.openModal('bookingModal');
+    };
+
+    // Show user info modal
+    window.showUserInfo = function(user) {
+      const content = `
+        <div class="detail-row">
+          <span class="detail-label">Name:</span>
+          <span class="detail-value">${user.firstName} ${user.lastName || ''}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Email:</span>
+          <span class="detail-value">${user.email}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Phone:</span>
+          <span class="detail-value">${user.phone || 'Not provided'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Member Since:</span>
+          <span class="detail-value">${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</span>
+        </div>
+      `;
+      document.getElementById('userInfoContent').innerHTML = content;
+      window.openModal('userInfoModal');
+    };
+
+    // Show provider info modal
+    window.showProviderInfo = function(provider) {
+      const content = `
+        <div class="detail-row">
+          <span class="detail-label">Category:</span>
+          <span class="detail-value">${provider.category || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Experience:</span>
+          <span class="detail-value">${provider.experience || '0'} years</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Rating:</span>
+          <span class="detail-value">⭐ ${provider.rating || 'N/A'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Verified:</span>
+          <span class="detail-value">${provider.verified ? '✅ Yes' : '⏳ Pending'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Bio:</span>
+          <span class="detail-value">${provider.bio || 'No bio'}</span>
+        </div>
+      `;
+      document.getElementById('providerInfoContent').innerHTML = content;
+      window.openModal('providerInfoModal');
+    };
+
+    // Chat functionality
+    let currentChatBookingId = null;
+    let currentChatReceiverId = null;
+    let chatMessages = [];
+
+    window.openChat = async function(bookingId, customerName, receiverId) {
+      currentChatBookingId = bookingId;
+      currentChatReceiverId = receiverId;
+      chatMessages = [];
+      document.getElementById('chatWith').textContent = customerName || 'Customer';
+      
+      // Load chat messages from API
+      try {
+        const response = await fetch(window.getApiUrl(`/chat/booking/${bookingId}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          chatMessages = data.data || [];
+        }
+      } catch (err) {
+        console.error('Error loading messages:', err);
+      }
+      
+      renderChatMessages();
+      window.openModal('chatModal');
+      
+      // Focus on input
+      setTimeout(() => document.getElementById('chatInput').focus(), 100);
+    };
+
+    window.sendChatMessage = async function() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (!message || !currentChatBookingId || !currentChatReceiverId) return;
+      
+      try {
+        const response = await fetch(window.getApiUrl('/chat/send'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            bookingId: currentChatBookingId,
+            receiverId: currentChatReceiverId,
+            text: message
+          })
+        });
+        
+        if (response.ok) {
+          input.value = '';
+          const data = await response.json();
+          chatMessages.push(data.data || { message, createdAt: new Date() });
+          renderChatMessages();
+        } else {
+          const error = await response.json();
+          console.error('Error response:', error);
+          alert('❌ Failed to send message: ' + (error.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Error sending message:', err);
+        alert('❌ Failed to send message: ' + err.message);
+      }
+    };
+
+    function renderChatMessages() {
+      const container = document.getElementById('chatMessages');
+      
+      if (chatMessages.length === 0) {
+        container.innerHTML = `
+          <div class="empty-messages">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
+            <div>No messages yet. Start the conversation!</div>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = chatMessages.map(msg => {
+        const time = new Date(msg.createdAt || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const isFromProvider = msg.senderRole === 'provider' || msg.senderId === currentUser.id;
+        
+        return `
+          <div class="message ${isFromProvider ? 'sent' : 'received'}">
+            <div>
+              <div class="message-bubble">${msg.text || ''}</div>
+              <div class="message-time">${time}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Enter key to send message
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && document.getElementById('chatInput') === document.activeElement) {
+        e.preventDefault();
+        window.sendChatMessage();
+      }
+    });
+  </script>
+</body>
+</html>

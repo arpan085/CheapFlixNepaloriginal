@@ -1,0 +1,98 @@
+
+
+.admin-dashboard-container .stat-card {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+}
+
+/* NAVBAR */
+.navbar {
+  background: #111827;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* LAYOUT */
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #111827;
+  padding: 20px;
+}
+
+.menu-link {
+  display: block;
+  padding: 10px;
+  color: #94a3b8;
+  text-decoration: none;
+}
+
+.menu-link.active,
+.menu-link:hover {
+  background: #2563eb;
+  color: white;
+  border-radius: 6px;
+}
+
+/* CONTENT */
+.dashboard-content {
+  flex: 1;
+  padding: 20px;
+}
+
+/* HIDE SECTIONS */
+.dashboard-section {
+  display: none;
+}
+
+.dashboard-section.active {
+  display: block;
+}
+
+/* CARDS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.stat-card {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.stat-number {
+  font-size: 24px;
+  color: #60a5fa;
+}
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+button {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  opacity: 0.8;
+}

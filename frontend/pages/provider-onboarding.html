@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provider Onboarding - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5f3ff 0%, #faf9ff 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(19, 12, 30, 0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #7C3AED, #D946EF);
+      color: white;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 32px 24px;
+    }
+
+    .step {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step h2 {
+      font-size: 18px;
+      color: #130C1E;
+      margin-bottom: 4px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: #6B5E8A;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #3D3160;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #DDD6FE;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f5f3ff;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .checkbox-group input {
+      width: auto;
+      margin: 0;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      text-transform: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: #EDE9FE;
+      margin-bottom: 24px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7C3AED, #D946EF);
+      transition: width 0.3s ease;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7C3AED, #D946EF);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #7C3AED;
+      border: 1.5px solid #7C3AED;
+    }
+
+    .btn-secondary:hover {
+      background: #f5f3ff;
+    }
+
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .success-screen.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .success-icon {
+      font-size: 60px;
+      margin-bottom: 16px;
+    }
+
+    .success-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #130C1E;
+      margin-bottom: 8px;
+    }
+
+    .success-text {
+      font-size: 14px;
+      color: #6B5E8A;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .stat-box {
+      background: #f5f3ff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #6B5E8A;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #7C3AED;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>✅ Welcome to Cheapflix Nepal!</h1>
+      <p>Setup your professional profile to start accepting bookings</p>
+    </div>
+
+    <div class="content">
+      <!-- Progress Bar -->
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- STEP 1: Profile Setup -->
+      <div class="step active" data-step="1">
+        <h2>Step 1: Complete Your Profile</h2>
+        <p>Add details that will help customers trust you</p>
+        
+        <div class="form-group">
+          <label>Professional Bio</label>
+          <textarea id="bio" placeholder="Tell customers about your experience, skills, and what makes you special..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Service Rate (Rs per hour)</label>
+          <input type="number" id="serviceRate" placeholder="800" min="100" step="50">
+        </div>
+
+        <div class="form-group">
+          <label>Location/City</label>
+          <input type="text" id="location" placeholder="e.g., Kathmandu">
+        </div>
+
+        <div class="button-group">
+          <button class="btn-primary" onclick="nextStep()">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Services -->
+      <div class="step" data-step="2">
+        <h2>Step 2: Your Services</h2>
+        <p>Tell customers what services you offer</p>
+        
+        <div class="form-group">
+          <label>Service Name</label>
+          <input type="text" id="serviceName" placeholder="e.g., Electrical Installation & Repair">
+        </div>
+
+        <div class="form-group">
+          <label>Service Description</label>
+          <textarea id="serviceDesc" placeholder="Describe what your service includes..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Duration (minutes)</label>
+          <input type="number" id="serviceDuration" placeholder="60" min="30" step="30">
+        </div>
+
+        <div class="button-group">
+          <button class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn-primary" onclick="nextStep()">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Documents -->
+      <div class="step" data-step="3">
+        <h2>Step 3: Verification</h2>
+        <p>Upload documents to get verified faster</p>
+        
+        <div class="form-group">
+          <label>Certificate/License (Optional)</label>
+          <input type="file" id="certificate" accept=".pdf,.jpg,.png">
+        </div>
+
+        <div class="form-group">
+          <label>ID Proof (Optional)</label>
+          <input type="file" id="idProof" accept=".pdf,.jpg,.png">
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="agreeTerms">
+          <label for="agreeTerms">I agree to Cheapflix Nepal terms of service</label>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn-primary" onclick="completeOnboarding()">Complete Setup</button>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">You're All Set!</div>
+        <div class="success-text">
+          Your profile is live and ready to accept bookings. Customers can now find and book your services.
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-label">Profile Status</div>
+          <div class="stat-value">✅ Active (Pending Verification)</div>
+        </div>
+
+        <div class="stat-box">
+          <div class="stat-label">Next Steps</div>
+          <div class="stat-value" style="color: #6B5E8A; text-align: left;">
+            1. Complete your profile to build trust<br>
+            2. Respond quickly to booking requests<br>
+            3. Provide great service to get verified
+          </div>
+        </div>
+
+        <div class="button-group" style="margin-top: 32px;">
+          <button class="btn-primary" onclick="goToDashboard()">Go to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+
+    // ✅ NEXT STEP
+    function nextStep() {
+      const step = document.querySelector(`[data-step="${currentStep}"]`);
+      
+      // ✅ VALIDATE STEP 1
+      if (currentStep === 1) {
+        const bio = document.getElementById('bio').value;
+        const rate = document.getElementById('serviceRate').value;
+        const location = document.getElementById('location').value;
+
+        if (!bio || !rate || !location) {
+          alert('Please fill in all fields');
+          return;
+        }
+      }
+
+      // ✅ VALIDATE STEP 2
+      if (currentStep === 2) {
+        const serviceName = document.getElementById('serviceName').value;
+        const serviceDesc = document.getElementById('serviceDesc').value;
+
+        if (!serviceName || !serviceDesc) {
+          alert('Please fill in all service fields');
+          return;
+        }
+      }
+
+      step.classList.remove('active');
+      currentStep++;
+      
+      const nextStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+      if (nextStepEl) {
+        nextStepEl.classList.add('active');
+        updateProgress();
+      }
+    }
+
+    // ✅ PREVIOUS STEP
+    function prevStep() {
+      const step = document.querySelector(`[data-step="${currentStep}"]`);
+      step.classList.remove('active');
+      currentStep--;
+      
+      const prevStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+      if (prevStepEl) {
+        prevStepEl.classList.add('active');
+        updateProgress();
+      }
+    }
+
+    // ✅ UPDATE PROGRESS BAR
+    function updateProgress() {
+      const percent = (currentStep / 3) * 100;
+      document.getElementById('progressFill').style.width = percent + '%';
+    }
+
+    // ✅ COMPLETE ONBOARDING
+    function completeOnboarding() {
+      const agreeTerms = document.getElementById('agreeTerms').checked;
+      
+      if (!agreeTerms) {
+        alert('Please agree to the terms of service');
+        return;
+      }
+
+      // Hide all steps and show success
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('successScreen').classList.add('active');
+    }
+
+    // ✅ GO TO DASHBOARD
+    function goToDashboard() {
+      window.location.href = 'provider-dashboard.html';
+    }
+
+    // Initialize progress
+    updateProgress();
+  </script>
+</body>
+</html>

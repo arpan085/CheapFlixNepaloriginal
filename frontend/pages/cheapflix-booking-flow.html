@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cheapflix Nepal — Book a Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#130C1E;--dark-80:#1E1530;--dark-60:#2D2245;
+  --violet:#7C3AED;--violet-lt:#A78BFA;--violet-dk:#5B21B6;--violet-bg:#F5F3FF;
+  --magenta:#D946EF;--magenta-lt:#F0ABFC;
+  --coral:#F97316;--coral-lt:#FB923C;--coral-bg:#FFF7ED;
+  --green:#10B981;--green-bg:#F0FDF4;--green-bd:#BBF7D0;
+  --amber:#F59E0B;
+  --red:#EF4444;
+  --bg:#F8F7FF;--white:#fff;
+  --slate-1:#F5F3FF;--slate-2:#EDE9FE;--slate-3:#DDD6FE;
+  --t1:#130C1E;--t2:#3D3160;--t3:#6B5E8A;--t4:#9CA3AF;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-2xl:32px;
+  --shadow-sm:0 1px 3px rgba(19,12,30,.07),0 1px 2px rgba(19,12,30,.04);
+  --shadow-md:0 4px 16px rgba(19,12,30,.08),0 2px 6px rgba(19,12,30,.04);
+  --shadow-lg:0 12px 40px rgba(19,12,30,.12),0 4px 12px rgba(19,12,30,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh}
+h1,h2,h3,h4,button{font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--slate-2);
+  padding:0 24px;
+}
+.topbar-inner{
+  max-width:720px;margin:0 auto;height:60px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.topbar-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.topbar-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--violet),var(--magenta));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:white;font-size:11px;letter-spacing:-.3px;
+}
+.topbar-name{font-weight:700;font-size:15px;color:var(--t1);letter-spacing:-.3px}
+.topbar-name span{color:var(--coral)}
+
+/* ── PROGRESS ── */
+.progress-wrap{flex:1;max-width:380px}
+.progress-steps{display:flex;align-items:center;gap:0}
+.prog-step{display:flex;align-items:center;gap:0;flex:1}
+.prog-dot{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;transition:all .35s cubic-bezier(.4,0,.2,1);
+  border:2px solid var(--slate-3);background:white;color:var(--t4);
+}
+.prog-dot.done{background:var(--violet);border-color:var(--violet);color:white}
+.prog-dot.active{background:white;border-color:var(--violet);color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.prog-line{flex:1;height:2px;background:var(--slate-3);transition:background .4s ease;margin:0 2px}
+.prog-line.filled{background:var(--violet)}
+.prog-label{font-size:10px;font-weight:600;color:var(--t4);margin-top:3px;text-align:center;letter-spacing:.02em;transition:color .3s}
+.prog-label.active{color:var(--violet)}
+.prog-label.done{color:var(--violet-lt)}
+.prog-item{display:flex;flex-direction:column;align-items:center;gap:0;position:relative}
+
+/* ── PAGE SHELL ── */
+.page{max-width:720px;margin:0 auto;padding:32px 24px 80px}
+
+/* ── STEP PANELS ── */
+.step-panel{display:none;animation:slideIn .3s cubic-bezier(.4,0,.2,1)}
+.step-panel.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideBack{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+.step-panel.back{animation:slideBack .3s cubic-bezier(.4,0,.2,1)}
+
+.step-heading{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.6px;margin-bottom:4px}
+.step-sub{font-size:14px;color:var(--t3);margin-bottom:24px;line-height:1.5}
+
+/* ── SEARCH STEP ── */
+.search-field{
+  display:flex;align-items:center;gap:12px;
+  background:white;border:1.5px solid var(--slate-3);
+  border-radius:var(--r-lg);padding:14px 16px;
+  transition:border-color .2s,box-shadow .2s;margin-bottom:12px;
+}
+.search-field:focus-within{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.search-field input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--t1);background:transparent}
+.search-field input::placeholder{color:var(--t4)}
+.search-icon{font-size:18px;flex-shrink:0;color:var(--t4)}
+
+.cat-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  background:white;border:1.5px solid var(--slate-2);
+  border-radius:100px;padding:7px 14px;
+  font-size:13px;font-weight:600;color:var(--t2);
+  cursor:pointer;transition:all .18s;user-select:none;
+}
+.chip:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-bg)}
+.chip.selected{border-color:var(--violet);background:var(--violet-bg);color:var(--violet)}
+.chip-icon{font-size:16px}
+
+.results-label{font-size:13px;font-weight:600;color:var(--t3);margin-bottom:14px;letter-spacing:.02em;text-transform:uppercase}
+
+/* provider cards in search */
+.provider-list{display:flex;flex-direction:column;gap:12px}
+.pcard{
+  background:white;border:1.5px solid var(--slate-2);
+  border-radius:var(--r-xl);padding:20px;
+  display:flex;align-items:flex-start;gap:16px;
+  cursor:pointer;transition:all .2s;
+}
+.pcard:hover{border-color:var(--violet);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.pcard.selected{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.1),var(--shadow-sm)}
+.pcard-avatar{
+  width:56px;height:56px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:18px;color:white;
+}
+.pcard-body{flex:1;min-width:0}
+.pcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
+.pcard-name{font-size:15px;font-weight:700;color:var(--t1)}
+.pcard-price{font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap}
+.pcard-price span{font-size:12px;font-weight:400;color:var(--t3)}
+.pcard-role{font-size:13px;color:var(--t3);margin-bottom:8px}
+.pcard-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pcard-meta-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--t3)}
+.stars{display:flex;align-items:center;gap:3px;font-size:13px}
+.star{color:var(--amber)}
+.star-off{color:var(--slate-3)}
+.badge-verified{font-size:11px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-bd);padding:2px 8px;border-radius:100px}
+.badge-fast{font-size:11px;font-weight:600;color:var(--violet);background:var(--violet-bg);border:1px solid var(--slate-3);padding:2px 8px;border-radius:100px}
+
+/* ── PROVIDER PROFILE STEP ── */
+.profile-hero{
+  background:white;border:1.5px solid var(--slate-2);
+  border-radius:var(--r-2xl);padding:28px;margin-bottom:16px;
+}
+.profile-top{display:flex;align-items:flex-start;gap:18px;margin-bottom:20px}
+.profile-avatar{
+  width:72px;height:72px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:24px;color:white;
+}
+.profile-info{flex:1}
+.profile-name{font-size:20px;font-weight:800;color:var(--t1);letter-spacing:-.4px;margin-bottom:2px}
+.profile-role{font-size:14px;color:var(--t3);margin-bottom:8px}
+.profile-badges{display:flex;gap:6px;flex-wrap:wrap}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--slate-2);border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px}
+.pstat{background:white;padding:14px;text-align:center}
+.pstat-val{font-size:18px;font-weight:800;color:var(--t1);letter-spacing:-.5px;font-family:'Plus Jakarta Sans',sans-serif}
+.pstat-val span{color:var(--amber);font-size:14px}
+.pstat-lbl{font-size:11px;color:var(--t3);margin-top:2px;font-weight:500}
+.profile-bio{font-size:14px;color:var(--t2);line-height:1.65;margin-bottom:20px}
+.section-divider{border:none;border-top:1.5px solid var(--slate-2);margin:20px 0}
+
+.services-list{display:flex;flex-direction:column;gap:10px}
+.service-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--slate-1);border:1.5px solid transparent;
+  border-radius:var(--r-lg);padding:14px 16px;
+  cursor:pointer;transition:all .18s;
+}
+.service-item:hover{border-color:var(--violet);background:var(--violet-bg)}
+.service-item.selected{border-color:var(--violet);background:var(--violet-bg)}
+.service-name{font-size:14px;font-weight:600;color:var(--t1)}
+.service-desc{font-size:12px;color:var(--t3);margin-top:2px}
+.service-price{font-size:14px;font-weight:700;color:var(--violet);white-space:nowrap}
+
+.reviews-list{display:flex;flex-direction:column;gap:14px}
+.review-item{padding:16px 0;border-bottom:1px solid var(--slate-2)}
+.review-item:last-child{border-bottom:none}
+.review-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.review-author{font-size:13px;font-weight:600;color:var(--t1)}
+.review-date{font-size:12px;color:var(--t4)}
+.review-text{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* ── DATETIME STEP ── */
+.calendar-card{background:white;border:1.5px solid var(--slate-2);border-radius:var(--r-2xl);padding:24px;margin-bottom:16px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.cal-month{font-size:16px;font-weight:700;color:var(--t1)}
+.cal-nav{display:flex;gap:6px}
+.cal-btn{width:32px;height:32px;border-radius:var(--r-sm);border:1.5px solid var(--slate-2);background:white;cursor:pointer;font-size:14px;color:var(--t2);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cal-btn:hover{border-color:var(--violet);color:var(--violet)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{font-size:11px;font-weight:600;color:var(--t4);text-align:center;padding:4px 0;letter-spacing:.04em}
+.cal-day{
+  aspect-ratio:1;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:500;color:var(--t2);
+  cursor:pointer;transition:all .15s;
+}
+.cal-day:hover:not(.empty):not(.past){background:var(--violet-bg);color:var(--violet)}
+.cal-day.past{color:var(--slate-3);cursor:default}
+.cal-day.empty{cursor:default}
+.cal-day.today{font-weight:700;color:var(--violet)}
+.cal-day.selected{background:var(--violet);color:white;font-weight:700;border-radius:var(--r-md)}
+.cal-day.has-slot::after{content:'';display:block;width:4px;height:4px;border-radius:50%;background:var(--green);position:absolute;bottom:3px;left:50%;transform:translateX(-50%)}
+.cal-day{position:relative}
+
+.time-card{background:white;border:1.5px solid var(--slate-2);border-radius:var(--r-2xl);padding:24px;margin-bottom:16px}
+.time-section-label{font-size:12px;font-weight:600;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.time-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.time-slot{
+  padding:10px 4px;border-radius:var(--r-md);border:1.5px solid var(--slate-2);
+  text-align:center;font-size:13px;font-weight:600;color:var(--t2);
+  cursor:pointer;transition:all .18s;background:white;
+}
+.time-slot:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-bg)}
+.time-slot.selected{border-color:var(--violet);background:var(--violet);color:white}
+.time-slot.unavailable{color:var(--slate-3);border-color:var(--slate-2);cursor:not-allowed;background:var(--bg)}
+
+.duration-options{display:flex;gap:8px;flex-wrap:wrap}
+.dur-option{
+  padding:9px 16px;border-radius:100px;border:1.5px solid var(--slate-2);
+  font-size:13px;font-weight:600;color:var(--t2);
+  cursor:pointer;transition:all .18s;background:white;
+}
+.dur-option:hover{border-color:var(--violet);color:var(--violet)}
+.dur-option.selected{border-color:var(--violet);background:var(--violet);color:white}
+
+.instructions-field{
+  background:white;border:1.5px solid var(--slate-2);
+  border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;
+  transition:border-color .2s;
+}
+.instructions-field:focus-within{border-color:var(--violet)}
+.instructions-field textarea{
+  width:100%;padding:14px 16px;border:none;outline:none;resize:none;
+  font-size:14px;font-family:inherit;color:var(--t1);background:transparent;
+  min-height:88px;
+}
+.instructions-field textarea::placeholder{color:var(--t4)}
+
+/* ── CONFIRM STEP ── */
+.confirm-card{background:white;border:1.5px solid var(--slate-2);border-radius:var(--r-2xl);padding:24px;margin-bottom:14px}
+.confirm-section-label{font-size:11px;font-weight:700;color:var(--t4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+.confirm-provider{display:flex;align-items:center;gap:14px;margin-bottom:0}
+.confirm-avatar{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:white}
+.confirm-pname{font-size:15px;font-weight:700;color:var(--t1)}
+.confirm-prole{font-size:13px;color:var(--t3)}
+
+.confirm-detail-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--slate-2)}
+.confirm-detail-row:last-child{border-bottom:none}
+.confirm-detail-lbl{font-size:13px;color:var(--t3);display:flex;align-items:center;gap:7px}
+.confirm-detail-val{font-size:13px;font-weight:600;color:var(--t1);text-align:right}
+
+.pricing-rows{display:flex;flex-direction:column;gap:0}
+.price-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--slate-2)}
+.price-row:last-child{border-bottom:none;padding-top:14px;margin-top:4px}
+.price-row-lbl{font-size:13px;color:var(--t3)}
+.price-row-val{font-size:13px;font-weight:600;color:var(--t1)}
+.price-row.total .price-row-lbl{font-size:15px;font-weight:700;color:var(--t1)}
+.price-row.total .price-row-val{font-size:18px;font-weight:800;color:var(--violet);letter-spacing:-.4px}
+.promo-field{display:flex;gap:8px;margin-top:4px}
+.promo-input{flex:1;padding:10px 14px;border:1.5px solid var(--slate-2);border-radius:var(--r-md);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;color:var(--t1)}
+.promo-input:focus{border-color:var(--violet)}
+.promo-btn{padding:10px 18px;background:var(--violet-bg);border:1.5px solid var(--slate-3);border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--violet);cursor:pointer;white-space:nowrap;transition:all .18s;font-family:inherit}
+.promo-btn:hover{border-color:var(--violet);background:var(--slate-2)}
+
+.payment-methods{display:flex;flex-direction:column;gap:8px}
+.pay-method{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:var(--r-lg);border:1.5px solid var(--slate-2);
+  cursor:pointer;transition:all .18s;background:white;
+}
+.pay-method:hover{border-color:var(--violet)}
+.pay-method.selected{border-color:var(--violet);background:var(--violet-bg)}
+.pay-method-logo{width:36px;height:36px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pay-method-name{font-size:14px;font-weight:600;color:var(--t1);flex:1}
+.pay-method-desc{font-size:12px;color:var(--t3)}
+.pay-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--slate-3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.pay-radio.selected{border-color:var(--violet);background:var(--violet)}
+.pay-radio.selected::after{content:'';width:6px;height:6px;border-radius:50%;background:white}
+
+/* ── SUCCESS ── */
+#step-success{display:none}
+#step-success.active{display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 0}
+.success-ring{
+  width:88px;height:88px;border-radius:50%;
+  background:linear-gradient(135deg,var(--violet),var(--magenta));
+  display:flex;align-items:center;justify-content:center;
+  font-size:38px;margin-bottom:24px;
+  box-shadow:0 8px 32px rgba(124,58,237,.3);
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-size:24px;font-weight:800;color:var(--t1);letter-spacing:-.6px;margin-bottom:8px}
+.success-sub{font-size:15px;color:var(--t3);line-height:1.6;max-width:360px;margin-bottom:32px}
+.success-ref{background:var(--violet-bg);border:1.5px solid var(--slate-3);border-radius:var(--r-lg);padding:14px 24px;margin-bottom:32px;font-size:14px;color:var(--t2)}
+.success-ref strong{color:var(--violet);font-size:16px;display:block;margin-top:2px}
+.success-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(16px);
+  border-top:1.5px solid var(--slate-2);
+  padding:16px 24px;
+}
+.bottom-bar-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.btn-back{
+  display:flex;align-items:center;gap:6px;
+  padding:13px 20px;border:1.5px solid var(--slate-2);border-radius:var(--r-lg);
+  font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;
+  background:white;transition:all .18s;font-family:inherit;flex-shrink:0;
+}
+.btn-back:hover{border-color:var(--violet);color:var(--violet)}
+.btn-next{
+  flex:1;padding:14px 28px;
+  background:linear-gradient(135deg,var(--violet),var(--magenta));
+  border:none;border-radius:var(--r-lg);
+  font-size:15px;font-weight:700;color:white;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+  box-shadow:0 4px 16px rgba(124,58,237,.25);
+}
+.btn-next:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(124,58,237,.3)}
+.btn-next:active{transform:translateY(0)}
+.btn-confirm{
+  flex:1;padding:14px 28px;
+  background:linear-gradient(135deg,var(--coral),var(--magenta));
+  border:none;border-radius:var(--r-lg);
+  font-size:15px;font-weight:700;color:white;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+  box-shadow:0 4px 16px rgba(249,115,22,.25);
+}
+.btn-confirm:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(249,115,22,.3)}
+
+/* selected provider hint */
+.selection-hint{
+  display:none;flex:1;align-items:center;gap:10px;
+  background:var(--violet-bg);border-radius:var(--r-md);
+  padding:10px 14px;
+}
+.selection-hint.visible{display:flex}
+.hint-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:white}
+.hint-text{font-size:13px;font-weight:600;color:var(--violet)}
+
+/* labels above cards */
+.card-label{font-size:12px;font-weight:700;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;margin-top:20px}
+.card-label:first-child{margin-top:0}
+
+@media(max-width:540px){
+  .page{padding:24px 16px 80px}
+  .topbar{padding:0 16px}
+  .time-slots{grid-template-columns:repeat(3,1fr)}
+  .pstat-val{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="#" class="topbar-logo">
+      <div class="topbar-mark">CF</div>
+      <span class="topbar-name">Cheapflix <span>Nepal</span></span>
+    </a>
+
+    <div class="progress-wrap">
+      <div class="progress-steps" id="progressSteps">
+        <div class="prog-item">
+          <div class="prog-dot active" id="dot1">1</div>
+          <div class="prog-label active" id="lbl1">Search</div>
+        </div>
+        <div class="prog-line" id="line1"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot2">2</div>
+          <div class="prog-label" id="lbl2">Profile</div>
+        </div>
+        <div class="prog-line" id="line2"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot3">3</div>
+          <div class="prog-label" id="lbl3">Schedule</div>
+        </div>
+        <div class="prog-line" id="line3"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot4">4</div>
+          <div class="prog-label" id="lbl4">Confirm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- ── STEP 1: SEARCH ── -->
+  <div class="step-panel active" id="step1">
+    <h2 class="step-heading">What do you need help with?</h2>
+    <p class="step-sub">Search by service or pick a category below.</p>
+
+    <div class="search-field">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="e.g. Electrician, Home Tutor, Plumber…" oninput="filterProviders(this.value)"/>
+    </div>
+
+    <div class="cat-chips">
+      <div class="chip selected" onclick="selectChip(this,'Electrician')"><span class="chip-icon">⚡</span>Electrician</div>
+      <div class="chip" onclick="selectChip(this,'Plumber')"><span class="chip-icon">🔧</span>Plumber</div>
+      <div class="chip" onclick="selectChip(this,'Cleaner')"><span class="chip-icon">🧹</span>Cleaner</div>
+      <div class="chip" onclick="selectChip(this,'Tutor')"><span class="chip-icon">📚</span>Tutor</div>
+      <div class="chip" onclick="selectChip(this,'Developer')"><span class="chip-icon">💻</span>Developer</div>
+      <div class="chip" onclick="selectChip(this,'Driver')"><span class="chip-icon">🚗</span>Driver</div>
+      <div class="chip" onclick="selectChip(this,'Photographer')"><span class="chip-icon">📷</span>Photographer</div>
+    </div>
+
+    <div class="results-label" id="resultsLabel">4 electricians near Kathmandu</div>
+    <div class="provider-list" id="providerList">
+
+      <div class="pcard selected" onclick="selectProvider(this,0)" id="pcard0">
+        <div class="pcard-avatar" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <span class="pcard-name">Rajesh Maharjan</span>
+            <span class="pcard-price">Rs 800<span>/hr</span></span>
+          </div>
+          <div class="pcard-role">Senior Electrician · 8 yrs experience</div>
+          <div class="pcard-meta">
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span style="margin-left:3px;font-size:12px;font-weight:600;color:var(--t1)">5.0</span><span style="font-size:11px;color:var(--t4);margin-left:3px">(284)</span></div>
+            <span class="pcard-meta-item">📍 Lalitpur</span>
+            <span class="pcard-meta-item">⚡ Same-day</span>
+            <span class="badge-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard" onclick="selectProvider(this,1)" id="pcard1">
+        <div class="pcard-avatar" style="background:linear-gradient(135deg,#5B21B6,#7C3AED)">KT</div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <span class="pcard-name">Kiran Thapa</span>
+            <span class="pcard-price">Rs 650<span>/hr</span></span>
+          </div>
+          <div class="pcard-role">Electrician &amp; AC Specialist · 5 yrs</div>
+          <div class="pcard-meta">
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star-off">★</span><span style="margin-left:3px;font-size:12px;font-weight:600;color:var(--t1)">4.7</span><span style="font-size:11px;color:var(--t4);margin-left:3px">(121)</span></div>
+            <span class="pcard-meta-item">📍 Kathmandu</span>
+            <span class="badge-fast">⚡ Fast responder</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard" onclick="selectProvider(this,2)" id="pcard2">
+        <div class="pcard-avatar" style="background:linear-gradient(135deg,#D946EF,#F97316)">BS</div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <span class="pcard-name">Binod Shrestha</span>
+            <span class="pcard-price">Rs 900<span>/hr</span></span>
+          </div>
+          <div class="pcard-role">Master Electrician · 12 yrs experience</div>
+          <div class="pcard-meta">
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span style="margin-left:3px;font-size:12px;font-weight:600;color:var(--t1)">4.9</span><span style="font-size:11px;color:var(--t4);margin-left:3px">(378)</span></div>
+            <span class="pcard-meta-item">📍 Bhaktapur</span>
+            <span class="badge-verified">✓ Verified</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pcard" onclick="selectProvider(this,3)" id="pcard3">
+        <div class="pcard-avatar" style="background:linear-gradient(135deg,#10B981,#06B6D4)">DL</div>
+        <div class="pcard-body">
+          <div class="pcard-top">
+            <span class="pcard-name">Dinesh Lama</span>
+            <span class="pcard-price">Rs 700<span>/hr</span></span>
+          </div>
+          <div class="pcard-role">Electrician · CCTV &amp; Solar · 6 yrs</div>
+          <div class="pcard-meta">
+            <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star-off">★</span><span style="margin-left:3px;font-size:12px;font-weight:600;color:var(--t1)">4.6</span><span style="font-size:11px;color:var(--t4);margin-left:3px">(93)</span></div>
+            <span class="pcard-meta-item">📍 Pokhara</span>
+            <span class="badge-fast">📹 CCTV expert</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STEP 2: PROFILE ── -->
+  <div class="step-panel" id="step2">
+    <h2 class="step-heading">Provider profile</h2>
+    <p class="step-sub">Review experience, services, and recent reviews before booking.</p>
+
+    <div class="profile-hero">
+      <div class="profile-top">
+        <div class="profile-avatar" id="profileAvatarLg" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
+        <div class="profile-info">
+          <div class="profile-name" id="profileName">Rajesh Maharjan</div>
+          <div class="profile-role" id="profileRole">Senior Electrician · 8 yrs experience</div>
+          <div class="profile-badges">
+            <span class="badge-verified">✓ KYC Verified</span>
+            <span class="badge-fast">⚡ Same-day available</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="pstat">
+          <div class="pstat-val" id="profileRating">5.0<span>★</span></div>
+          <div class="pstat-lbl">Rating</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val" id="profileJobs">284</div>
+          <div class="pstat-lbl">Jobs done</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val" id="profileExp">8 yrs</div>
+          <div class="pstat-lbl">Experience</div>
+        </div>
+      </div>
+
+      <div class="profile-bio" id="profileBio">
+        Certified electrician with 8 years of residential and commercial experience across Kathmandu Valley. Specialising in wiring, panel upgrades, AC installation, and emergency repairs. All work is guaranteed with a 30-day service warranty.
+      </div>
+
+      <hr class="section-divider"/>
+
+      <div class="card-label">Services offered</div>
+      <div class="services-list" id="servicesList">
+        <div class="service-item selected" onclick="selectService(this,'General Wiring & Repair','Rs 800/hr')">
+          <div>
+            <div class="service-name">General Wiring &amp; Repair</div>
+            <div class="service-desc">Switches, sockets, fault finding</div>
+          </div>
+          <div class="service-price">Rs 800/hr</div>
+        </div>
+        <div class="service-item" onclick="selectService(this,'AC Installation & Service','Rs 2,500 fixed')">
+          <div>
+            <div class="service-name">AC Installation &amp; Service</div>
+            <div class="service-desc">Split AC, window AC, gas refill</div>
+          </div>
+          <div class="service-price">Rs 2,500</div>
+        </div>
+        <div class="service-item" onclick="selectService(this,'Panel Upgrade & MCB','Rs 1,200 fixed')">
+          <div>
+            <div class="service-name">Panel Upgrade &amp; MCB</div>
+            <div class="service-desc">Electrical panel, MCB, earthing</div>
+          </div>
+          <div class="service-price">Rs 1,200</div>
+        </div>
+        <div class="service-item" onclick="selectService(this,'Emergency Repair','Rs 1,500/hr')">
+          <div>
+            <div class="service-name">Emergency Repair</div>
+            <div class="service-desc">Available 24/7 for urgent issues</div>
+          </div>
+          <div class="service-price">Rs 1,500/hr</div>
+        </div>
+      </div>
+
+      <hr class="section-divider"/>
+
+      <div class="card-label">Recent reviews</div>
+      <div class="reviews-list">
+        <div class="review-item">
+          <div class="review-top">
+            <div>
+              <div class="review-author">Priya K.</div>
+              <div class="stars" style="margin-top:3px"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            </div>
+            <div class="review-date">2 days ago</div>
+          </div>
+          <div class="review-text">Arrived on time, diagnosed the issue quickly, and fixed it cleanly. Explained everything as he worked. Will definitely book again.</div>
+        </div>
+        <div class="review-item">
+          <div class="review-top">
+            <div>
+              <div class="review-author">Nirajan B.</div>
+              <div class="stars" style="margin-top:3px"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+            </div>
+            <div class="review-date">1 week ago</div>
+          </div>
+          <div class="review-text">Very professional. Upgraded our entire panel in under 3 hours. Fair price and left the area spotless.</div>
+        </div>
+        <div class="review-item">
+          <div class="review-top">
+            <div>
+              <div class="review-author">Saraswati P.</div>
+              <div class="stars" style="margin-top:3px"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star-off">★</span></div>
+            </div>
+            <div class="review-date">2 weeks ago</div>
+          </div>
+          <div class="review-text">Good work on the AC installation. Slightly delayed but communicated ahead of time and discounted accordingly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: SCHEDULE ── -->
+  <div class="step-panel" id="step3">
+    <h2 class="step-heading">Pick a date &amp; time</h2>
+    <p class="step-sub">Choose when you'd like <span id="schedProviderName">Rajesh</span> to arrive.</p>
+
+    <div class="calendar-card">
+      <div class="cal-header">
+        <span class="cal-month" id="calMonth">July 2025</span>
+        <div class="cal-nav">
+          <button class="cal-btn" onclick="changeMonth(-1)">‹</button>
+          <button class="cal-btn" onclick="changeMonth(1)">›</button>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <div class="time-card">
+      <div class="time-section-label">Morning</div>
+      <div class="time-slots">
+        <div class="time-slot unavailable">8:00 AM</div>
+        <div class="time-slot selected" onclick="selectTime(this,'9:00 AM')">9:00 AM</div>
+        <div class="time-slot" onclick="selectTime(this,'10:00 AM')">10:00 AM</div>
+        <div class="time-slot" onclick="selectTime(this,'11:00 AM')">11:00 AM</div>
+      </div>
+      <div class="time-section-label">Afternoon</div>
+      <div class="time-slots">
+        <div class="time-slot" onclick="selectTime(this,'12:00 PM')">12:00 PM</div>
+        <div class="time-slot unavailable">1:00 PM</div>
+        <div class="time-slot unavailable">2:00 PM</div>
+        <div class="time-slot" onclick="selectTime(this,'3:00 PM')">3:00 PM</div>
+      </div>
+      <div class="time-section-label">Evening</div>
+      <div class="time-slots">
+        <div class="time-slot" onclick="selectTime(this,'4:00 PM')">4:00 PM</div>
+        <div class="time-slot" onclick="selectTime(this,'5:00 PM')">5:00 PM</div>
+        <div class="time-slot unavailable">6:00 PM</div>
+        <div class="time-slot unavailable">7:00 PM</div>
+      </div>
+
+      <hr class="section-divider"/>
+
+      <div class="time-section-label" style="margin-bottom:10px">Estimated duration</div>
+      <div class="duration-options">
+        <div class="dur-option" onclick="selectDuration(this,'1 hour')">1 hour</div>
+        <div class="dur-option selected" onclick="selectDuration(this,'2 hours')">2 hours</div>
+        <div class="dur-option" onclick="selectDuration(this,'3 hours')">3 hours</div>
+        <div class="dur-option" onclick="selectDuration(this,'Half day')">Half day</div>
+        <div class="dur-option" onclick="selectDuration(this,'Full day')">Full day</div>
+      </div>
+    </div>
+
+    <div class="card-label">Special instructions <span style="color:var(--t4);font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">(optional)</span></div>
+    <div class="instructions-field">
+      <textarea placeholder="e.g. Gate code is 1234. Dog inside — please ring bell. Bring your own tools." id="instructionsText"></textarea>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: CONFIRM ── -->
+  <div class="step-panel" id="step4">
+    <h2 class="step-heading">Review &amp; pay</h2>
+    <p class="step-sub">Double-check the details before confirming your booking.</p>
+
+    <div class="confirm-card">
+      <div class="confirm-section-label">Provider</div>
+      <div class="confirm-provider">
+        <div class="confirm-avatar" id="confirmAvatar" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
+        <div>
+          <div class="confirm-pname" id="confirmName">Rajesh Maharjan</div>
+          <div class="confirm-prole" id="confirmRole">Senior Electrician</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-card">
+      <div class="confirm-section-label">Booking details</div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-lbl">📋 Service</span>
+        <span class="confirm-detail-val" id="confirmService">General Wiring &amp; Repair</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-lbl">📅 Date</span>
+        <span class="confirm-detail-val" id="confirmDate">Thursday, 10 July 2025</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-lbl">🕐 Time</span>
+        <span class="confirm-detail-val" id="confirmTime">9:00 AM</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-lbl">⏱ Duration</span>
+        <span class="confirm-detail-val" id="confirmDuration">2 hours</span>
+      </div>
+      <div class="confirm-detail-row">
+        <span class="confirm-detail-lbl">📍 Location</span>
+        <span class="confirm-detail-val">Kathmandu, Baneshwor</span>
+      </div>
+    </div>
+
+    <div class="confirm-card">
+      <div class="confirm-section-label">Pricing</div>
+      <div class="pricing-rows">
+        <div class="price-row">
+          <span class="price-row-lbl" id="priceBreakdown">Rs 800 × 2 hours</span>
+          <span class="price-row-val" id="subtotal">Rs 1,600</span>
+        </div>
+        <div class="price-row">
+          <span class="price-row-lbl">Platform fee (5%)</span>
+          <span class="price-row-val" id="platformFee">Rs 80</span>
+        </div>
+        <div class="price-row">
+          <span class="price-row-lbl">Promo code</span>
+          <div class="promo-field">
+            <input class="promo-input" type="text" placeholder="Enter code" id="promoInput"/>
+            <button class="promo-btn" onclick="applyPromo()">Apply</button>
+          </div>
+        </div>
+        <div class="price-row total">
+          <span class="price-row-lbl">Total</span>
+          <span class="price-row-val" id="totalPrice">Rs 1,680</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-card">
+      <div class="confirm-section-label">Payment method</div>
+      <div class="payment-methods">
+        <div class="pay-method selected" onclick="selectPayment(this)">
+          <div class="pay-method-logo" style="background:#E8F5E9">🟢</div>
+          <div>
+            <div class="pay-method-name">eSewa</div>
+            <div class="pay-method-desc">Pay from your eSewa wallet</div>
+          </div>
+          <div class="pay-radio selected"></div>
+        </div>
+        <div class="pay-method" onclick="selectPayment(this)">
+          <div class="pay-method-logo" style="background:#E3F2FD">🔵</div>
+          <div>
+            <div class="pay-method-name">Khalti</div>
+            <div class="pay-method-desc">Pay from your Khalti wallet</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="pay-method" onclick="selectPayment(this)">
+          <div class="pay-method-logo" style="background:#FFF3E0">🟠</div>
+          <div>
+            <div class="pay-method-name">IME Pay</div>
+            <div class="pay-method-desc">Pay via IME Pay</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="pay-method" onclick="selectPayment(this)">
+          <div class="pay-method-logo" style="background:#F3E5F5">💜</div>
+          <div>
+            <div class="pay-method-name">FonePay</div>
+            <div class="pay-method-desc">Scan QR or enter mobile number</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+        <div class="pay-method" onclick="selectPayment(this)">
+          <div class="pay-method-logo" style="background:#E8F5E9">💵</div>
+          <div>
+            <div class="pay-method-name">Pay on completion</div>
+            <div class="pay-method-desc">Cash or transfer after job is done</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ── -->
+  <div id="step-success">
+    <div class="success-ring">✓</div>
+    <div class="success-title">Booking confirmed!</div>
+    <div class="success-sub">Rajesh has been notified and will confirm within 10 minutes. You'll receive an SMS once confirmed.</div>
+    <div class="success-ref">Booking reference<strong id="bookingRef">CF-2025-00421</strong></div>
+    <div class="success-actions">
+      <button onclick="resetFlow()" style="padding:12px 24px;border:1.5px solid var(--slate-3);border-radius:var(--r-lg);font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;background:white;font-family:inherit">Book another</button>
+      <button style="padding:12px 24px;background:linear-gradient(135deg,var(--violet),var(--magenta));border:none;border-radius:var(--r-lg);font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:inherit">View booking →</button>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="bottom-bar-inner" id="bottomBarInner">
+    <div class="selection-hint" id="selectionHint">
+      <div class="hint-avatar" id="hintAvatar" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
+      <span class="hint-text" id="hintText">Rajesh Maharjan selected</span>
+    </div>
+    <button class="btn-next" id="btnNext" onclick="nextStep()">View profile →</button>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+const state = {
+  step: 1,
+  provider: 0,
+  service: 'General Wiring & Repair',
+  servicePrice: 'Rs 800/hr',
+  date: null,
+  dateLabel: 'Thursday, 10 July 2025',
+  time: '9:00 AM',
+  duration: '2 hours',
+  payment: 'eSewa',
+  calYear: 2025,
+  calMonth: 6, // 0-indexed, June = 5, July = 6
+};
+
+const providers = [
+  { initials:'RM', name:'Rajesh Maharjan', role:'Senior Electrician · 8 yrs experience', gradient:'linear-gradient(135deg,#7C3AED,#D946EF)', rating:'5.0', jobs:'284', exp:'8 yrs', price:'Rs 800', bio:'Certified electrician with 8 years of residential and commercial experience across Kathmandu Valley. Specialising in wiring, panel upgrades, AC installation, and emergency repairs. All work guaranteed with a 30-day service warranty.' },
+  { initials:'KT', name:'Kiran Thapa', role:'Electrician & AC Specialist · 5 yrs', gradient:'linear-gradient(135deg,#5B21B6,#7C3AED)', rating:'4.7', jobs:'121', exp:'5 yrs', price:'Rs 650', bio:'Electrician specialising in AC installation, servicing, and gas refill. Also handles general wiring faults, MCB upgrades, and inverter systems.' },
+  { initials:'BS', name:'Binod Shrestha', role:'Master Electrician · 12 yrs experience', gradient:'linear-gradient(135deg,#D946EF,#F97316)', rating:'4.9', jobs:'378', exp:'12 yrs', price:'Rs 900', bio:'Master electrician with over 12 years serving Bhaktapur and greater Kathmandu. Specialising in industrial and commercial wiring, solar systems, and panel upgrades.' },
+  { initials:'DL', name:'Dinesh Lama', role:'Electrician · CCTV & Solar · 6 yrs', gradient:'linear-gradient(135deg,#10B981,#06B6D4)', rating:'4.6', jobs:'93', exp:'6 yrs', price:'Rs 700', bio:'Electrician with deep expertise in CCTV installation, solar panel wiring, and general electrical repairs. Based in Pokhara with same-day availability.' },
+];
+
+// ── PROVIDER SELECTION ──
+function selectProvider(el, idx) {
+  document.querySelectorAll('.pcard').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.provider = idx;
+  const p = providers[idx];
+  document.getElementById('selectionHint').classList.add('visible');
+  document.getElementById('hintAvatar').style.background = p.gradient;
+  document.getElementById('hintAvatar').textContent = p.initials;
+  document.getElementById('hintText').textContent = p.name + ' selected';
+  updateConfirmDetails();
+}
+
+function selectChip(el, label) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('resultsLabel').textContent = `4 ${label.toLowerCase()}s near Kathmandu`;
+}
+
+function filterProviders(val) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  if (val.trim()) {
+    document.getElementById('resultsLabel').textContent = `Results for "${val}"`;
+  }
+}
+
+// ── SERVICE SELECTION ──
+function selectService(el, name, price) {
+  document.querySelectorAll('.service-item').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.service = name;
+  state.servicePrice = price;
+  updateConfirmDetails();
+}
+
+// ── TIME / DURATION ──
+function selectTime(el, time) {
+  document.querySelectorAll('.time-slot:not(.unavailable)').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.time = time;
+  document.getElementById('confirmTime').textContent = time;
+}
+
+function selectDuration(el, dur) {
+  document.querySelectorAll('.dur-option').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  state.duration = dur;
+  document.getElementById('confirmDuration').textContent = dur;
+  updatePricing();
+}
+
+// ── PAYMENT ──
+function selectPayment(el) {
+  document.querySelectorAll('.pay-method').forEach(m => {
+    m.classList.remove('selected');
+    m.querySelector('.pay-radio').classList.remove('selected');
+    m.querySelector('.pay-radio').style.cssText = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.pay-radio').classList.add('selected');
+}
+
+// ── PROMO ──
+function applyPromo() {
+  const code = document.getElementById('promoInput').value.trim().toUpperCase();
+  if (code === 'CHEAPFLIX10') {
+    document.getElementById('promoInput').style.borderColor = 'var(--green)';
+    document.getElementById('promoInput').style.color = 'var(--green)';
+    alert('Promo code applied! 10% discount added.');
+  } else if (code) {
+    document.getElementById('promoInput').style.borderColor = 'var(--red)';
+    document.getElementById('promoInput').style.color = 'var(--red)';
+  }
+}
+
+// ── PRICING ──
+function updatePricing() {
+  const durMap = {'1 hour':1,'2 hours':2,'3 hours':3,'Half day':4,'Full day':8};
+  const hours = durMap[state.duration] || 2;
+  const p = providers[state.provider];
+  const rateNum = parseInt(p.price.replace(/[^0-9]/g,''));
+  const sub = rateNum * hours;
+  const fee = Math.round(sub * 0.05);
+  const total = sub + fee;
+  document.getElementById('priceBreakdown').textContent = `${p.price} × ${hours} hour${hours>1?'s':''}`;
+  document.getElementById('subtotal').textContent = `Rs ${sub.toLocaleString()}`;
+  document.getElementById('platformFee').textContent = `Rs ${fee.toLocaleString()}`;
+  document.getElementById('totalPrice').textContent = `Rs ${total.toLocaleString()}`;
+}
+
+// ── CONFIRM DETAILS ──
+function updateConfirmDetails() {
+  const p = providers[state.provider];
+  document.getElementById('confirmAvatar').style.background = p.gradient;
+  document.getElementById('confirmAvatar').textContent = p.initials;
+  document.getElementById('confirmName').textContent = p.name;
+  document.getElementById('confirmRole').textContent = p.role.split(' · ')[0];
+  document.getElementById('confirmService').textContent = state.service;
+  document.getElementById('confirmDate').textContent = state.dateLabel;
+  document.getElementById('confirmTime').textContent = state.time;
+  document.getElementById('confirmDuration').textContent = state.duration;
+  updatePricing();
+}
+
+// ── CALENDAR ──
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const slotsAvail = [3,5,7,8,10,11,12,14,15,17,18,19,21,22,24,25];
+
+function renderCalendar() {
+  const y = state.calYear, m = state.calMonth;
+  document.getElementById('calMonth').textContent = `${MONTHS[m]} ${y}`;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  DAYS.forEach(d => { const el = document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+  const first = new Date(y, m, 1).getDay();
+  const total = new Date(y, m+1, 0).getDate();
+  const today = new Date();
+  for (let i = 0; i < first; i++) { const el = document.createElement('div'); el.className='cal-day empty'; grid.appendChild(el); }
+  for (let d = 1; d <= total; d++) {
+    const el = document.createElement('div');
+    const thisDate = new Date(y, m, d);
+    const isPast = thisDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isToday = thisDate.toDateString() === today.toDateString();
+    const hasSlot = slotsAvail.includes(d);
+    el.className = 'cal-day' + (isPast ? ' past' : '') + (isToday ? ' today' : '') + (hasSlot && !isPast ? ' has-slot' : '');
+    if (state.date && state.date.getTime() === thisDate.getTime()) el.classList.add('selected');
+    el.textContent = d;
+    if (!isPast) {
+      el.onclick = () => {
+        document.querySelectorAll('.cal-day').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        state.date = thisDate;
+        const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        state.dateLabel = `${dayNames[thisDate.getDay()]}, ${d} ${MONTHS[m]} ${y}`;
+        document.getElementById('confirmDate').textContent = state.dateLabel;
+      };
+    }
+    grid.appendChild(el);
+  }
+}
+
+function changeMonth(dir) {
+  state.calMonth += dir;
+  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  if (state.calMonth < 0)  { state.calMonth = 11; state.calYear--; }
+  renderCalendar();
+}
+
+// ── PROGRESS BAR ──
+function updateProgress(step) {
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById(`dot${i}`);
+    const lbl = document.getElementById(`lbl${i}`);
+    dot.className = 'prog-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+    dot.textContent = i < step ? '✓' : i;
+    lbl.className = 'prog-label' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  for (let i = 1; i <= 3; i++) {
+    const line = document.getElementById(`line${i}`);
+    line.className = 'prog-line' + (i < step ? ' filled' : '');
+  }
+}
+
+// ── NAVIGATION ──
+let direction = 'forward';
+function nextStep() {
+  if (state.step === 4) { confirmBooking(); return; }
+  direction = 'forward';
+  goToStep(state.step + 1);
+}
+function prevStep() {
+  direction = 'back';
+  goToStep(state.step - 1);
+}
+
+function goToStep(n) {
+  document.getElementById(`step${state.step}`).classList.remove('active');
+  state.step = n;
+  const panel = document.getElementById(`step${n}`);
+  panel.classList.remove('back');
+  if (direction === 'back') panel.classList.add('back');
+  panel.classList.add('active');
+  updateProgress(n);
+  updateBottomBar();
+  updateProfile();
+  if (n === 3) { state.calYear = 2025; state.calMonth = 6; renderCalendar(); }
+  if (n === 4) updateConfirmDetails();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProfile() {
+  if (state.step !== 2) return;
+  const p = providers[state.provider];
+  document.getElementById('profileAvatarLg').style.background = p.gradient;
+  document.getElementById('profileAvatarLg').textContent = p.initials;
+  document.getElementById('profileName').textContent = p.name;
+  document.getElementById('profileRole').textContent = p.role;
+  document.getElementById('profileRating').innerHTML = p.rating + '<span>★</span>';
+  document.getElementById('profileJobs').textContent = p.jobs;
+  document.getElementById('profileExp').textContent = p.exp;
+  document.getElementById('profileBio').textContent = p.bio;
+  document.getElementById('schedProviderName').textContent = p.name.split(' ')[0];
+}
+
+function updateBottomBar() {
+  const back = document.querySelector('.btn-back');
+  const hint = document.getElementById('selectionHint');
+  const nextBtn = document.getElementById('btnNext');
+  if (state.step === 1) {
+    back && (back.style.display = 'none');
+    hint.classList.add('visible');
+  } else {
+    if (!back) {
+      const b = document.createElement('button');
+      b.className = 'btn-back';
+      b.innerHTML = '← Back';
+      b.onclick = prevStep;
+      document.getElementById('bottomBarInner').prepend(b);
+    } else {
+      back.style.display = 'flex';
+    }
+    hint.classList.remove('visible');
+  }
+  const labels = ['','View profile →','Choose time →','Confirm & pay',''];
+  const isConfirm = state.step === 4;
+  if (isConfirm) {
+    nextBtn.className = 'btn-confirm';
+    nextBtn.textContent = '✓ Confirm booking';
+  } else {
+    nextBtn.className = 'btn-next';
+    nextBtn.textContent = labels[state.step];
+  }
+}
+
+function confirmBooking() {
+  const bar = document.getElementById('bottomBar');
+  bar.style.display = 'none';
+  document.getElementById('step4').classList.remove('active');
+  document.getElementById('progressSteps').style.opacity = '0';
+  const s = document.getElementById('step-success');
+  s.style.display = 'flex';
+  setTimeout(() => s.classList.add('active'), 10);
+  const ref = 'CF-2025-' + String(Math.floor(Math.random()*90000)+10000);
+  document.getElementById('bookingRef').textContent = ref;
+}
+
+function resetFlow() {
+  state.step = 1;
+  direction = 'forward';
+  document.getElementById('step-success').style.display = 'none';
+  document.getElementById('step-success').classList.remove('active');
+  document.getElementById('bottomBar').style.display = '';
+  document.getElementById('progressSteps').style.opacity = '';
+  document.getElementById('step1').classList.add('active');
+  updateProgress(1);
+  updateBottomBar();
+  window.scrollTo({top:0});
+}
+
+// ── INIT ──
+document.getElementById('selectionHint').classList.add('visible');
+updateBottomBar();
+</script>
+</body>
+</html>

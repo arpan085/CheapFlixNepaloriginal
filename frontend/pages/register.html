@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/auth.css">
+  <script src="../config.js"></script>
+</head>
+<body class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card">
+      <button type="button" class="auth-back-btn" onclick="window.location.href='../index.html'" title="Go back to home">✕</button>
+      
+      <div class="auth-header">
+        <h1>Create Account</h1>
+        <p>Join thousands booking services every day</p>
+      </div>
+
+      <!-- OAuth Buttons -->
+      <div class="oauth-buttons">
+        <button type="button" class="btn-oauth" onclick="signupWithGoogle()">
+          <span class="btn-oauth-icon">🔵</span>
+          <span>Google</span>
+        </button>
+        <button type="button" class="btn-oauth" onclick="signupWithFacebook()">
+          <span class="btn-oauth-icon">f</span>
+          <span>Facebook</span>
+        </button>
+      </div>
+
+      <!-- OAuth Divider -->
+      <div class="oauth-divider">
+        <span class="oauth-divider-text">Or continue with email</span>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="registerForm" class="auth-form">
+        <!-- Name Fields -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" required placeholder="John">
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" required placeholder="Doe">
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="form-group-input-wrapper">
+            <span class="form-group-icon">✉️</span>
+            <input type="email" id="email" name="email" required placeholder="you@example.com">
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <div class="form-group-input-wrapper">
+            <span class="form-group-icon">📱</span>
+            <input type="tel" id="phone" name="phone" placeholder="+977 98...">
+          </div>
+        </div>
+
+        <!-- User Type -->
+        <div class="form-group">
+          <label for="userType">Account Type</label>
+          <select id="userType" name="userType" onchange="toggleProviderFields()">
+            <option value="user">📍 I want to book services (Customer)</option>
+            <option value="provider">👨‍💼 I want to provide services (Provider)</option>
+          </select>
+        </div>
+
+        <!-- ✅ PROVIDER-ONLY FIELDS -->
+        <div id="providerFields" style="display: none; background: #f5f3ff; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #7C3AED;">
+          <h3 style="margin: 0 0 16px; color: #7C3AED; font-size: 14px;">Professional Profile</h3>
+
+          <!-- Service Category -->
+          <div class="form-group">
+            <label for="category">Service Category</label>
+            <select id="category" name="category">
+              <option value="">Select your service</option>
+              <option value="Electrician">⚡ Electrician</option>
+              <option value="Plumber">🔧 Plumber</option>
+              <option value="Barber">✂️ Barber</option>
+              <option value="Cleaner">🧹 Cleaner</option>
+              <option value="Tutor">📚 Tutor</option>
+              <option value="Developer">💻 Developer</option>
+              <option value="Photographer">📷 Photographer</option>
+              <option value="Driver">🚗 Driver</option>
+              <option value="Mechanic">🔩 Mechanic</option>
+              <option value="Painter">🎨 Painter</option>
+            </select>
+          </div>
+
+          <!-- Experience -->
+          <div class="form-group">
+            <label for="experience">Years of Experience</label>
+            <input type="number" id="experience" name="experience" placeholder="5" min="0" max="100">
+          </div>
+
+          <!-- Price per Hour -->
+          <div class="form-group">
+            <label for="price">Service Price (Rs per hour)</label>
+            <input type="number" id="price" name="price" placeholder="800" min="100" step="50">
+          </div>
+
+          <!-- Bio -->
+          <div class="form-group">
+            <label for="bio">Professional Bio</label>
+            <textarea id="bio" name="bio" placeholder="Tell customers about your experience and skills..." style="min-height: 80px;"></textarea>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="form-group-input-wrapper">
+            <span class="form-group-icon">🔒</span>
+            <input type="password" id="password" name="password" required placeholder="••••••••">
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</button>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="form-group-input-wrapper">
+            <span class="form-group-icon">🔒</span>
+            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="••••••••">
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">👁️</button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn-block">Create Account</button>
+        <span class="error-msg" id="formError"></span>
+      </form>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p>Already have an account? <a href="login.html">Sign in</a></p>
+      </div>
+
+  <script>
+    // ✅ TOGGLE PROVIDER FIELDS
+    function toggleProviderFields() {
+      const userType = document.getElementById('userType').value;
+      const providerFields = document.getElementById('providerFields');
+      
+      if (userType === 'provider') {
+        providerFields.style.display = 'block';
+      } else {
+        providerFields.style.display = 'none';
+      }
+    }
+
+    // OAuth Functions
+    function signupWithGoogle() {
+      alert('Google OAuth integration coming soon!');
+    }
+
+    function signupWithFacebook() {
+      alert('Facebook OAuth integration coming soon!');
+    }
+
+    // Password visibility toggle
+    function togglePasswordVisibility(fieldId) {
+      const input = document.getElementById(fieldId);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // Form submission
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const userType = document.getElementById('userType').value;
+      const formError = document.getElementById('formError');
+
+      formError.textContent = '';
+
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        formError.textContent = 'Passwords do not match';
+        return;
+      }
+
+      // Validate password strength
+      if (password.length < 6) {
+        formError.textContent = 'Password must be at least 6 characters';
+        return;
+      }
+
+      // ✅ VALIDATE PROVIDER FIELDS IF PROVIDER
+      if (userType === 'provider') {
+        const category = document.getElementById('category').value;
+        const experience = document.getElementById('experience').value;
+        const price = document.getElementById('price').value;
+
+        if (!category || !experience || !price) {
+          formError.textContent = 'Please fill in all professional fields';
+          return;
+        }
+
+        if (price < 100) {
+          formError.textContent = 'Minimum price is Rs 100/hour';
+          return;
+        }
+      }
+
+      try {
+        const requestData = {
+          email,
+          password,
+          firstName,
+          lastName,
+          phone,
+          userType,
+        };
+
+        // ✅ ADD PROVIDER FIELDS IF PROVIDER
+        if (userType === 'provider') {
+          requestData.category = document.getElementById('category').value;
+          requestData.experience = parseInt(document.getElementById('experience').value);
+          requestData.price = parseFloat(document.getElementById('price').value);
+          requestData.bio = document.getElementById('bio').value;
+        }
+
+        const response = await fetch(window.getApiUrl('/auth/register'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          formError.style.color = '#10B981';
+          formError.textContent = 'Registration successful! Redirecting...';
+          
+          // ✅ REDIRECT TO PROVIDER ONBOARDING IF PROVIDER
+          setTimeout(() => {
+            if (userType === 'provider') {
+              window.location.href = 'provider-onboarding.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }, 1500);
+        } else {
+          formError.textContent = data.error || 'Registration failed. Please try again.';
+        }
+      } catch (error) {
+        formError.textContent = 'Connection error. Please try again.';
+        console.error('Registration error:', error);
+      }
+    });
+  </script>
+</body>
+</html>

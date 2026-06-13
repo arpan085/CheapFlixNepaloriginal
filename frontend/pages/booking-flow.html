@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cheapflix Nepal — Book a Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>  <script src="../config.js"></script><style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#130C1E;--dark-80:#1E1530;--dark-60:#2D2245;
+  --violet:#7C3AED;--violet-lt:#A78BFA;--violet-dk:#5B21B6;--violet-bg:#F5F3FF;
+  --magenta:#D946EF;--magenta-lt:#F0ABFC;
+  --coral:#F97316;--coral-lt:#FB923C;--coral-bg:#FFF7ED;
+  --green:#10B981;--green-bg:#F0FDF4;--green-bd:#BBF7D0;
+  --amber:#F59E0B;
+  --red:#EF4444;
+  --bg:#F8F7FF;--white:#fff;
+  --slate-1:#F5F3FF;--slate-2:#EDE9FE;--slate-3:#DDD6FE;
+  --t1:#130C1E;--t2:#3D3160;--t3:#6B5E8A;--t4:#9CA3AF;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-2xl:32px;
+  --shadow-sm:0 1px 3px rgba(19,12,30,.07),0 1px 2px rgba(19,12,30,.04);
+  --shadow-md:0 4px 16px rgba(19,12,30,.08),0 2px 6px rgba(19,12,30,.04);
+  --shadow-lg:0 12px 40px rgba(19,12,30,.12),0 4px 12px rgba(19,12,30,.06);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased;min-height:100vh}
+h1,h2,h3,h4,button{font-family:'Plus Jakarta Sans',sans-serif}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--slate-2);
+  padding:0 24px;
+}
+.topbar-inner{
+  max-width:720px;margin:0 auto;height:60px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.topbar-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.topbar-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--violet),var(--magenta));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:white;font-size:11px;letter-spacing:-.3px;
+}
+.topbar-name{font-weight:700;font-size:15px;color:var(--t1);letter-spacing:-.3px}
+.topbar-name span{color:var(--coral)}
+
+/* ── PROGRESS ── */
+.progress-wrap{flex:1;max-width:380px}
+.progress-steps{display:flex;align-items:center;gap:0}
+.prog-step{display:flex;align-items:center;gap:0;flex:1}
+.prog-dot{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;transition:all .35s cubic-bezier(.4,0,.2,1);
+  border:2px solid var(--slate-3);background:white;color:var(--t4);
+}
+.prog-dot.done{background:var(--violet);border-color:var(--violet);color:white}
+.prog-dot.active{background:white;border-color:var(--violet);color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.prog-line{flex:1;height:2px;background:var(--slate-3);transition:background .4s ease;margin:0 2px}
+.prog-line.filled{background:var(--violet)}
+.prog-label{font-size:10px;font-weight:600;color:var(--t4);margin-top:3px;text-align:center;letter-spacing:.02em;transition:color .3s}
+.prog-label.active{color:var(--violet)}
+.prog-label.done{color:var(--violet-lt)}
+.prog-item{display:flex;flex-direction:column;align-items:center;gap:0;position:relative}
+
+/* ── PAGE SHELL ── */
+.page{max-width:720px;margin:0 auto;padding:32px 24px 80px}
+
+/* ── STEP PANELS ── */
+.step-panel{display:none;animation:slideIn .3s cubic-bezier(.4,0,.2,1)}
+.step-panel.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideBack{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+.step-panel.back{animation:slideBack .3s cubic-bezier(.4,0,.2,1)}
+
+.step-heading{font-size:22px;font-weight:800;color:var(--t1);letter-spacing:-.6px;margin-bottom:4px}
+.step-sub{font-size:14px;color:var(--t3);margin-bottom:24px;line-height:1.5}
+
+/* ── SEARCH STEP ── */
+.search-field{
+  display:flex;align-items:center;gap:12px;
+  background:white;border:1.5px solid var(--slate-3);
+  border-radius:var(--r-lg);padding:14px 16px;
+  transition:border-color .2s,box-shadow .2s;margin-bottom:12px;
+}
+.search-field:focus-within{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.search-field input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--t1);background:transparent}
+.search-field input::placeholder{color:var(--t4)}
+.search-icon{font-size:18px;flex-shrink:0;color:var(--t4)}
+
+.cat-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  background:white;border:1.5px solid var(--slate-2);
+  border-radius:100px;padding:7px 14px;
+  font-size:13px;font-weight:600;color:var(--t2);
+  cursor:pointer;transition:all .18s;user-select:none;
+}
+.chip:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-bg)}
+.chip.selected{border-color:var(--violet);background:var(--violet-bg);color:var(--violet)}
+.chip-icon{font-size:16px}
+
+.results-label{font-size:13px;font-weight:600;color:var(--t3);margin-bottom:14px;letter-spacing:.02em;text-transform:uppercase}
+
+/* provider cards in search */
+.provider-list{display:flex;flex-direction:column;gap:12px}
+.pcard{
+  background:white;border:1.5px solid var(--slate-2);
+  border-radius:var(--r-xl);padding:20px;
+  display:flex;align-items:flex-start;gap:16px;
+  cursor:pointer;transition:all .2s;
+}
+.pcard:hover{border-color:var(--violet);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.pcard.selected{border-color:var(--violet);box-shadow:0 0 0 3px rgba(124,58,237,.1),var(--shadow-sm)}
+.pcard-avatar{
+  width:56px;height:56px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:18px;color:white;
+}
+.pcard-body{flex:1;min-width:0}
+.pcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
+.pcard-name{font-size:15px;font-weight:700;color:var(--t1)}
+.pcard-price{font-size:14px;font-weight:700;color:var(--t1);white-space:nowrap}
+.pcard-price span{font-size:12px;font-weight:400;color:var(--t3)}
+.pcard-role{font-size:13px;color:var(--t3);margin-bottom:8px}
+.pcard-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pcard-meta-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--t3)}
+.stars{display:flex;align-items:center;gap:3px;font-size:13px}
+.star{color:var(--amber)}
+.star-off{color:var(--slate-3)}
+.badge-verified{font-size:11px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid var(--green-bd);padding:2px 8px;border-radius:100px}
+.badge-fast{font-size:11px;font-weight:600;color:var(--violet);background:var(--violet-bg);border:1px solid var(--slate-3);padding:2px 8px;border-radius:100px}
+
+/* ── SUCCESS ── */
+#step-success{display:none}
+#step-success.active{display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 0}
+.success-ring{
+  width:88px;height:88px;border-radius:50%;
+  background:linear-gradient(135deg,var(--violet),var(--magenta));
+  display:flex;align-items:center;justify-content:center;
+  font-size:38px;margin-bottom:24px;
+  box-shadow:0 8px 32px rgba(124,58,237,.3);
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-title{font-size:24px;font-weight:800;color:var(--t1);letter-spacing:-.6px;margin-bottom:8px}
+.success-sub{font-size:15px;color:var(--t3);line-height:1.6;max-width:360px;margin-bottom:32px}
+.success-ref{background:var(--violet-bg);border:1.5px solid var(--slate-3);border-radius:var(--r-lg);padding:14px 24px;margin-bottom:32px;font-size:14px;color:var(--t2)}
+.success-ref strong{color:var(--violet);font-size:16px;display:block;margin-top:2px}
+.success-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(16px);
+  border-top:1.5px solid var(--slate-2);
+  padding:16px 24px;
+}
+.bottom-bar-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.btn-back{
+  display:flex;align-items:center;gap:6px;
+  padding:13px 20px;border:1.5px solid var(--slate-2);border-radius:var(--r-lg);
+  font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;
+  background:white;transition:all .18s;font-family:inherit;flex-shrink:0;
+}
+.btn-back:hover{border-color:var(--violet);color:var(--violet)}
+.btn-next{
+  flex:1;padding:14px 28px;
+  background:linear-gradient(135deg,var(--violet),var(--magenta));
+  border:none;border-radius:var(--r-lg);
+  font-size:15px;font-weight:700;color:white;
+  cursor:pointer;transition:all .2s;font-family:inherit;
+  box-shadow:0 4px 16px rgba(124,58,237,.25);
+}
+.btn-next:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 24px rgba(124,58,237,.3)}
+.btn-next:active{transform:translateY(0)}
+
+/* selected provider hint */
+.selection-hint{
+  display:none;flex:1;align-items:center;gap:10px;
+  background:var(--violet-bg);border-radius:var(--r-md);
+  padding:10px 14px;
+}
+.selection-hint.visible{display:flex}
+.hint-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:white}
+.hint-text{font-size:13px;font-weight:600;color:var(--violet)}
+
+@media(max-width:540px){
+  .page{padding:24px 16px 80px}
+  .topbar{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="topbar-logo">
+      <div class="topbar-mark">CF</div>
+      <span class="topbar-name">Cheapflix <span>Nepal</span></span>
+    </a>
+    <div class="progress-wrap">
+      <div class="progress-steps" id="progressSteps">
+        <div class="prog-item">
+          <div class="prog-dot active" id="dot1">1</div>
+          <div class="prog-label active" id="lbl1">Search</div>
+        </div>
+        <div class="prog-line" id="line1"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot2">2</div>
+          <div class="prog-label" id="lbl2">Profile</div>
+        </div>
+        <div class="prog-line" id="line2"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot3">3</div>
+          <div class="prog-label" id="lbl3">Schedule</div>
+        </div>
+        <div class="prog-line" id="line3"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot4">4</div>
+          <div class="prog-label" id="lbl4">Payment</div>
+        </div>
+        <div class="prog-line" id="line4"></div>
+        <div class="prog-item">
+          <div class="prog-dot" id="dot5">5</div>
+          <div class="prog-label" id="lbl5">Review</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- ── STEP 1: SEARCH ── -->
+  <div class="step-panel active" id="step1">
+    <h2 class="step-heading">What do you need help with?</h2>
+    <p class="step-sub">Search by service or pick a category below.</p>
+
+    <div class="search-field">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="e.g. Electrician, Home Tutor, Plumber…" oninput="filterProviders(this.value)"/>
+    </div>
+
+    <div class="cat-chips">
+      <div class="chip selected" onclick="selectChip(this,'Electrician')"><span class="chip-icon">⚡</span>Electrician</div>
+      <div class="chip" onclick="selectChip(this,'Plumber')"><span class="chip-icon">🔧</span>Plumber</div>
+      <div class="chip" onclick="selectChip(this,'Cleaner')"><span class="chip-icon">🧹</span>Cleaner</div>
+      <div class="chip" onclick="selectChip(this,'Tutor')"><span class="chip-icon">📚</span>Tutor</div>
+      <div class="chip" onclick="selectChip(this,'Developer')"><span class="chip-icon">💻</span>Developer</div>
+      <div class="chip" onclick="selectChip(this,'Driver')"><span class="chip-icon">🚗</span>Driver</div>
+      <div class="chip" onclick="selectChip(this,'Photographer')"><span class="chip-icon">📷</span>Photographer</div>
+    </div>
+
+    <div class="results-label" id="resultsLabel">Loading providers...</div>
+    <div class="provider-list" id="providerList">
+      <!-- Real providers will be loaded here -->
+    </div>
+  </div>
+
+  <!-- ── STEP 2: PROFILE ── -->
+  <div class="step-panel" id="step2">
+    <h2 class="step-heading">Provider Profile</h2>
+    <p class="step-sub">Review their details before booking</p>
+
+    <div id="profileCard" style="background:white;border:1.5px solid var(--slate-2);border-radius:var(--r-xl);padding:24px;margin-bottom:28px">
+      <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px">
+        <div id="profileAvatar" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;color:white;background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
+        <div style="flex:1">
+          <div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:4px" id="profileName">Rajesh Maharjan</div>
+          <div style="font-size:14px;color:var(--t3);margin-bottom:8px" id="profileRole">Senior Electrician · 8 yrs experience</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:4px;font-size:13px"><span style="color:#F59E0B">★★★★★</span><span style="color:var(--t1);font-weight:600" id="profileRating">5.0</span><span style="color:var(--t3)" id="profileReviews">(284 reviews)</span></div>
+            <div style="font-size:12px;color:var(--t3)">✓ Verified Provider</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top:1.5px solid var(--slate-2);padding-top:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase">Experience</div>
+            <div style="font-size:15px;font-weight:700;color:var(--t1)" id="profileExp">8 years</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase">Location</div>
+            <div style="font-size:15px;font-weight:700;color:var(--t1)">Lalitpur</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase">Rate</div>
+            <div style="font-size:15px;font-weight:700;color:var(--t1)" id="profilePrice">Rs 800/hr</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase">Response</div>
+            <div style="font-size:15px;font-weight:700;color:var(--green)">⚡ Same-day</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--green-bg);border:1.5px solid var(--green-bd);border-radius:var(--r-lg);padding:12px 16px;font-size:14px;color:var(--green);font-weight:600;margin-bottom:20px">
+      ✓ Verified and trusted by 284+ customers
+    </div>
+  </div>
+
+  <!-- ── STEP 3: SCHEDULE ── -->
+  <div class="step-panel" id="step3">
+    <h2 class="step-heading">Select Date & Time</h2>
+    <p class="step-sub">Choose when you'd like the service</p>
+
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px;text-transform:uppercase">📅 Preferred Date</label>
+      <input type="date" id="bookingDate" style="width:100%;padding:12px;border:1.5px solid var(--slate-3);border-radius:var(--r-lg);font-size:15px;color:var(--t1)" required>
+    </div>
+
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px;text-transform:uppercase">⏰ Preferred Time</label>
+      <select id="bookingTime" style="width:100%;padding:12px;border:1.5px solid var(--slate-3);border-radius:var(--r-lg);font-size:15px;color:var(--t1)">
+        <option value="">Select time slot</option>
+        <option value="09:00">09:00 AM</option>
+        <option value="10:00">10:00 AM</option>
+        <option value="11:00">11:00 AM</option>
+        <option value="14:00">2:00 PM</option>
+        <option value="15:00">3:00 PM</option>
+        <option value="16:00">4:00 PM</option>
+        <option value="17:00">5:00 PM</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom:24px">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px;text-transform:uppercase">⏱️ Duration</label>
+      <select id="bookingDuration" style="width:100%;padding:12px;border:1.5px solid var(--slate-3);border-radius:var(--r-lg);font-size:15px;color:var(--t1)">
+        <option value="">Select duration</option>
+        <option value="1">1 hour</option>
+        <option value="2">2 hours</option>
+        <option value="3">3 hours</option>
+        <option value="4">4 hours</option>
+        <option value="5">5 hours</option>
+        <option value="6">6+ hours (Full day)</option>
+      </select>
+    </div>
+
+    <div style="background:var(--violet-bg);border:1.5px solid var(--slate-3);border-radius:var(--r-lg);padding:16px;margin-bottom:20px">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:8px">Estimated cost</div>
+      <div style="font-size:24px;font-weight:800;color:var(--violet)" id="estimatedCost">Rs 800</div>
+    </div>
+
+    <div style="background:var(--slate-1);border-radius:var(--r-lg);padding:12px;font-size:13px;color:var(--t3)">
+      💡 Prices may vary based on service complexity. Provider will confirm final cost.
+    </div>
+  </div>
+
+  <!-- ── STEP 4: PAYMENT ── -->
+  <div class="step-panel" id="step4">
+    <h2 class="step-heading">Select Payment Method</h2>
+    <p class="step-sub">Choose how you'd like to pay</p>
+
+    <div style="margin-bottom:28px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="payment-option" onclick="selectPayment(this,'esewa')" style="background:white;border:2px solid var(--slate-2);border-radius:var(--r-lg);padding:16px;cursor:pointer;text-align:center;transition:all .2s">
+          <div style="font-size:32px;margin-bottom:8px">💳</div>
+          <div style="font-weight:600;font-size:14px;color:var(--t1)">eSewa</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">Online Payment</div>
+        </div>
+        <div class="payment-option" onclick="selectPayment(this,'khalti')" style="background:white;border:2px solid var(--slate-2);border-radius:var(--r-lg);padding:16px;cursor:pointer;text-align:center;transition:all .2s">
+          <div style="font-size:32px;margin-bottom:8px">📱</div>
+          <div style="font-weight:600;font-size:14px;color:var(--t1)">Khalti</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">Digital Wallet</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="payment-option" onclick="selectPayment(this,'ime')" style="background:white;border:2px solid var(--slate-2);border-radius:var(--r-lg);padding:16px;cursor:pointer;text-align:center;transition:all .2s">
+          <div style="font-size:32px;margin-bottom:8px">💰</div>
+          <div style="font-weight:600;font-size:14px;color:var(--t1)">IME Pay</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">Bank Transfer</div>
+        </div>
+        <div class="payment-option" onclick="selectPayment(this,'cash')" style="background:white;border:2px solid var(--slate-2);border-radius:var(--r-lg);padding:16px;cursor:pointer;text-align:center;transition:all .2s">
+          <div style="font-size:32px;margin-bottom:8px">💵</div>
+          <div style="font-weight:600;font-size:14px;color:var(--t1)">Cash</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:4px">After Service</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="orderSummary" style="background:var(--slate-1);border:1.5px solid var(--slate-2);border-radius:var(--r-xl);padding:20px;margin-bottom:24px">
+      <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:16px">Order Summary</div>
+      
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--slate-2);font-size:13px;color:var(--t2)">
+        <span>Service Fee</span>
+        <span id="summaryServiceFee" style="font-weight:600">Rs 800</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--slate-2);font-size:13px;color:var(--t2)">
+        <span>Platform Fee (10%)</span>
+        <span id="summaryPlatformFee" style="font-weight:600">Rs 80</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--slate-2);font-size:13px;color:var(--t2)">
+        <span>Tax (13% VAT)</span>
+        <span id="summaryTax" style="font-weight:600">Rs 115</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-size:15px;font-weight:700;color:var(--violet)">
+        <span>Total Amount</span>
+        <span id="summaryTotal">Rs 995</span>
+      </div>
+    </div>
+
+    <div style="background:var(--violet-bg);border:1.5px solid var(--slate-3);border-radius:var(--r-lg);padding:12px;font-size:13px;color:var(--t2);margin-bottom:16px">
+      <span style="font-weight:600" id="paymentNote">💳 You will be redirected to eSewa</span>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: REVIEW & CONFIRM ── -->
+  <div class="step-panel" id="step5">
+    <h2 class="step-heading">Review & Confirm</h2>
+    <p class="step-sub">Everything looks good? Let's complete the booking</p>
+
+    <div id="confirmCard" style="background:white;border:1.5px solid var(--slate-2);border-radius:var(--r-xl);padding:20px;margin-bottom:24px">
+      <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--slate-2)">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;font-weight:600">Service Provider</div>
+        <div id="confirmProvider" style="font-size:16px;font-weight:700;color:var(--t1)">Rajesh Maharjan</div>
+      </div>
+
+      <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--slate-2)">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;font-weight:600">Date & Time</div>
+        <div id="confirmDateTime" style="font-size:16px;font-weight:700;color:var(--t1)">Select date and time</div>
+      </div>
+
+      <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--slate-2)">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;font-weight:600">Duration</div>
+        <div id="confirmDuration" style="font-size:16px;font-weight:700;color:var(--t1)">Not selected</div>
+      </div>
+
+      <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--slate-2)">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;font-weight:600">Payment Method</div>
+        <div id="confirmPayment" style="font-size:16px;font-weight:700;color:var(--t1)">Not selected</div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px">
+        <div style="font-size:12px;color:var(--t3);text-transform:uppercase;font-weight:600">Total Amount</div>
+        <div id="confirmTotalAmount" style="font-size:20px;font-weight:800;color:var(--violet)">Rs 995</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:16px">
+      <input type="checkbox" id="agreeTerms" style="flex-shrink:0;cursor:pointer;accent-color:var(--violet)">
+      <label for="agreeTerms" style="font-size:14px;color:var(--t2);cursor:pointer">I agree to the terms & conditions and cancellation policy</label>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ── -->
+  <div id="step-success">
+    <div class="success-ring">✓</div>
+    <div class="success-title">Booking confirmed!</div>
+    <div class="success-sub" id="successMessage">Rajesh has been notified and will confirm within 10 minutes. You'll receive an SMS once confirmed.</div>
+    <div class="success-ref">Booking reference<strong id="bookingRef">CF-2025-00421</strong></div>
+    <div class="success-actions">
+      <button onclick="resetFlow()" style="padding:12px 24px;border:1.5px solid var(--slate-3);border-radius:var(--r-lg);font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;background:white;font-family:inherit">Book another</button>
+      <button style="padding:12px 24px;background:linear-gradient(135deg,var(--violet),var(--magenta));border:none;border-radius:var(--r-lg);font-size:14px;font-weight:600;color:white;cursor:pointer;font-family:inherit" onclick="window.location.href='dashboard.html'">View booking →</button>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar" id="bottomBar">
+  <div class="bottom-bar-inner" id="bottomBarInner">
+    <button class="btn-back" style="display:none" onclick="goBack()" title="Go back">←</button>
+    <div class="selection-hint" id="selectionHint">
+      <div class="hint-avatar" id="hintAvatar" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
+      <span class="hint-text" id="hintText">Rajesh Maharjan selected</span>
+    </div>
+    <button class="btn-next" id="btnNext" onclick="nextStep()">Select Provider →</button>
+  </div>
+</div>
+
+<script>
+  // Global API URL helper - works for both localhost and production
+  const getApiUrl = (endpoint) => {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+    return baseUrl + '/api' + endpoint;
+  };
+
+// ── STATE ──
+const state = {
+  step: 1,
+  provider: 0,
+  date: null,
+  time: null,
+  duration: null,
+  paymentMethod: null,
+};
+
+let providers = [];  // Will be populated from backend
+
+const paymentMethods = {
+  esewa: { name: 'eSewa', note: '💳 You will be redirected to eSewa' },
+  khalti: { name: 'Khalti', note: '📱 You will be redirected to Khalti' },
+  ime: { name: 'IME Pay', note: '💰 You will be redirected to IME Pay' },
+  cash: { name: 'Cash', note: '💵 Pay in cash to the provider after service' },
+};
+
+function calculateFees(baseCost) {
+  const platformFee = Math.ceil(baseCost * 0.1); // 10%
+  const tax = Math.ceil((baseCost + platformFee) * 0.13); // 13%
+  const total = baseCost + platformFee + tax;
+  return { platformFee, tax, total };
+}
+
+// ── PROVIDER SELECTION ──
+function selectProvider(el, idx) {
+  document.querySelectorAll('.pcard').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.provider = idx;
+  updateHintDisplay(idx);
+  document.getElementById('btnNext').textContent = 'Continue →';
+}
+
+function selectChip(el, label) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('searchInput').value = '';
+  
+  // Filter providers by category
+  const categoryLower = label.toLowerCase();
+  const providerCards = document.querySelectorAll('.pcard');
+  let visibleCount = 0;
+  
+  providerCards.forEach((card, idx) => {
+    const provider = providers[idx];
+    if (provider.role.toLowerCase().includes(categoryLower)) {
+      card.style.display = 'block';
+      visibleCount++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  
+  document.getElementById('resultsLabel').textContent = `${visibleCount} ${label.toLowerCase()}s near Kathmandu`;
+}
+
+function filterProviders(val) {
+  const searchVal = val.trim().toLowerCase();
+  const providerCards = document.querySelectorAll('.pcard');
+  let visibleCount = 0;
+  
+  if (!searchVal) {
+    // Show all providers
+    providerCards.forEach(c => c.style.display = 'block');
+    document.getElementById('resultsLabel').textContent = `${providerCards.length} providers near Kathmandu`;
+  } else {
+    // Filter by name or category
+    providerCards.forEach((card, idx) => {
+      const provider = providers[idx];
+      const matchesSearch = 
+        provider.name.toLowerCase().includes(searchVal) ||
+        provider.role.toLowerCase().includes(searchVal) ||
+        provider.category?.toLowerCase().includes(searchVal);
+      
+      if (matchesSearch) {
+        card.style.display = 'block';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    document.getElementById('resultsLabel').textContent = `${visibleCount} results for "${val}"`;
+  }
+}
+
+// ── NAVIGATION ──
+function updateProgress(step) {
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById(`dot${i}`);
+    const lbl = document.getElementById(`lbl${i}`);
+    const line = document.getElementById(`line${i}`);
+    
+    if (i < step) {
+      dot.classList.add('done');
+      dot.classList.remove('active');
+      lbl.classList.add('done');
+      lbl.classList.remove('active');
+      if (line) line.classList.add('filled');
+    } else if (i === step) {
+      dot.classList.remove('done');
+      dot.classList.add('active');
+      lbl.classList.remove('done');
+      lbl.classList.add('active');
+    } else {
+      dot.classList.remove('done', 'active');
+      lbl.classList.remove('done', 'active');
+      if (line) line.classList.remove('filled');
+    }
+  }
+}
+
+function goToStep(stepNum) {
+  // Hide all steps
+  document.querySelectorAll('.step-panel').forEach(s => s.classList.remove('active', 'back'));
+  
+  // Show target step
+  const stepId = `step${stepNum}`;
+  const step = document.getElementById(stepId);
+  if (step) {
+    step.classList.add('active');
+  }
+  
+  state.step = stepNum;
+  updateProgress(stepNum);
+  updateBottomBar(stepNum);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updateBottomBar(stepNum) {
+  const hint = document.getElementById('selectionHint');
+  const btnNext = document.getElementById('btnNext');
+  const btnBack = document.querySelector('.btn-back');
+  
+  if (!btnBack) return; // Exit if button doesn't exist yet
+  
+  if (stepNum === 1) {
+    btnBack.style.display = 'none';
+    if (hint) hint.classList.add('visible');
+    if (btnNext) btnNext.textContent = 'Continue →';
+  } else if (stepNum === 2) {
+    btnBack.style.display = 'flex';
+    if (hint) hint.classList.remove('visible');
+    if (btnNext) btnNext.textContent = 'Continue →';
+  } else if (stepNum === 3) {
+    btnBack.style.display = 'flex';
+    if (hint) hint.classList.remove('visible');
+    if (btnNext) btnNext.textContent = 'Select Payment →';
+  } else if (stepNum === 4) {
+    btnBack.style.display = 'flex';
+    if (hint) hint.classList.remove('visible');
+    if (btnNext) btnNext.textContent = 'Review & Book →';
+  } else if (stepNum === 5) {
+    btnBack.style.display = 'flex';
+    if (hint) hint.classList.remove('visible');
+    if (btnNext) btnNext.textContent = 'Review and Book';
+  }
+}
+
+function nextStep() {
+  if (state.step === 1) {
+    updateProfileDisplay();
+    goToStep(2);
+  } else if (state.step === 2) {
+    goToStep(3);
+  } else if (state.step === 3) {
+    if (!validateSchedule()) return;
+    updatePaymentSummary();
+    goToStep(4);
+  } else if (state.step === 4) {
+    if (!state.paymentMethod) {
+      alert('Please select a payment method');
+      return;
+    }
+    updateConfirmDisplay();
+    goToStep(5);
+  } else if (state.step === 5) {
+    if (!document.getElementById('agreeTerms').checked) {
+      alert('Please agree to the terms & conditions');
+      return;
+    }
+    confirmBooking();
+  }
+}
+
+function selectPayment(el, method) {
+  document.querySelectorAll('.payment-option').forEach(o => {
+    o.style.borderColor = 'var(--slate-2)';
+    o.style.backgroundColor = 'white';
+  });
+  el.style.borderColor = 'var(--violet)';
+  el.style.backgroundColor = 'var(--violet-bg)';
+  state.paymentMethod = method;
+  document.getElementById('paymentNote').textContent = paymentMethods[method].note;
+}
+
+function goBack() {
+  if (state.step > 1) {
+    goToStep(state.step - 1);
+  }
+}
+
+function validateSchedule() {
+  const date = document.getElementById('bookingDate').value;
+  const time = document.getElementById('bookingTime').value;
+  const duration = document.getElementById('bookingDuration').value;
+  
+  if (!date || !time || !duration) {
+    alert('Please select date, time, and duration');
+    return false;
+  }
+  
+  state.date = date;
+  state.time = time;
+  state.duration = duration;
+  
+  return true;
+}
+
+function updatePaymentSummary() {
+  const p = providers[state.provider];
+  const baseCost = parseInt(state.duration) * p.price;
+  const { platformFee, tax, total } = calculateFees(baseCost);
+  
+  document.getElementById('summaryServiceFee').textContent = `Rs ${baseCost.toLocaleString()}`;
+  document.getElementById('summaryPlatformFee').textContent = `Rs ${platformFee.toLocaleString()}`;
+  document.getElementById('summaryTax').textContent = `Rs ${tax.toLocaleString()}`;
+  document.getElementById('summaryTotal').textContent = `Rs ${total.toLocaleString()}`;
+}
+
+function updateProfileDisplay() {
+  const p = providers[state.provider];
+  document.getElementById('profileAvatar').style.background = p.gradient;
+  document.getElementById('profileAvatar').textContent = p.initials;
+  document.getElementById('profileName').textContent = p.name;
+  document.getElementById('profileRole').textContent = p.role;
+  document.getElementById('profileRating').textContent = p.rating;
+  document.getElementById('profileReviews').textContent = `(${p.jobs} reviews)`;
+  document.getElementById('profileExp').textContent = `${p.exp}`;
+  document.getElementById('profilePrice').textContent = `Rs ${p.price}/hr`;
+}
+
+function updateConfirmDisplay() {
+  const p = providers[state.provider];
+  const durationMap = {'1':'1 hour', '2':'2 hours', '3':'3 hours', '4':'4 hours', '5':'5 hours', '6':'Full day'};
+  
+  document.getElementById('confirmProvider').textContent = p.name;
+  
+  const dateObj = new Date(state.date);
+  const dateStr = dateObj.toLocaleDateString('en-US', {weekday: 'short', month: 'short', day: 'numeric'});
+  document.getElementById('confirmDateTime').textContent = `${dateStr} at ${state.time}`;
+  
+  document.getElementById('confirmDuration').textContent = durationMap[state.duration];
+  
+  document.getElementById('confirmPayment').textContent = paymentMethods[state.paymentMethod].name;
+  
+  const baseCost = parseInt(state.duration) * p.price;
+  const { platformFee, tax, total } = calculateFees(baseCost);
+  document.getElementById('confirmTotalAmount').textContent = `Rs ${total.toLocaleString()}`;
+}
+
+function confirmBooking() {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const token = localStorage.getItem('token');
+
+  if (!user || !token) {
+    alert('Please login to complete booking');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  if (!providers || !providers[state.provider]) {
+    alert('Error: Invalid provider selected');
+    return;
+  }
+
+  const p = providers[state.provider];
+  const baseCost = parseInt(state.duration) * p.price;
+  const { platformFee, tax, total } = calculateFees(baseCost);
+
+  // ✅ CREATE BOOKING REQUEST DATA
+  const bookingData = {
+    providerId: p.id,
+    serviceId: p.serviceId,
+    date: state.date,
+    startTime: state.time,
+    duration: parseInt(state.duration),
+    location: 'Customer Location',
+    notes: '',
+    totalAmount: total,
+    paymentMethod: state.paymentMethod
+  };
+
+  console.log('📤 Sending booking:', bookingData);
+
+  // ✅ SEND TO BACKEND
+  fetch(getApiUrl('/bookings'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(bookingData)
+  })
+  .then(res => {
+    console.log('📥 Response status:', res.status);
+    return res.json();
+  })
+  .then(data => {
+    console.log('📥 Response data:', data);
+    if (data.success) {
+      // Show success screen with real booking reference
+      const bar = document.getElementById('bottomBar');
+      bar.style.display = 'none';
+      document.getElementById('progressSteps').style.opacity = '0';
+      document.querySelectorAll('.step-panel').forEach(s => s.classList.remove('active'));
+      
+      const s = document.getElementById('step-success');
+      s.style.display = 'flex';
+      setTimeout(() => s.classList.add('active'), 10);
+      
+      // Display real booking reference from backend
+      document.getElementById('bookingRef').textContent = data.data.bookingRef;
+      document.getElementById('successMessage').textContent = `${p.name} has been notified and will confirm within 10 minutes. You'll receive an SMS once confirmed.`;
+    } else {
+      console.error('❌ Booking error:', data);
+      alert('Booking failed: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => {
+    console.error('❌ Network error:', err);
+    alert('Failed to create booking: ' + err.message);
+  });
+}
+
+function resetFlow() {
+  state.step = 1;
+  state.provider = 0;
+  state.date = null;
+  state.time = null;
+  state.duration = null;
+  state.paymentMethod = null;
+  
+  document.getElementById('step-success').style.display = 'none';
+  document.getElementById('step-success').classList.remove('active');
+  document.getElementById('bottomBar').style.display = '';
+  document.getElementById('progressSteps').style.opacity = '';
+  
+  // Hide all steps
+  document.querySelectorAll('.step-panel').forEach(s => s.classList.remove('active'));
+  document.getElementById('step1').classList.add('active');
+  
+  // Reset form inputs
+  document.getElementById('bookingDate').value = '';
+  document.getElementById('bookingTime').value = '';
+  document.getElementById('bookingDuration').value = '';
+  document.getElementById('agreeTerms').checked = false;
+  
+  // Reset payment selection
+  document.querySelectorAll('.payment-option').forEach(o => {
+    o.style.borderColor = 'var(--slate-2)';
+    o.style.backgroundColor = 'white';
+  });
+  
+  // Reset provider selection
+  document.querySelectorAll('.pcard').forEach(c => c.classList.remove('selected'));
+  
+  updateProgress(1);
+  updateBottomBar(1);
+  
+  window.scrollTo({top:0});
+}
+
+// ── EVENT LISTENERS ──
+document.addEventListener('DOMContentLoaded', () => {
+  const btnBack = document.querySelector('.btn-back');
+  if (btnBack) {
+    btnBack.onclick = goBack;
+  }
+  
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('bookingDate').min = today;
+});
+
+// ── INIT ──
+// Load real providers from backend
+async function loadRealProviders() {
+  try {
+    console.log('🔄 Fetching real providers from backend...');
+    const response = await fetch(getApiUrl('/providers'));
+    const data = await response.json();
+    
+    console.log('📦 Backend response:', data);
+    
+    if (data.success && data.data && Array.isArray(data.data) && data.data.length > 0) {
+      console.log('✅ Found ' + data.data.length + ' real providers');
+      
+      // Map real providers to our format
+      providers = data.data.map((p, idx) => {
+        // Generate gradient colors
+        const gradients = [
+          'linear-gradient(135deg,#7C3AED,#D946EF)',
+          'linear-gradient(135deg,#5B21B6,#7C3AED)',
+          'linear-gradient(135deg,#D946EF,#F97316)',
+          'linear-gradient(135deg,#10B981,#06B6D4)',
+          'linear-gradient(135deg,#F97316,#EF4444)',
+          'linear-gradient(135deg,#06B6D4,#3B82F6)',
+        ];
+        
+        // Get service ID - ensure at least one service exists
+        const serviceId = p.services && p.services.length > 0 ? p.services[0].id : null;
+        
+        if (!serviceId) {
+          console.warn('⚠️ Provider ' + p.user.firstName + ' has no service - skipping');
+          return null;
+        }
+        
+        return {
+          id: p.id,
+          serviceId: serviceId,
+          initials: (p.user.firstName.charAt(0) + p.user.lastName.charAt(0)).toUpperCase(),
+          name: p.user.firstName + ' ' + p.user.lastName,
+          role: p.category + ' · ' + p.experience,
+          gradient: gradients[idx % gradients.length],
+          rating: (p.rating || 4.5).toFixed(1),
+          jobs: Math.floor(Math.random() * 300) + 50,
+          exp: p.experience || '5 yrs',
+          price: Math.floor(Math.random() * 400) + 500,  // Random price between 500-900
+          location: 'Kathmandu',
+          verified: p.verified,
+          category: p.category
+        };
+      }).filter(p => p !== null);  // Remove null entries (providers without services)
+      
+      console.log('✅ Mapped providers:', providers);
+      
+      // Rebuild provider list in HTML with real data
+      const providerList = document.getElementById('providerList');
+      providerList.innerHTML = providers.map((p, idx) => `
+        <div class="pcard ${idx === 0 ? 'selected' : ''}" onclick="selectProvider(this,${idx})" id="pcard${idx}">
+          <div class="pcard-avatar" style="background:${p.gradient}">${p.initials}</div>
+          <div class="pcard-body">
+            <div class="pcard-top">
+              <span class="pcard-name">${p.name}</span>
+              <span class="pcard-price">Rs ${p.price}<span>/hr</span></span>
+            </div>
+            <div class="pcard-role">${p.role}</div>
+            <div class="pcard-meta">
+              <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span style="margin-left:3px;font-size:12px;font-weight:600;color:var(--t1)">${p.rating}</span><span style="font-size:11px;color:var(--t4);margin-left:3px">(${p.jobs})</span></div>
+              <span class="pcard-meta-item">📍 ${p.location}</span>
+              <span class="pcard-meta-item">⚡ Same-day</span>
+              ${p.verified ? '<span class="badge-verified">✓ Verified</span>' : '<span class="badge-fast">⏳ Pending</span>'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Update results label
+      document.getElementById('resultsLabel').textContent = providers.length + ' providers near Kathmandu';
+      
+      // Re-select first provider
+      if (providers.length > 0) {
+        state.provider = 0;
+        updateHintDisplay(0);
+      }
+      
+      console.log('✅ Provider list updated successfully');
+    } else {
+      console.warn('⚠️ No providers found or invalid response');
+      document.getElementById('resultsLabel').textContent = 'No providers available';
+    }
+  } catch (err) {
+    console.error('❌ Error loading providers:', err);
+    document.getElementById('resultsLabel').textContent = 'Failed to load providers. Please refresh.';
+  }
+}
+
+function updateHintDisplay(idx) {
+  if (providers[idx]) {
+    const p = providers[idx];
+    document.getElementById('hintAvatar').style.background = p.gradient;
+    document.getElementById('hintAvatar').textContent = p.initials;
+    document.getElementById('hintText').textContent = p.name + ' selected';
+  }
+}
+
+document.getElementById('selectionHint').classList.add('visible');
+updateProgress(1);
+updateBottomBar(1);
+
+// Load real providers when page loads
+window.addEventListener('load', () => {
+  console.log('🚀 Page loaded, fetching providers...');
+  loadRealProviders();
+});
+</script>
+</body>
+</html>

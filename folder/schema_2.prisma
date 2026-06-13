@@ -1,0 +1,970 @@
+// ============================================================
+//  CHEAPFLIX NEPAL — Full Prisma Schema
+//  Database: PostgreSQL
+//  ORM:      Prisma
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+//  ENUMS
+// ============================================================
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+  OTP
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum KycStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum ProviderStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum ServiceCategory {
+  HOME_SERVICES
+  BEAUTY
+  EDUCATION
+  TECHNOLOGY
+  VEHICLE
+  DELIVERY
+  EVENTS
+  HEALTH
+  EMERGENCY
+  PROFESSIONAL
+}
+
+enum BookingType {
+  INSTANT
+  SCHEDULED
+  EMERGENCY
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  PROVIDER_EN_ROUTE
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED_BY_CUSTOMER
+  CANCELLED_BY_PROVIDER
+  NO_SHOW
+  DISPUTED
+}
+
+enum PaymentMethod {
+  ESEWA
+  KHALTI
+  IME_PAY
+  FONE_PAY
+  CASH
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum TransactionType {
+  BOOKING_PAYMENT
+  REFUND
+  PROVIDER_EARNING
+  PROVIDER_WITHDRAWAL
+  WALLET_TOPUP
+  PLATFORM_FEE
+  COMMISSION
+}
+
+enum WithdrawalStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PROVIDER_EN_ROUTE
+  PROVIDER_ARRIVED
+  JOB_STARTED
+  JOB_COMPLETED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  REVIEW_RECEIVED
+  KYC_APPROVED
+  KYC_REJECTED
+  WITHDRAWAL_PROCESSED
+  NEW_MESSAGE
+  SYSTEM_ANNOUNCEMENT
+  PROMOTIONAL
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VOICE_NOTE
+  FILE
+  SYSTEM
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED_FOR_CUSTOMER
+  RESOLVED_FOR_PROVIDER
+  CLOSED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// ============================================================
+//  USERS
+// ============================================================
+
+model User {
+  id                String       @id @default(cuid())
+  email             String?      @unique
+  phone             String?      @unique
+  passwordHash      String?
+  role              Role         @default(CUSTOMER)
+  authProvider      AuthProvider @default(EMAIL)
+  oauthProviderId   String?
+
+  // Profile
+  firstName         String
+  lastName          String
+  avatarUrl         String?
+  gender            Gender?
+  dateOfBirth       DateTime?
+  bio               String?
+
+  // Location (for customers — rough area, not live)
+  city              String?
+  district          String?
+  addressLine       String?
+  latitude          Decimal?     @db.Decimal(10, 7)
+  longitude         Decimal?     @db.Decimal(10, 7)
+
+  // Account state
+  isEmailVerified   Boolean      @default(false)
+  isPhoneVerified   Boolean      @default(false)
+  isTwoFactorEnabled Boolean     @default(false)
+  twoFactorSecret   String?
+  isActive          Boolean      @default(true)
+  isBanned          Boolean      @default(false)
+  bannedReason      String?
+  bannedAt          DateTime?
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
+
+  // Wallet
+  walletBalance     Decimal      @default(0) @db.Decimal(12, 2)
+
+  // Push notifications
+  fcmToken          String?
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?    // soft delete
+
+  // Relations
+  provider          Provider?
+  bookingsAsCustomer Booking[]   @relation("CustomerBookings")
+  reviewsGiven      Review[]     @relation("ReviewsGiven")
+  reviewsReceived   Review[]     @relation("ReviewsReceived")
+  sentMessages      Message[]    @relation("SentMessages")
+  notifications     Notification[]
+  transactions      Transaction[]
+  favorites         Favorite[]
+  otpCodes          OtpCode[]
+  sessions          Session[]
+  addresses         Address[]
+  disputes          Dispute[]    @relation("CustomerDisputes")
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+  @@index([createdAt])
+}
+
+// ============================================================
+//  SESSIONS (for JWT refresh token tracking)
+// ============================================================
+
+model Session {
+  id            String   @id @default(cuid())
+  userId        String
+  refreshToken  String   @unique
+  deviceInfo    String?
+  ipAddress     String?
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshToken])
+}
+
+// ============================================================
+//  OTP CODES
+// ============================================================
+
+model OtpCode {
+  id          String   @id @default(cuid())
+  userId      String
+  code        String
+  purpose     String   // "phone_verify" | "login" | "password_reset" | "2fa"
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([code])
+}
+
+// ============================================================
+//  ADDRESSES (saved addresses per user)
+// ============================================================
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  label       String   // "Home", "Work", etc.
+  addressLine String
+  city        String
+  district    String
+  latitude    Decimal  @db.Decimal(10, 7)
+  longitude   Decimal  @db.Decimal(10, 7)
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+
+  @@index([userId])
+}
+
+// ============================================================
+//  PROVIDERS
+// ============================================================
+
+model Provider {
+  id                  String          @id @default(cuid())
+  userId              String          @unique
+  status              ProviderStatus  @default(PENDING_VERIFICATION)
+
+  // Professional info
+  businessName        String?         // optional trade name
+  tagline             String?
+  bio                 String?         @db.Text
+  yearsOfExperience   Int             @default(0)
+  languages           String[]        @default(["Nepali"])
+
+  // Location & service area
+  city                String
+  district            String
+  latitude            Decimal?        @db.Decimal(10, 7)
+  longitude           Decimal?        @db.Decimal(10, 7)
+  serviceRadiusKm     Int             @default(10)
+
+  // Live tracking (updated in real time when on a job)
+  liveLatitude        Decimal?        @db.Decimal(10, 7)
+  liveLongitude       Decimal?        @db.Decimal(10, 7)
+  isOnline            Boolean         @default(false)
+  lastSeenAt          DateTime?
+
+  // Ratings (denormalised for fast reads — recomputed on each new review)
+  averageRating       Decimal         @default(0) @db.Decimal(3, 2)
+  totalReviews        Int             @default(0)
+  totalJobsDone       Int             @default(0)
+
+  // Earnings
+  totalEarnings       Decimal         @default(0) @db.Decimal(12, 2)
+  pendingEarnings     Decimal         @default(0) @db.Decimal(12, 2)
+  withdrawableBalance Decimal         @default(0) @db.Decimal(12, 2)
+  commissionRate      Decimal         @default(0.15) @db.Decimal(4, 2) // 15% default
+
+  // KYC
+  kycStatus           KycStatus       @default(PENDING)
+  kycSubmittedAt      DateTime?
+  kycReviewedAt       DateTime?
+  kycReviewedBy       String?         // admin userId
+  kycRejectionReason  String?
+
+  // Subscription / featured
+  isFeatured          Boolean         @default(false)
+  featuredUntil       DateTime?
+  subscriptionPlan    String?         // "basic" | "pro" | "premium"
+  subscriptionEnd     DateTime?
+
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  // Relations
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kycDocuments        KycDocument[]
+  services            ProviderService[]
+  availability        ProviderAvailability[]
+  bookings            Booking[]       @relation("ProviderBookings")
+  portfolioItems      Portfolio[]
+  withdrawals         Withdrawal[]
+  certifications      Certification[]
+
+  @@index([status])
+  @@index([city, district])
+  @@index([averageRating])
+  @@index([isOnline])
+  @@index([isFeatured])
+}
+
+// ============================================================
+//  KYC DOCUMENTS
+// ============================================================
+
+model KycDocument {
+  id           String    @id @default(cuid())
+  providerId   String
+  docType      String    // "citizenship_front" | "citizenship_back" | "pan" | "police_clearance"
+  fileUrl      String
+  cloudinaryId String
+  uploadedAt   DateTime  @default(now())
+
+  provider     Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+}
+
+// ============================================================
+//  CERTIFICATIONS
+// ============================================================
+
+model Certification {
+  id           String    @id @default(cuid())
+  providerId   String
+  title        String
+  issuedBy     String
+  issuedAt     DateTime?
+  fileUrl      String?
+  cloudinaryId String?
+  createdAt    DateTime  @default(now())
+
+  provider     Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+}
+
+// ============================================================
+//  PORTFOLIO
+// ============================================================
+
+model Portfolio {
+  id           String   @id @default(cuid())
+  providerId   String
+  imageUrl     String
+  cloudinaryId String
+  caption      String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  provider     Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+}
+
+// ============================================================
+//  SERVICE CATEGORIES (admin-managed)
+// ============================================================
+
+model Category {
+  id           String          @id @default(cuid())
+  name         String          @unique
+  slug         String          @unique
+  description  String?
+  iconUrl      String?
+  parentId     String?         // for subcategories
+  category     ServiceCategory
+  sortOrder    Int             @default(0)
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  parent       Category?       @relation("SubCategories", fields: [parentId], references: [id])
+  children     Category[]      @relation("SubCategories")
+  services     ProviderService[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([isActive])
+}
+
+// ============================================================
+//  PROVIDER SERVICES (what a provider offers + pricing)
+// ============================================================
+
+model ProviderService {
+  id              String    @id @default(cuid())
+  providerId      String
+  categoryId      String
+  title           String
+  description     String?   @db.Text
+  priceType       String    // "hourly" | "fixed" | "negotiable"
+  priceMin        Decimal?  @db.Decimal(10, 2)
+  priceMax        Decimal?  @db.Decimal(10, 2)
+  estimatedHours  Decimal?  @db.Decimal(4, 1)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  provider        Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category        Category  @relation(fields: [categoryId], references: [id])
+  bookings        Booking[]
+
+  @@unique([providerId, categoryId])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+// ============================================================
+//  PROVIDER AVAILABILITY
+// ============================================================
+
+model ProviderAvailability {
+  id          String    @id @default(cuid())
+  providerId  String
+  dayOfWeek   DayOfWeek
+  startTime   String    // "09:00"
+  endTime     String    // "18:00"
+  isAvailable Boolean   @default(true)
+
+  provider    Provider  @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, dayOfWeek])
+  @@index([providerId])
+}
+
+// ============================================================
+//  PROVIDER TIME-OFF (vacation / blocked dates)
+// ============================================================
+
+model ProviderTimeOff {
+  id         String   @id @default(cuid())
+  providerId String
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  @@index([providerId])
+  @@index([startDate, endDate])
+}
+
+// ============================================================
+//  BOOKINGS
+// ============================================================
+
+model Booking {
+  id                  String        @id @default(cuid())
+  bookingNumber       String        @unique // human-readable e.g. "CF-2025-00421"
+  customerId          String
+  providerId          String
+  serviceId           String
+  addressId           String?       // customer's service address
+
+  bookingType         BookingType   @default(SCHEDULED)
+  status              BookingStatus @default(PENDING)
+
+  // Scheduling
+  scheduledAt         DateTime
+  estimatedDurationMins Int?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  cancelledAt         DateTime?
+  cancellationReason  String?
+  cancelledBy         String?       // userId
+
+  // Location at booking time (snapshot)
+  serviceAddressLine  String?
+  serviceCity         String
+  serviceLatitude     Decimal?      @db.Decimal(10, 7)
+  serviceLongitude    Decimal?      @db.Decimal(10, 7)
+
+  // Pricing
+  quotedPrice         Decimal?      @db.Decimal(10, 2)
+  finalPrice          Decimal?      @db.Decimal(10, 2)
+  platformFee         Decimal?      @db.Decimal(10, 2)
+  providerEarning     Decimal?      @db.Decimal(10, 2)
+  currency            String        @default("NPR")
+
+  // Payment
+  paymentStatus       PaymentStatus @default(PENDING)
+  paymentMethod       PaymentMethod?
+
+  // Customer notes
+  specialInstructions String?
+
+  // Emergency flag
+  isEmergency         Boolean       @default(false)
+  emergencyPremium    Decimal?      @db.Decimal(10, 2)
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  customer            User          @relation("CustomerBookings", fields: [customerId], references: [id])
+  provider            Provider      @relation("ProviderBookings", fields: [providerId], references: [id])
+  service             ProviderService @relation(fields: [serviceId], references: [id])
+  address             Address?      @relation(fields: [addressId], references: [id])
+  review              Review?
+  payment             Payment?
+  dispute             Dispute?
+  messages            Message[]
+
+  @@index([customerId])
+  @@index([providerId])
+  @@index([status])
+  @@index([bookingType])
+  @@index([scheduledAt])
+  @@index([createdAt])
+  @@index([bookingNumber])
+}
+
+// ============================================================
+//  REVIEWS
+// ============================================================
+
+model Review {
+  id                String   @id @default(cuid())
+  bookingId         String   @unique
+  reviewerId        String   // customer who wrote it
+  revieweeId        String   // provider being reviewed
+  rating            Int      // 1–5
+  comment           String?  @db.Text
+  photoUrls         String[] @default([])
+  isPublic          Boolean  @default(true)
+
+  // Provider reply
+  providerReply     String?
+  providerRepliedAt DateTime?
+
+  // Admin moderation
+  isApproved        Boolean  @default(true)
+  moderatedAt       DateTime?
+  moderatedBy       String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  booking           Booking  @relation(fields: [bookingId], references: [id])
+  reviewer          User     @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  reviewee          User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+
+  @@index([revieweeId])
+  @@index([reviewerId])
+  @@index([rating])
+  @@index([createdAt])
+}
+
+// ============================================================
+//  PAYMENTS
+// ============================================================
+
+model Payment {
+  id                  String        @id @default(cuid())
+  bookingId           String        @unique
+  amount              Decimal       @db.Decimal(10, 2)
+  currency            String        @default("NPR")
+  method              PaymentMethod
+  status              PaymentStatus @default(PENDING)
+
+  // Gateway details
+  gatewayTransactionId String?      // eSewa/Khalti ref
+  gatewayResponse     Json?         // raw gateway payload
+
+  // Refund info
+  refundedAmount      Decimal?      @db.Decimal(10, 2)
+  refundedAt          DateTime?
+  refundReason        String?
+
+  paidAt              DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  booking             Booking       @relation(fields: [bookingId], references: [id])
+
+  @@index([status])
+  @@index([method])
+  @@index([gatewayTransactionId])
+}
+
+// ============================================================
+//  TRANSACTIONS (full ledger — wallet, earnings, commissions)
+// ============================================================
+
+model Transaction {
+  id            String          @id @default(cuid())
+  userId        String
+  type          TransactionType
+  amount        Decimal         @db.Decimal(12, 2)
+  balanceBefore Decimal         @db.Decimal(12, 2)
+  balanceAfter  Decimal         @db.Decimal(12, 2)
+  currency      String          @default("NPR")
+  description   String?
+  referenceId   String?         // bookingId, withdrawalId, etc.
+  referenceType String?         // "booking" | "withdrawal" | "topup"
+  createdAt     DateTime        @default(now())
+
+  user          User            @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([referenceId])
+}
+
+// ============================================================
+//  PROVIDER WITHDRAWALS
+// ============================================================
+
+model Withdrawal {
+  id              String           @id @default(cuid())
+  providerId      String
+  amount          Decimal          @db.Decimal(12, 2)
+  method          PaymentMethod
+  status          WithdrawalStatus @default(PENDING)
+
+  // Bank / wallet details (encrypted at app level)
+  accountName     String
+  accountNumber   String
+  bankName        String?
+
+  processedAt     DateTime?
+  processedBy     String?          // admin userId
+  failureReason   String?
+  notes           String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  provider        Provider         @relation(fields: [providerId], references: [id])
+
+  @@index([providerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ============================================================
+//  MESSAGES (chat per booking)
+// ============================================================
+
+model Message {
+  id           String      @id @default(cuid())
+  bookingId    String
+  senderId     String
+  messageType  MessageType @default(TEXT)
+  content      String?     @db.Text
+  fileUrl      String?
+  cloudinaryId String?
+  fileName     String?
+  fileSizeBytes Int?
+  durationSecs  Int?        // for voice notes
+  isRead       Boolean     @default(false)
+  readAt       DateTime?
+  isDeleted    Boolean     @default(false)
+  deletedAt    DateTime?
+  createdAt    DateTime    @default(now())
+
+  booking      Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  sender       User        @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// ============================================================
+//  NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id         String              @id @default(cuid())
+  userId     String
+  type       NotificationType
+  channel    NotificationChannel @default(IN_APP)
+  title      String
+  body       String
+  imageUrl   String?
+  actionUrl  String?             // deep link
+  data       Json?               // arbitrary payload
+  isRead     Boolean             @default(false)
+  readAt     DateTime?
+  sentAt     DateTime?
+  failedAt   DateTime?
+  errorMsg   String?
+  createdAt  DateTime            @default(now())
+
+  user       User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// ============================================================
+//  FAVORITES
+// ============================================================
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  providerId String
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+  @@index([userId])
+}
+
+// ============================================================
+//  DISPUTES
+// ============================================================
+
+model Dispute {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  raisedById      String        // customer
+  status          DisputeStatus @default(OPEN)
+  reason          String        @db.Text
+  evidenceUrls    String[]      @default([])
+
+  // Admin resolution
+  resolution      String?       @db.Text
+  resolvedBy      String?       // admin userId
+  resolvedAt      DateTime?
+  refundIssued    Boolean       @default(false)
+  refundAmount    Decimal?      @db.Decimal(10, 2)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  raisedBy        User          @relation("CustomerDisputes", fields: [raisedById], references: [id])
+  comments        DisputeComment[]
+
+  @@index([status])
+  @@index([raisedById])
+  @@index([createdAt])
+}
+
+model DisputeComment {
+  id         String   @id @default(cuid())
+  disputeId  String
+  authorId   String   // admin or customer
+  comment    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  dispute    Dispute  @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+
+  @@index([disputeId])
+}
+
+// ============================================================
+//  SERVICE REQUESTS (before a booking is confirmed — quote flow)
+// ============================================================
+
+model ServiceRequest {
+  id              String   @id @default(cuid())
+  customerId      String
+  categoryId      String
+  description     String   @db.Text
+  budgetMin       Decimal? @db.Decimal(10, 2)
+  budgetMax       Decimal? @db.Decimal(10, 2)
+  preferredDate   DateTime?
+  city            String
+  latitude        Decimal? @db.Decimal(10, 7)
+  longitude       Decimal? @db.Decimal(10, 7)
+  isOpen          Boolean  @default(true)
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+
+  quotes          Quote[]
+
+  @@index([customerId])
+  @@index([categoryId])
+  @@index([isOpen])
+}
+
+model Quote {
+  id               String         @id @default(cuid())
+  serviceRequestId String
+  providerId       String
+  price            Decimal        @db.Decimal(10, 2)
+  estimatedHours   Decimal?       @db.Decimal(4, 1)
+  message          String?        @db.Text
+  isAccepted       Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceRequestId, providerId])
+  @@index([providerId])
+}
+
+// ============================================================
+//  ADMIN: ANNOUNCEMENTS
+// ============================================================
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  body        String    @db.Text
+  imageUrl    String?
+  targetRole  Role?     // null = all users
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  createdBy   String    // admin userId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isPublished])
+  @@index([targetRole])
+}
+
+// ============================================================
+//  ADMIN: PLATFORM SETTINGS
+// ============================================================
+
+model PlatformSetting {
+  key         String   @id
+  value       String   @db.Text
+  description String?
+  updatedBy   String?  // admin userId
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================================
+//  ADMIN: AUDIT LOG
+// ============================================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String   // admin userId
+  action     String   // "VERIFY_PROVIDER" | "BAN_USER" | "RESOLVE_DISPUTE" etc.
+  targetType String   // "User" | "Provider" | "Booking" etc.
+  targetId   String
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+// ============================================================
+//  PROMO CODES
+// ============================================================
+
+model PromoCode {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  description      String?
+  discountType     String    // "percentage" | "fixed"
+  discountValue    Decimal   @db.Decimal(10, 2)
+  maxDiscountAmount Decimal? @db.Decimal(10, 2)
+  minBookingAmount Decimal?  @db.Decimal(10, 2)
+  usageLimit       Int?
+  usedCount        Int       @default(0)
+  isActive         Boolean   @default(true)
+  validFrom        DateTime
+  validUntil       DateTime
+  createdBy        String    // admin userId
+  createdAt        DateTime  @default(now())
+
+  redemptions      PromoRedemption[]
+
+  @@index([code])
+  @@index([isActive])
+}
+
+model PromoRedemption {
+  id          String    @id @default(cuid())
+  promoCodeId String
+  userId      String
+  bookingId   String
+  discountAmt Decimal   @db.Decimal(10, 2)
+  usedAt      DateTime  @default(now())
+
+  promoCode   PromoCode @relation(fields: [promoCodeId], references: [id])
+
+  @@unique([promoCodeId, bookingId])
+  @@index([userId])
+}
+Good — I have the full picture. My colour pick: **deep violet-to-magenta** as the primary gradient, with a warm **coral-orange** accent. It's bold, energetic, and distinctive for a South Asian marketplace — feels premium but approachable, very different from the generic blue/cyan most competitors use.Got the full file. Now I'll rewrite it with the new name and a rich **violet → magenta + coral-orange** palette throughout.Done! Here's what changed:
+
+**Name** — every instance of "Tipflix Nepal" is now "Cheapflix Nepal", logo mark updated from `TF` → `CF`, copyright line updated too.
+
+**New colour palette — violet × magenta × coral:**
+
+- **Dark base** — deep plum `#130C1E` instead of plain navy. Feels richer and more distinctive.
+- **Primary** — electric violet `#7C3AED`, replacing the generic blue. Stands out in the Nepali market.
+- **Accent** — hot magenta `#D946EF`. Used on quote marks, gradients, and the eyebrow dot — gives it energy.
+- **CTA colour** — coral-orange `#F97316` for the search button and app section labels. Warm, action-forward, and contrasts beautifully against the violet.
+- **Hero gradient** — three-stop `violet → magenta → coral` on the headline accent text, the step connector line, and the search button.
+- **Avatar gradients** — each provider card gets its own gradient combo so they feel alive rather than flat.

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <h1>Cheapflix Nepal</h1>
+      </div>
+
+      <div class="navbar-menu">
+        <a href="../index.html" class="nav-link">Home</a>
+        <span class="nav-link" id="userName"></span>
+        <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="dashboard-container">
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="#bookings" class="menu-link active">My Bookings</a></li>
+        <li><a href="#profile" class="menu-link">Profile</a></li>
+        <li><a href="#reviews" class="menu-link">My Reviews</a></li>
+        <li><a href="#settings" class="menu-link">Settings</a></li>
+      </ul>
+    </div>
+
+    <div class="dashboard-content">
+
+      <section id="bookings" class="dashboard-section active">
+        <h2>My Bookings</h2>
+        <div class="bookings-list" id="bookingsList">
+          <p>Loading bookings...</p>
+        </div>
+      </section>
+
+      <section id="profile" class="dashboard-section">
+        <h2>Profile</h2>
+        <form id="profileForm">
+          <div class="form-group">
+            <label>Name:</label>
+            <input type="text" id="profileName" disabled>
+          </div>
+
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="profileEmail" disabled>
+          </div>
+
+          <div class="form-group">
+            <label>Phone:</label>
+            <input type="tel" id="profilePhone">
+          </div>
+
+          <div class="form-group">
+            <label>Address:</label>
+            <input type="text" id="profileAddress">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </section>
+
+      <section id="reviews" class="dashboard-section">
+        <h2>My Reviews</h2>
+        <div class="reviews-list">
+          <p>No reviews yet</p>
+        </div>
+      </section>
+
+      <section id="settings" class="dashboard-section">
+        <h2>Settings</h2>
+        <button class="btn btn-danger" onclick="logout()">Logout</button>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    // Global API URL helper - works for both localhost and production
+    const getApiUrl = (endpoint) => {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+      return baseUrl + '/api' + endpoint;
+    };
+
+    // SAFE AUTH CHECK (NO RANDOM LOGOUT BUG)
+    window.addEventListener("DOMContentLoaded", () => {
+
+      const token = localStorage.getItem("token");
+
+      let user = null;
+      try {
+        user = JSON.parse(localStorage.getItem("user"));
+      } catch (e) {
+        user = null;
+      }
+
+      // redirect only if truly not logged in
+      if (!token || !user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      // ✅ REDIRECT PROVIDERS TO PROVIDER DASHBOARD
+      if (user.role === 'provider') {
+        window.location.href = 'provider-dashboard.html';
+        return;
+      }
+
+      // ✅ REDIRECT ADMINS TO ADMIN DASHBOARD
+      if (user.role === 'admin') {
+        window.location.href = 'admin-dashboard.html';
+        return;
+      }
+
+      // show username
+      document.getElementById("userName").textContent =
+        `Welcome, ${user.firstName}`;
+
+      // load profile safely
+      loadProfile(user);
+
+      // ✅ LOAD BOOKINGS FOR THIS USER
+      loadBookings(user.id, token);
+
+      // menu navigation (NO page reload)
+      document.querySelectorAll(".menu-link").forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          const target = e.target.getAttribute("href");
+
+          document.querySelectorAll(".dashboard-section")
+            .forEach(s => s.classList.remove("active"));
+
+          document.querySelectorAll(".menu-link")
+            .forEach(m => m.classList.remove("active"));
+
+          document.querySelector(target).classList.add("active");
+          e.target.classList.add("active");
+        });
+      });
+
+    });
+
+    // PROFILE LOADER (FIXED)
+    function loadProfile(user) {
+      document.getElementById("profileName").value =
+        `${user.firstName} ${user.lastName}`;
+
+      document.getElementById("profileEmail").value =
+        user.email;
+    }
+
+    // ✅ LOAD BOOKINGS FROM API
+    async function loadBookings(userId, token) {
+      try {
+        const response = await fetch(getApiUrl(`/bookings/user/${userId}`), {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          displayBookings(data.data);
+        } else {
+          displayBookings([]); // No bookings
+        }
+      } catch (error) {
+        console.error('Error loading bookings:', error);
+        document.getElementById("bookingsList").innerHTML = 
+          '<p style="color: red;">Failed to load bookings. Please refresh.</p>';
+      }
+    }
+
+    // ✅ DISPLAY BOOKINGS IN DASHBOARD
+    function displayBookings(bookings) {
+      const bookingsList = document.getElementById("bookingsList");
+
+      if (!bookings || bookings.length === 0) {
+        bookingsList.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #999;">
+            <p>No bookings yet</p>
+            <p style="font-size: 12px; margin-top: 10px;">Book a service to see it here</p>
+          </div>
+        `;
+        return;
+      }
+
+      bookingsList.innerHTML = bookings.map(booking => `
+        <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+            <div>
+              <h3 style="margin: 0 0 4px; color: #333;">${booking.service?.name || 'Service'}</h3>
+              <p style="margin: 0; font-size: 13px; color: #666;">
+                Provider: <strong>${booking.provider?.user?.firstName} ${booking.provider?.user?.lastName}</strong>
+              </p>
+            </div>
+            <span style="background: ${getStatusColor(booking.status)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+              ${booking.status?.toUpperCase()}
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; font-size: 13px;">
+            <div>
+              <span style="color: #999;">📅 Date:</span>
+              <strong>${new Date(booking.date).toLocaleDateString()}</strong>
+            </div>
+            <div>
+              <span style="color: #999;">⏰ Time:</span>
+              <strong>${booking.startTime}</strong>
+            </div>
+            <div>
+              <span style="color: #999;">📍 Location:</span>
+              <strong>${booking.location}</strong>
+            </div>
+            <div>
+              <span style="color: #999;">💰 Amount:</span>
+              <strong>Rs ${booking.totalAmount?.toLocaleString()}</strong>
+            </div>
+          </div>
+
+          <div style="padding-top: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+            <small style="color: #999;">Ref: <strong>${booking.bookingRef}</strong></small>
+            <button onclick="openCustomerChat('${booking.id}', '${booking.provider?.user?.firstName} ${booking.provider?.user?.lastName}', '${booking.provider?.user?.id}')" style="background: #6366f1; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
+              💬 Chat with Provider
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ✅ HELPER: Get status color
+    function getStatusColor(status) {
+      const colors = {
+        'pending': '#FFA500',
+        'confirmed': '#4CAF50',
+        'in_progress': '#2196F3',
+        'completed': '#8BC34A',
+        'cancelled': '#f44336'
+      };
+      return colors[status] || '#999';
+    }
+
+    // LOGOUT (SAFE)
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      window.location.href = "login.html";
+    }
+
+    // ✅ CHAT SYSTEM FOR CUSTOMERS
+    let currentChatBookingId = null;
+    let currentChatProviderName = null;
+    let currentChatReceiverId = null;
+    let chatMessages = [];
+    let currentToken = localStorage.getItem('token');
+
+    function openCustomerChat(bookingId, providerName, receiverId) {
+      currentChatBookingId = bookingId;
+      currentChatProviderName = providerName;
+      currentChatReceiverId = receiverId;
+      document.getElementById('providerNameDisplay').textContent = providerName || 'Provider';
+      loadChatMessages();
+      openChatModal();
+    }
+
+    async function loadChatMessages() {
+      try {
+        const response = await fetch(getApiUrl(`/chat/booking/${currentChatBookingId}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          chatMessages = data.data || [];
+        }
+      } catch (err) {
+        console.error('Error loading messages:', err);
+      }
+      renderChatMessages();
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('customerChatMessages');
+      
+      if (!container) {
+        console.error('Chat messages container not found');
+        return;
+      }
+      
+      if (chatMessages.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: #999; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
+            <div>No messages yet. Start the conversation!</div>
+          </div>
+        `;
+        return;
+      }
+      
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      container.innerHTML = chatMessages.map(msg => {
+        const time = new Date(msg.createdAt || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const isFromMe = msg.senderId === currentUser.id;
+        
+        return `
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; ${isFromMe ? 'justify-content: flex-end;' : ''}">
+            <div style="max-width: 70%;">
+              <div style="background: ${isFromMe ? '#6366f1' : '#e5e7eb'}; color: ${isFromMe ? 'white' : '#333'}; padding: 0.75rem 1rem; border-radius: 8px; word-wrap: break-word;">
+                ${msg.text || ''}
+              </div>
+              <div style="font-size: 0.75rem; color: #999; margin-top: 0.25rem; ${isFromMe ? 'text-align: right;' : ''}">${time}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendChatMessageCustomer() {
+      const input = document.getElementById('customerChatInput');
+      const message = input.value.trim();
+      
+      if (!message || !currentChatBookingId || !currentChatReceiverId) return;
+      
+      try {
+        const response = await fetch(getApiUrl('/chat/send'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            bookingId: currentChatBookingId,
+            receiverId: currentChatReceiverId,
+            text: message
+          })
+        });
+        
+        if (response.ok) {
+          input.value = '';
+          const data = await response.json();
+          chatMessages.push(data.data || { message, createdAt: new Date() });
+          renderChatMessages();
+        } else {
+          const error = await response.json();
+          alert('❌ Failed to send message: ' + (error.error || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Error sending message:', err);
+        alert('❌ Failed to send message');
+      }
+    }
+
+    function openChatModal() {
+      const modal = document.getElementById('customerChatModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('customerChatInput').focus(), 100);
+      }
+    }
+
+    function closeChatModal() {
+      const modal = document.getElementById('customerChatModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('customerChatModal');
+      if (modal && e.target === modal) {
+        closeChatModal();
+      }
+    });
+
+    // Send on Enter key
+    document.addEventListener('keypress', (e) => {
+      const input = document.getElementById('customerChatInput');
+      if (input && e.key === 'Enter' && e.target === input) {
+        e.preventDefault();
+        sendChatMessageCustomer();
+      }
+    });
+  </script>
+
+  <!-- Chat Modal for Customer Dashboard -->
+  <style>
+    #customerChatModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #customerChatModal.active {
+      display: flex;
+    }
+
+    .customer-chat-container {
+      background: white;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .customer-chat-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .customer-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .customer-chat-input {
+      padding: 1rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .customer-chat-input input {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .customer-chat-input button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .customer-chat-input button:hover {
+      background: #4f46e5;
+    }
+
+    .customer-chat-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .customer-chat-close:hover {
+      color: #333;
+    }
+  </style>
+
+  <div id="customerChatModal">
+    <div class="customer-chat-container">
+      <div class="customer-chat-header">
+        <h2 style="font-size: 1.5rem; color: #333; margin: 0;">💬 Chat with <span id="providerNameDisplay">Provider</span></h2>
+        <button class="customer-chat-close" onclick="closeChatModal()">✕</button>
+      </div>
+      <div class="customer-chat-messages" id="customerChatMessages">
+        <div style="text-align: center; color: #999;">Loading messages...</div>
+      </div>
+      <div class="customer-chat-input">
+        <input type="text" id="customerChatInput" placeholder="Type your message...">
+        <button onclick="sendChatMessageCustomer()">Send</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

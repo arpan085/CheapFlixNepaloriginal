@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Provider Management</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../config.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f3ff;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #7C3AED, #D946EF);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #7C3AED;
+    }
+
+    .providers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .provider-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: all 0.2s;
+    }
+
+    .provider-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+
+    .provider-header {
+      background: linear-gradient(135deg, #7C3AED, #D946EF);
+      color: white;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .provider-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .provider-info {
+      flex: 1;
+    }
+
+    .provider-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .provider-role {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .provider-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .status-pending {
+      background: #FFF7ED;
+      color: #F97316;
+    }
+
+    .status-verified {
+      background: #F0FDF4;
+      color: #10B981;
+    }
+
+    .status-rejected {
+      background: #FEE2E2;
+      color: #EF4444;
+    }
+
+    .provider-content {
+      padding: 16px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .detail-label {
+      color: #999;
+    }
+
+    .detail-value {
+      color: #130C1E;
+      font-weight: 600;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      border-top: 1px solid #eee;
+      padding-top: 16px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-approve {
+      background: #10B981;
+      color: white;
+    }
+
+    .btn-approve:hover {
+      background: #059669;
+    }
+
+    .btn-reject {
+      background: #EF4444;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #DC2626;
+    }
+
+    .btn-view {
+      background: #7C3AED;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background: #6D28D9;
+    }
+
+    .filter-bar {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .filter-bar select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .logout-btn {
+      background: white;
+      color: #7C3AED;
+      border: 1px solid #7C3AED;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <h1>👨‍💼 Provider Management</h1>
+        <p style="font-size: 12px; opacity: 0.9;">Manage and verify service providers</p>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Providers</div>
+        <div class="stat-value" id="totalProviders">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Verification</div>
+        <div class="stat-value" id="pendingCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Verified</div>
+        <div class="stat-value" id="verifiedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Earnings</div>
+        <div class="stat-value">Rs 0</div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-bar">
+      <label>Filter by Status:</label>
+      <select onchange="filterProviders(this.value)">
+        <option value="">All Providers</option>
+        <option value="pending">Pending</option>
+        <option value="verified">Verified</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+
+    <!-- Providers Grid -->
+    <div class="providers-grid" id="providersGrid">
+      <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">
+        Loading providers...
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    let allProviders = [];
+
+    // Fallback API URL helper - in case config.js didn't load
+    if (!window.getApiUrl) {
+      window.getApiUrl = (endpoint) => {
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+        return baseUrl + '/api' + endpoint;
+      };
+    }
+
+    // ✅ CHECK ADMIN ACCESS
+    window.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      if (user.role !== 'admin') {
+        alert('Admin access only');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      loadProviders();
+    });
+
+    // ✅ LOAD PROVIDERS FROM API
+    async function loadProviders() {
+      try {
+        const response = await fetch(window.getApiUrl('/admin/providers'), {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          allProviders = data.data || [];
+          displayProviders(allProviders);
+          updateStats();
+        }
+      } catch (error) {
+        console.error('Error loading providers:', error);
+        document.getElementById('providersGrid').innerHTML = 
+          '<p style="grid-column: 1/-1; color: red;">Failed to load providers</p>';
+      }
+    }
+
+    // ✅ DISPLAY PROVIDERS
+    function displayProviders(providers) {
+      const grid = document.getElementById('providersGrid');
+      
+      if (!providers || providers.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">No providers found</p>';
+        return;
+      }
+
+      grid.innerHTML = providers.map(p => `
+        <div class="provider-card">
+          <div class="provider-header">
+            <div class="provider-avatar" style="background: linear-gradient(135deg, #7C3AED, #D946EF);">
+              ${(p.user.firstName[0] + p.user.lastName[0]).toUpperCase()}
+            </div>
+            <div class="provider-info">
+              <div class="provider-name">${p.user.firstName} ${p.user.lastName}</div>
+              <div class="provider-role">${p.category}</div>
+            </div>
+          </div>
+
+          <div class="provider-content">
+            <div style="margin-bottom: 12px;">
+              <div class="provider-status ${getStatusClass(p.verified)}">
+                ${p.verified ? '✓ Verified' : '⏳ Pending'}
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">${p.user.email}</span>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">Phone:</span>
+              <span class="detail-value">${p.user.phone || 'N/A'}</span>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">Experience:</span>
+              <span class="detail-value">${p.experience || 0} years</span>
+            </div>
+
+            <div class="detail-row">
+              <span class="detail-label">Rating:</span>
+              <span class="detail-value">${p.rating || 'New'}</span>
+            </div>
+
+            <div class="action-buttons">
+              ${!p.verified ? `
+                <button class="btn btn-approve" onclick="approveProvider('${p.id}')">✓ Approve</button>
+                <button class="btn btn-reject" onclick="rejectProvider('${p.id}')">✕ Reject</button>
+              ` : `
+                <button class="btn btn-view" onclick="viewProfile('${p.id}')">View Profile</button>
+              `}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ✅ HELPER: GET STATUS CLASS
+    function getStatusClass(verified) {
+      return verified ? 'status-verified' : 'status-pending';
+    }
+
+    // ✅ FILTER PROVIDERS
+    function filterProviders(status) {
+      const filtered = status ? allProviders.filter(p => {
+        if (status === 'pending') return !p.verified;
+        if (status === 'verified') return p.verified;
+        return true;
+      }) : allProviders;
+
+      displayProviders(filtered);
+    }
+
+    // ✅ APPROVE PROVIDER
+    async function approveProvider(providerId) {
+      if (!confirm('Approve this provider?')) return;
+
+      try {
+        const response = await fetch(window.getApiUrl(`/admin/providers/${providerId}/verify`), {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ verified: true })
+        });
+
+        if (response.ok) {
+          alert('Provider approved!');
+          loadProviders();
+        }
+      } catch (error) {
+        console.error('Error approving provider:', error);
+        alert('Failed to approve provider');
+      }
+    }
+
+    // ✅ REJECT PROVIDER
+    async function rejectProvider(providerId) {
+      if (!confirm('Reject this provider?')) return;
+
+      try {
+        const response = await fetch(window.getApiUrl(`/admin/providers/${providerId}/verify`), {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ verified: false })
+        });
+
+        if (response.ok) {
+          alert('Provider rejected');
+          loadProviders();
+        }
+      } catch (error) {
+        console.error('Error rejecting provider:', error);
+      }
+    }
+
+    // ✅ UPDATE STATS
+    function updateStats() {
+      const pending = allProviders.filter(p => !p.verified).length;
+      const verified = allProviders.filter(p => p.verified).length;
+
+      document.getElementById('totalProviders').textContent = allProviders.length;
+      document.getElementById('pendingCount').textContent = pending;
+      document.getElementById('verifiedCount').textContent = verified;
+    }
+
+    // ✅ VIEW PROFILE
+    function viewProfile(providerId) {
+      alert('Profile view coming soon');
+    }
+
+    // ✅ LOGOUT
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

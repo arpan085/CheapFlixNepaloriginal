@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="../config.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f8f9fb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Header */
+    .navbar {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand h1 {
+      font-size: 1.5rem;
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .btn {
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    /* Layout */
+    .admin-dashboard {
+      display: flex;
+      min-height: calc(100vh - 70px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      padding: 2rem 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .menu-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      color: #666;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      border-left: 4px solid transparent;
+    }
+
+    .menu-link:hover {
+      background: #f3f4f6;
+      color: #6366f1;
+    }
+
+    .menu-link.active {
+      background: #eef2ff;
+      color: #6366f1;
+      border-left-color: #6366f1;
+    }
+
+    /* Main Content */
+    .dashboard-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+
+    .section-header {
+      margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+      color: #6b7280;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    /* Sections */
+    .dashboard-section {
+      display: none;
+    }
+
+    .dashboard-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Tables */
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      background: #f9fafb;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .table td {
+      padding: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .table tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-suspended {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    .status-verified {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn-success {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .action-btn-success:hover {
+      background: #bbf7d0;
+    }
+
+    .action-btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .action-btn-danger:hover {
+      background: #fecaca;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background: white;
+      border-radius: 12px;
+      color: #6b7280;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .admin-dashboard {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        overflow-x: auto;
+      }
+
+      .sidebar-menu li {
+        border-bottom: none;
+        border-right: 1px solid #e5e7eb;
+      }
+
+      .menu-link {
+        padding: 1rem;
+        white-space: nowrap;
+      }
+
+      .dashboard-content {
+        padding: 1.5rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table {
+        font-size: 0.9rem;
+      }
+
+      .table th, .table td {
+        padding: 0.75rem;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <h1>🏢 Admin Dashboard</h1>
+      </div>
+      <div class="navbar-menu">
+        <span class="nav-link" id="userName">Admin</span>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="admin-dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="#overview" class="menu-link active" onclick="switchSection(event, 'overview')"><span>📊</span> Overview</a></li>
+        <li><a href="#users" class="menu-link" onclick="switchSection(event, 'users')"><span>👥</span> Users</a></li>
+        <li><a href="#providers" class="menu-link" onclick="switchSection(event, 'providers')"><span>🔧</span> Providers</a></li>
+        <li><a href="#bookings" class="menu-link" onclick="switchSection(event, 'bookings')"><span>📅</span> Bookings</a></li>
+        <li><a href="#services" class="menu-link" onclick="switchSection(event, 'services')"><span>🎯</span> Services</a></li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+      <!-- Overview -->
+      <section id="overview" class="dashboard-section active">
+        <div class="section-header">
+          <h2>Dashboard Overview</h2>
+          <p>Welcome back! Here's your system summary</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="statTotalUsers">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-label">Total Providers</div>
+            <div class="stat-value" id="statTotalProviders">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-label">Verified Providers</div>
+            <div class="stat-value" id="statVerifiedProviders">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-label">Total Bookings</div>
+            <div class="stat-value" id="statTotalBookings">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-value" id="statPendingProviders">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value" id="statTotalRevenue">Rs 0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Section -->
+      <section id="users" class="dashboard-section">
+        <div class="section-header">
+          <h2>Users Management</h2>
+          <p>Manage all registered customers</p>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="userSearchInput" placeholder="🔍 Search by name or email..." onkeyup="filterUsers()">
+          <select id="userStatusFilter" onchange="filterUsers()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersList">
+              <tr><td colspan="6" style="text-align: center; padding: 3rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Providers Section -->
+      <section id="providers" class="dashboard-section">
+        <div class="section-header">
+          <h2>Providers Management</h2>
+          <p>Approve, verify, and manage service providers</p>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="providerSearchInput" placeholder="🔍 Search by name or email..." onkeyup="filterProviders()">
+          <select id="providerStatusFilter" onchange="filterProviders()">
+            <option value="">All Providers</option>
+            <option value="verified">Verified ✓</option>
+            <option value="pending">Pending ⏳</option>
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Email</th>
+                <th>Rating</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="providersList">
+              <tr><td colspan="6" style="text-align: center; padding: 3rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Bookings Section -->
+      <section id="bookings" class="dashboard-section">
+        <div class="section-header">
+          <h2>Bookings Management</h2>
+          <p>Monitor all service bookings</p>
+        </div>
+
+        <div class="filter-bar">
+          <select id="bookingStatusFilter" onchange="filterBookings()">
+            <option value="">All Bookings</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Booking Ref</th>
+                <th>Customer</th>
+                <th>Provider</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsList">
+              <tr><td colspan="7" style="text-align: center; padding: 3rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Services Section -->
+      <section id="services" class="dashboard-section">
+        <div class="section-header">
+          <h2>Services Management</h2>
+          <p>View all available services</p>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="serviceSearchInput" placeholder="🔍 Search by service name..." onkeyup="filterServices()">
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Service Name</th>
+                <th>Provider</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="servicesList">
+              <tr><td colspan="5" style="text-align: center; padding: 3rem;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let adminToken = null;
+    let adminUser = null;
+    let allUsers = [];
+    let allProviders = [];
+    let allBookings = [];
+    let allServices = [];
+
+    // Fallback API URL helper - in case config.js didn't load
+    if (!window.getApiUrl) {
+      window.getApiUrl = (endpoint) => {
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+        return baseUrl + '/api' + endpoint;
+      };
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      adminToken = localStorage.getItem('token');
+      try {
+        adminUser = JSON.parse(localStorage.getItem('user'));
+      } catch (e) {
+        adminUser = null;
+      }
+
+      if (!adminToken || !adminUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // ✅ REDIRECT NON-ADMINS TO CORRECT DASHBOARD
+      if (adminUser.role === 'provider') {
+        window.location.href = 'provider-dashboard.html';
+        return;
+      }
+
+      if (adminUser.role !== 'admin') {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      document.getElementById('userName').textContent = `👑 ${adminUser.firstName} ${adminUser.lastName || ''}`;
+      
+      await loadDashboardData();
+    });
+
+    function switchSection(event, sectionId) {
+      event.preventDefault();
+      
+      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.menu-link').forEach(m => m.classList.remove('active'));
+      
+      document.getElementById(sectionId).classList.add('active');
+      event.target.closest('.menu-link').classList.add('active');
+
+      if (sectionId === 'users') loadUsers();
+      if (sectionId === 'providers') loadProviders();
+      if (sectionId === 'bookings') loadBookings();
+      if (sectionId === 'services') loadServices();
+    }
+
+    async function loadDashboardData() {
+      await loadUsers();
+      await loadProviders();
+      await loadBookings();
+      await loadServices();
+      updateStats();
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch(window.getApiUrl('/admin/users'), {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (data.success) {
+          allUsers = data.data || [];
+        } else {
+          allUsers = data.data || [];
+        }
+        displayUsers(allUsers);
+      } catch (err) {
+        console.error('Error loading users:', err);
+        document.getElementById('usersList').innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading users - ' + err.message + '</td></tr>';
+      }
+    }
+
+    async function loadProviders() {
+      try {
+        const response = await fetch(window.getApiUrl('/admin/providers'), {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await response.json();
+        allProviders = data.data || data || [];
+        displayProviders(allProviders);
+      } catch (err) {
+        console.error('Error loading providers:', err);
+        document.getElementById('providersList').innerHTML = '<tr><td colspan="6">Error loading providers</td></tr>';
+      }
+    }
+
+    async function loadBookings() {
+      try {
+        const response = await fetch(window.getApiUrl('/admin/bookings'), {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await response.json();
+        allBookings = data.data || data || [];
+        displayBookings(allBookings);
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+        document.getElementById('bookingsList').innerHTML = '<tr><td colspan="7">Error loading bookings</td></tr>';
+      }
+    }
+
+    async function loadServices() {
+      try {
+        const response = await fetch(window.getApiUrl('/admin/services'), {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await response.json();
+        allServices = data.data || data || [];
+        displayServices(allServices);
+      } catch (err) {
+        console.error('Error:', err);
+        document.getElementById('servicesList').innerHTML = '<tr><td colspan="5">Error loading services</td></tr>';
+      }
+    }
+
+    function displayUsers(users) {
+      if (!Array.isArray(users) || users.length === 0) {
+        document.getElementById('usersList').innerHTML = '<tr><td colspan="6"><div class="empty-state">No users found</div></td></tr>';
+        return;
+      }
+
+      document.getElementById('usersList').innerHTML = users.map(user => `
+        <tr>
+          <td><strong>${user.firstName || ''} ${user.lastName || ''}</strong></td>
+          <td>${user.email}</td>
+          <td>${user.phone || 'N/A'}</td>
+          <td><span class="status-badge status-${user.status}">${user.status}</span></td>
+          <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+          <td><div class="actions"><button class="action-btn action-btn-success" onclick="viewUserDetails('${user.id}', '${user.firstName} ${user.lastName}')">View</button><button class="action-btn action-btn-danger" onclick="deleteUser('${user.id}')">Delete</button></div></td>
+        </tr>
+      `).join('');
+    }
+
+    function displayProviders(providers) {
+      if (!Array.isArray(providers) || providers.length === 0) {
+        document.getElementById('providersList').innerHTML = '<tr><td colspan="6"><div class="empty-state">No providers found</div></td></tr>';
+        return;
+      }
+
+      document.getElementById('providersList').innerHTML = providers.map(provider => `
+        <tr>
+          <td><strong>${provider.user?.firstName || ''} ${provider.user?.lastName || ''}</strong></td>
+          <td>${provider.category || 'N/A'}</td>
+          <td>${provider.user?.email || 'N/A'}</td>
+          <td>⭐ ${(provider.rating || 0).toFixed(1)}</td>
+          <td><span class="status-badge status-${provider.verified ? 'verified' : 'pending'}">${provider.verified ? '✓ Verified' : '⏳ Pending'}</span></td>
+          <td>
+            <div class="actions">
+              <button class="action-btn ${provider.verified ? 'action-btn-danger' : 'action-btn-success'}" onclick="toggleProviderVerification('${provider.id}', ${!provider.verified})">${provider.verified ? 'Reject' : 'Approve'}</button>
+              <button class="action-btn action-btn-danger" onclick="deleteProvider('${provider.id}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function displayBookings(bookings) {
+      if (!Array.isArray(bookings) || bookings.length === 0) {
+        document.getElementById('bookingsList').innerHTML = '<tr><td colspan="7"><div class="empty-state">No bookings found</div></td></tr>';
+        return;
+      }
+
+      document.getElementById('bookingsList').innerHTML = bookings.map(booking => `
+        <tr>
+          <td><strong>${booking.bookingRef || 'N/A'}</strong></td>
+          <td>${booking.user?.firstName || ''}</td>
+          <td>${booking.provider?.user?.firstName || ''}</td>
+          <td>${booking.service?.name || 'N/A'}</td>
+          <td>${new Date(booking.date).toLocaleDateString()}</td>
+          <td>Rs ${booking.totalAmount}</td>
+          <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function displayServices(services) {
+      if (!Array.isArray(services) || services.length === 0) {
+        document.getElementById('servicesList').innerHTML = '<tr><td colspan="5"><div class="empty-state">No services found</div></td></tr>';
+        return;
+      }
+
+      document.getElementById('servicesList').innerHTML = services.map(service => `
+        <tr>
+          <td><strong>${service.name || 'N/A'}</strong></td>
+          <td>${service.provider?.user?.firstName || 'N/A'}</td>
+          <td>Rs ${service.price || 0}</td>
+          <td>${service.duration || 60} min</td>
+          <td>${service.description || 'N/A'}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function viewUserDetails(userId, userName) {
+      try {
+        const response = await fetch(window.getApiUrl(`/admin/users`), {
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const data = await response.json();
+        const user = data.data.find(u => u.id === userId);
+        if (user) {
+          alert(`👤 User Details:\n\nName: ${user.firstName} ${user.lastName}\nEmail: ${user.email}\nPhone: ${user.phone || 'N/A'}\nStatus: ${user.status}\nJoined: ${new Date(user.createdAt).toLocaleDateString()}`);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('❌ Error loading user details');
+      }
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm('⚠️ Are you sure you want to delete this user? This action cannot be undone.')) return;
+      try {
+        const response = await fetch(window.getApiUrl(`/admin/users/${userId}`), {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (response.ok) {
+          alert('✅ User deleted successfully!');
+          await loadUsers();
+          updateStats();
+        } else {
+          const error = await response.json();
+          alert('❌ Error: ' + error.error);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('❌ Error deleting user');
+      }
+    }
+
+    async function deleteProvider(providerId) {
+      if (!confirm('⚠️ Are you sure you want to delete this provider? This action cannot be undone.')) return;
+      try {
+        const response = await fetch(window.getApiUrl(`/admin/providers/${providerId}`), {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        if (response.ok) {
+          alert('✅ Provider deleted successfully!');
+          await loadProviders();
+          updateStats();
+        } else {
+          const error = await response.json();
+          alert('❌ Error: ' + error.error);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('❌ Error deleting provider');
+      }
+    }
+
+    async function toggleProviderVerification(providerId, shouldVerify) {
+      try {
+        const response = await fetch(window.getApiUrl(`/admin/providers/${providerId}/verify`), {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${adminToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ verified: shouldVerify })
+        });
+        
+        if (response.ok) {
+          alert(`✅ Provider ${shouldVerify ? 'approved' : 'rejected'} successfully!`);
+          await loadProviders();
+          updateStats();
+        } else {
+          const error = await response.json();
+          alert('❌ Error: ' + error.error);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('❌ Error: ' + err.message);
+      }
+    }
+
+    function filterUsers() {
+      const search = document.getElementById('userSearchInput').value.toLowerCase();
+      const status = document.getElementById('userStatusFilter').value;
+      
+      const filtered = allUsers.filter(user => {
+        const matchesSearch = (user.firstName || '').toLowerCase().includes(search) || user.email.toLowerCase().includes(search);
+        const matchesStatus = !status || user.status === status;
+        return matchesSearch && matchesStatus;
+      });
+      
+      displayUsers(filtered);
+    }
+
+    function filterProviders() {
+      const search = document.getElementById('providerSearchInput').value.toLowerCase();
+      const status = document.getElementById('providerStatusFilter').value;
+      
+      const filtered = allProviders.filter(provider => {
+        const matchesSearch = (provider.user?.firstName || '').toLowerCase().includes(search) || (provider.user?.email || '').toLowerCase().includes(search);
+        let matchesStatus = true;
+        if (status === 'verified') matchesStatus = provider.verified === true;
+        if (status === 'pending') matchesStatus = provider.verified === false;
+        return matchesSearch && matchesStatus;
+      });
+      
+      displayProviders(filtered);
+    }
+
+    function filterBookings() {
+      const status = document.getElementById('bookingStatusFilter').value;
+      
+      const filtered = allBookings.filter(booking => !status || booking.status === status);
+      displayBookings(filtered);
+    }
+
+    function filterServices() {
+      const search = document.getElementById('serviceSearchInput').value.toLowerCase();
+      
+      const filtered = allServices.filter(service => (service.name || '').toLowerCase().includes(search));
+      displayServices(filtered);
+    }
+
+    function updateStats() {
+      document.getElementById('statTotalUsers').textContent = Array.isArray(allUsers) ? allUsers.length : 0;
+      document.getElementById('statTotalProviders').textContent = Array.isArray(allProviders) ? allProviders.length : 0;
+      document.getElementById('statVerifiedProviders').textContent = Array.isArray(allProviders) ? allProviders.filter(p => p.verified).length : 0;
+      document.getElementById('statPendingProviders').textContent = Array.isArray(allProviders) ? allProviders.filter(p => !p.verified).length : 0;
+      document.getElementById('statTotalBookings').textContent = Array.isArray(allBookings) ? allBookings.length : 0;
+      
+      const totalRevenue = Array.isArray(allBookings) ? allBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0) : 0;
+      document.getElementById('statTotalRevenue').textContent = `Rs ${totalRevenue.toLocaleString()}`;
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>
