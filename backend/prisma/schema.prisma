@@ -33,6 +33,8 @@ model User {
   provider  Provider?
   messages  Message[] // Messages sent by this user
   messagesReceived Message[] @relation("MessagesReceived") // Messages received by this user
+  supportTickets SupportTicket[] // Support tickets created by user
+  ticketMessages TicketMessage[] // Messages sent in support tickets
 }
 
 // Provider Model - For service providers
