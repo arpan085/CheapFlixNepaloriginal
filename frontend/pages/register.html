@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/auth.css">
   <script src="../config.js"></script>
+  <!-- Google Sign-In SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="auth-page">
   <div class="auth-container">
@@ -20,10 +22,7 @@
 
       <!-- OAuth Buttons -->
       <div class="oauth-buttons">
-        <button type="button" class="btn-oauth" onclick="signupWithGoogle()">
-          <span class="btn-oauth-icon">🔵</span>
-          <span>Google</span>
-        </button>
+        <div id="google-signin-btn"></div>
         <button type="button" class="btn-oauth" onclick="signupWithFacebook()">
           <span class="btn-oauth-icon">f</span>
           <span>Facebook</span>
@@ -148,6 +147,69 @@
       </div>
 
   <script>
+    const getApiUrl = (endpoint) => {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+      return baseUrl + '/api' + endpoint;
+    };
+
+    // Initialize Google Sign-In
+    window.onload = function() {
+      google.accounts.id.initialize({
+        client_id: '844456219437-f0o1fk0v8u8q1k7b7b7b7b7b7b7b7b7b.apps.googleusercontent.com', // Replace with your actual Google OAuth Client ID
+        callback: handleGoogleSignUp,
+        auto_select: false
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { 
+          theme: 'outline', 
+          size: 'large',
+          width: '100%',
+          text: 'signup_with'
+        }
+      );
+    };
+
+    // Handle Google Sign-Up response
+    async function handleGoogleSignUp(response) {
+      const formError = document.getElementById('formError');
+      
+      try {
+        const result = await fetch(getApiUrl('/auth/google'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            token: response.credential
+          }),
+        });
+
+        const data = await result.json();
+
+        if (result.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          formError.style.color = '#10B981';
+          formError.textContent = 'Registration successful! Redirecting...';
+          
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        } else {
+          formError.textContent = data.error || 'Google signup failed';
+          formError.style.color = '#EF4444';
+        }
+      } catch (error) {
+        console.error('Google signup error:', error);
+        formError.textContent = 'Google signup failed. Please try manual registration.';
+        formError.style.color = '#EF4444';
+      }
+    }
+
     // ✅ TOGGLE PROVIDER FIELDS
     function toggleProviderFields() {
       const userType = document.getElementById('userType').value;
@@ -161,10 +223,6 @@
     }
 
     // OAuth Functions
-    function signupWithGoogle() {
-      alert('Google OAuth integration coming soon!');
-    }
-
     function signupWithFacebook() {
       alert('Facebook OAuth integration coming soon!');
     }
@@ -237,7 +295,7 @@
           requestData.bio = document.getElementById('bio').value;
         }
 
-        const response = await fetch(window.getApiUrl('/auth/register'), {
+        const response = await fetch(getApiUrl('/auth/register'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

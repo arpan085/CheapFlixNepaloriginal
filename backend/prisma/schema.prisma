@@ -163,6 +163,39 @@ model Message {
   @@index([receiverId])
 }
 
+// Support Ticket Model - For users/providers to contact admin
+model SupportTicket {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String     @db.LongText
+  category    String     // "bug", "feedback", "payment", "other"
+  priority    String     @default("medium") // "low", "medium", "high"
+  status      String     @default("open") // "open", "in_progress", "resolved", "closed"
+  
+  messages    TicketMessage[]
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  resolvedAt  DateTime?
+}
+
+// Ticket Message Model - For back-and-forth communication
+model TicketMessage {
+  id          String     @id @default(cuid())
+  ticketId    String
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  
+  message     String     @db.LongText
+  attachment  String?    // URL or path to file if any
+  
+  createdAt   DateTime   @default(now())
+}
+
 // Admin Model
 model Admin {
   id          String     @id @default(cuid())

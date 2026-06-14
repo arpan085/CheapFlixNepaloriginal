@@ -3,38 +3,21 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-async function createAdmin() {
-  try {
-    console.log("🚀 Creating new admin...");
+async function main() {
+  const hash = await bcrypt.hash("adminpe123", 10);
 
-    const hashedPassword = await bcrypt.hash("adminpe123", 10);
+  await prisma.user.create({
+    data: {
+      email: "adminpe@cheapflix.com",
+      password: hash,
+      firstName: "Admin",
+      lastName: "PE",
+      role: "admin",
+      status: "active"
+    }
+  });
 
-    const admin = await prisma.user.upsert({
-      where: {
-        email: "adminpe@cheapflix.com"
-      },
-      update: {
-        password: hashedPassword,
-        role: "admin",
-        status: "active"
-      },
-      create: {
-        email: "adminpe@cheapflix.com",
-        password: hashedPassword,
-        firstName: "Admin",
-        lastName: "PE",
-        role: "admin",
-        status: "active"
-      }
-    });
-
-    console.log("✅ Admin ready:", admin);
-
-  } catch (error) {
-    console.error("❌ Error:", error.message);
-  } finally {
-    await prisma.$disconnect();
-  }
+  console.log("Admin created");
 }
 
-createAdmin();
+main();

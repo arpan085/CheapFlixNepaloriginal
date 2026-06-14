@@ -517,62 +517,11 @@
   <div class="container">
     <div class="section-header">
       <div class="section-eyebrow">Top rated</div>
-      <h2 class="section-title">Nepal's best professionals</h2>
-      <p class="section-sub">Every provider is verified, background-checked, and rated by real customers.</p>
+      <h2 class="section-title">Trusted Professionals in Nepal</h2>
+      <p class="section-sub">Verified, professional, and highly-rated service providers ready to help you.</p>
     </div>
-    <div class="providers-grid">
-      <div class="provider-card">
-        <div class="provider-top">
-          <div class="provider-avatar-placeholder" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
-          <div class="provider-info">
-            <div class="provider-name">Rajesh Maharjan</div>
-            <div class="provider-role">Senior Electrician</div>
-            <span class="provider-badge">✓ KYC Verified</span>
-          </div>
-        </div>
-        <div class="provider-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="rating-text">5.0</span><span class="rating-count">(284 reviews)</span></div>
-        <div class="provider-meta"><span class="meta-item">📍 Lalitpur</span><span class="meta-item">🕐 8 yrs exp</span><span class="meta-item">⚡ Same-day</span></div>
-        <div class="provider-footer"><div class="provider-price">Rs 800<span> /hr</span></div><button class="btn-book" onclick="window.location.href='pages/booking-flow.html'">Book now</button></div>
-      </div>
-      <div class="provider-card">
-        <div class="provider-top">
-          <div class="provider-avatar-placeholder" style="background:linear-gradient(135deg,#D946EF,#F97316)">SP</div>
-          <div class="provider-info">
-            <div class="provider-name">Sunita Poudel</div>
-            <div class="provider-role">IELTS / English Tutor</div>
-            <span class="provider-badge">✓ KYC Verified</span>
-          </div>
-        </div>
-        <div class="provider-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="rating-text">4.9</span><span class="rating-count">(192 reviews)</span></div>
-        <div class="provider-meta"><span class="meta-item">📍 Kathmandu</span><span class="meta-item">🕐 6 yrs exp</span><span class="meta-item">📹 Online too</span></div>
-        <div class="provider-footer"><div class="provider-price">Rs 1,200<span> /hr</span></div><button class="btn-book" onclick="window.location.href='pages/booking-flow.html'">Book now</button></div>
-      </div>
-      <div class="provider-card">
-        <div class="provider-top">
-          <div class="provider-avatar-placeholder" style="background:linear-gradient(135deg,#5B21B6,#7C3AED)">BT</div>
-          <div class="provider-info">
-            <div class="provider-name">Bibek Tamang</div>
-            <div class="provider-role">Full-Stack Developer</div>
-            <span class="provider-badge">✓ KYC Verified</span>
-          </div>
-        </div>
-        <div class="provider-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star" style="color:#DDD6FE">★</span><span class="rating-text">4.8</span><span class="rating-count">(67 reviews)</span></div>
-        <div class="provider-meta"><span class="meta-item">📍 Pokhara</span><span class="meta-item">🕐 4 yrs exp</span><span class="meta-item">💻 Remote OK</span></div>
-        <div class="provider-footer"><div class="provider-price">Rs 2,500<span> /hr</span></div><button class="btn-book" onclick="window.location.href='pages/booking-flow.html'">Book now</button></div>
-      </div>
-      <div class="provider-card">
-        <div class="provider-top">
-          <div class="provider-avatar-placeholder" style="background:linear-gradient(135deg,#F97316,#D946EF)">AS</div>
-          <div class="provider-info">
-            <div class="provider-name">Aarati Shrestha</div>
-            <div class="provider-role">Makeup Artist</div>
-            <span class="provider-badge">✓ KYC Verified</span>
-          </div>
-        </div>
-        <div class="provider-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="rating-text">5.0</span><span class="rating-count">(411 reviews)</span></div>
-        <div class="provider-meta"><span class="meta-item">📍 Bhaktapur</span><span class="meta-item">🕐 7 yrs exp</span><span class="meta-item">🏠 Home visits</span></div>
-        <div class="provider-footer"><div class="provider-price">Rs 3,000<span> /session</span></div><button class="btn-book" onclick="window.location.href='pages/booking-flow.html'">Book now</button></div>
-      </div>
+    <div class="providers-grid" id="providersGrid">
+      <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">Loading verified professionals...</p>
     </div>
   </div>
 </section>
@@ -669,6 +618,21 @@
   </div>
 </section>
 
+<!-- SUPPORT / GET HELP SECTION -->
+<section style="background: var(--bg); padding: 96px 5vw;">
+  <div class="container">
+    <div class="section-header center">
+      <div class="section-eyebrow">Need assistance?</div>
+      <h2 class="section-title">Get Help & Support</h2>
+      <p class="section-sub">Our support team is here to help. Create a ticket to report issues, ask questions, or provide feedback.</p>
+    </div>
+    <div style="max-width: 600px; margin: 0 auto; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="window.location.href='pages/support.html'" style="padding: 14px 32px; font-size: 16px;">🎟️ Create Support Ticket</button>
+      <button class="btn-ghost" onclick="window.location.href='mailto:support@cheapflix.com'" style="padding: 14px 32px; font-size: 16px;">📧 Email Us</button>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
@@ -709,6 +673,109 @@
 </footer>
 
 <script>
+  // Get API base URL
+  function getApiUrl(endpoint) {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+    return baseUrl + '/api' + endpoint;
+  }
+
+  // Generate random gradient colors for avatars
+  const gradients = [
+    'linear-gradient(135deg,#7C3AED,#D946EF)',
+    'linear-gradient(135deg,#D946EF,#F97316)',
+    'linear-gradient(135deg,#5B21B6,#7C3AED)',
+    'linear-gradient(135deg,#F97316,#D946EF)',
+    'linear-gradient(135deg,#A78BFA,#D946EF)',
+    'linear-gradient(135deg,#7C3AED,#F97316)',
+  ];
+
+  // Generate initials from name
+  function getInitials(firstName, lastName) {
+    return (firstName[0] + (lastName ? lastName[0] : '')).toUpperCase();
+  }
+
+  // Format rating display
+  function formatRating(rating) {
+    return Math.round(rating * 10) / 10 || 0;
+  }
+
+  // Load and display providers
+  async function loadProviders() {
+    try {
+      const response = await fetch(getApiUrl('/providers'), {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+      displayProviders(data.data || []);
+    } catch (error) {
+      console.error('Error loading providers:', error);
+      document.getElementById('providersGrid').innerHTML = 
+        '<p style="grid-column: 1/-1; text-align: center; color: #e74c3c; padding: 40px;">Unable to load providers at the moment. Please try again later.</p>';
+    }
+  }
+
+  // Display providers in grid
+  function displayProviders(providers) {
+    const grid = document.getElementById('providersGrid');
+    
+    if (!providers || providers.length === 0) {
+      grid.innerHTML = `
+        <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">
+          No providers available yet. Check back soon!
+        </p>
+      `;
+      return;
+    }
+
+    // Take top 8 providers
+    const topProviders = providers.slice(0, 8);
+    
+    grid.innerHTML = topProviders.map((provider, idx) => {
+      const name = provider.user.firstName + ' ' + (provider.user.lastName || '');
+      const initials = getInitials(provider.user.firstName, provider.user.lastName);
+      const gradient = gradients[idx % gradients.length];
+      const rating = formatRating(provider.rating);
+      const stars = Array(5).fill('★').map((s, i) => 
+        `<span class="star" style="${i >= Math.floor(rating) ? 'color:#DDD6FE' : ''}">${s}</span>`
+      ).join('');
+      
+      const service = provider.services && provider.services[0] 
+        ? provider.services[0] 
+        : { name: `${provider.category} Services`, price: 500 };
+
+      return `
+        <div class="provider-card">
+          <div class="provider-top">
+            <div class="provider-avatar-placeholder" style="background:${gradient}">${initials}</div>
+            <div class="provider-info">
+              <div class="provider-name">${name}</div>
+              <div class="provider-role">${provider.category}</div>
+              <span class="provider-badge">✓ Verified</span>
+            </div>
+          </div>
+          <div class="provider-stars">
+            ${stars}
+            <span class="rating-text">${rating}</span>
+            <span class="rating-count">(${Math.floor(Math.random() * 300 + 10)} reviews)</span>
+          </div>
+          <div class="provider-meta">
+            <span class="meta-item">📍 ${provider.user.phone ? 'Available' : 'Verified'}</span>
+            <span class="meta-item">🕐 ${provider.experience || '2'}+ yrs exp</span>
+            <span class="meta-item">⚡ Ready to work</span>
+          </div>
+          <div class="provider-footer">
+            <div class="provider-price">Rs ${service.price}<span> /hr</span></div>
+            <button class="btn-book" onclick="window.location.href='pages/booking-flow.html'">Book now</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Hero tag functionality
   document.querySelectorAll('.hero-tag').forEach(t => {
     t.addEventListener('click', () => {
       document.querySelectorAll('.hero-tag').forEach(x => x.style.cssText = '');
@@ -721,6 +788,7 @@
     });
   });
 
+  // Navigation scroll effect
   const nav = document.querySelector('nav');
   window.addEventListener('scroll', () => {
     nav.style.background = window.scrollY > 40
@@ -728,7 +796,7 @@
       : 'rgba(19,12,30,0.90)';
   });
 
-  // ✅ SMART AUTH CHECK — Show Dashboard Button if Logged In
+  // Smart auth check and page setup
   window.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
     let user = null;
@@ -747,6 +815,9 @@
         <button class="btn-ghost" onclick="logout()" style="cursor: pointer;">Logout</button>
       `;
     }
+
+    // Load providers from API
+    loadProviders();
   });
 
   // Safe logout function

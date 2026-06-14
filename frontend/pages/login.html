@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/auth.css">
   <script src="../config.js"></script>
+  <!-- Google Sign-In SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body class="auth-page">
   <div class="auth-container">
@@ -79,10 +81,7 @@
 
       <!-- OAuth Buttons -->
       <div class="oauth-buttons">
-        <button type="button" class="btn-oauth" onclick="loginWithGoogle()">
-          <span class="btn-oauth-icon">🔵</span>
-          <span>Google</span>
-        </button>
+        <div id="google-signin-btn"></div>
         <button type="button" class="btn-oauth" onclick="loginWithFacebook()">
           <span class="btn-oauth-icon">f</span>
           <span>Facebook</span>
@@ -98,6 +97,12 @@
 
   <script src="../js/auth.js"></script>
   <script>
+    const getApiUrl = (endpoint) => {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+      return baseUrl + '/api' + endpoint;
+    };
+
     // Tab switching
     document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', function() {
@@ -116,11 +121,64 @@
       passwordInput.type = isPassword ? 'text' : 'password';
     }
 
-    // OAuth functions
-    function loginWithGoogle() {
-      alert('Google OAuth integration coming soon!');
+    // Initialize Google Sign-In
+    window.onload = function() {
+      // Initialize Google Sign-In button
+      google.accounts.id.initialize({
+        client_id: '844456219437-f0o1fk0v8u8q1k7b7b7b7b7b7b7b7b7b.apps.googleusercontent.com', // Replace with your actual Google OAuth Client ID
+        callback: handleGoogleSignIn,
+        auto_select: false
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { 
+          theme: 'outline', 
+          size: 'large',
+          width: '100%',
+          text: 'signin_with'
+        }
+      );
+    };
+
+    // Handle Google Sign-In response
+    async function handleGoogleSignIn(response) {
+      const formError = document.getElementById('formError');
+      
+      try {
+        const result = await fetch(getApiUrl('/auth/google'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            token: response.credential
+          }),
+        });
+
+        const data = await result.json();
+
+        if (result.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          if (data.user.role === 'admin') {
+            window.location.href = 'admin-dashboard.html';
+          } else if (data.user.role === 'provider') {
+            window.location.href = 'provider-dashboard.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        } else {
+          formError.textContent = data.error || 'Google login failed';
+        }
+      } catch (error) {
+        console.error('Google login error:', error);
+        formError.textContent = 'Google login failed. Please try manual login.';
+      }
     }
 
+    // OAuth functions
     function loginWithFacebook() {
       alert('Facebook OAuth integration coming soon!');
     }
@@ -144,7 +202,7 @@
       formError.textContent = '';
       
       try {
-        const response = await fetch(window.CONFIG.getApiUrl('/auth/login'), {
+        const response = await fetch(getApiUrl('/auth/login'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

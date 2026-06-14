@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Tickets - Cheapflix Nepal</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      background: #f5f5f5;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .support-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #7C3AED, #D946EF);
+      color: white;
+      padding: 40px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    .header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .support-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .support-section {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .support-section h2 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 2px solid #7C3AED;
+      padding-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #7C3AED, #D946EF);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .ticket-card {
+      background: #f9f9f9;
+      border: 1px solid #e5e7eb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .ticket-card:hover {
+      border-color: #7C3AED;
+      box-shadow: 0 4px 12px rgba(124,58,237,0.1);
+    }
+
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+
+    .ticket-title {
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .ticket-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-open {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-in_progress {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-resolved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-closed {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .ticket-info {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .ticket-description {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .message-item {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 3px solid #7C3AED;
+    }
+
+    .message-author {
+      font-weight: 600;
+      font-size: 12px;
+      color: #7C3AED;
+      margin-bottom: 4px;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #999;
+    }
+
+    .message-text {
+      font-size: 13px;
+      color: #333;
+      margin: 4px 0;
+      line-height: 1.4;
+    }
+
+    .no-tickets {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .no-tickets p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .messages-container {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+
+    .reply-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .reply-input:focus {
+      outline: none;
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #7C3AED;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .success-msg {
+      background: #dcfce7;
+      color: #166534;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    .error-msg {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .support-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <h1>Cheapflix Nepal</h1>
+      </div>
+      <div class="navbar-menu">
+        <a href="../index.html" class="nav-link">Home</a>
+        <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="support-container">
+    <div class="header">
+      <h1>🎟️ Support Tickets</h1>
+      <p>Get help from our support team anytime</p>
+    </div>
+
+    <div class="support-grid">
+      <!-- Create New Ticket -->
+      <div class="support-section">
+        <h2>Create New Ticket</h2>
+        <form id="ticketForm">
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="ticketTitle" placeholder="Brief description of your issue" required>
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <select id="ticketCategory" required>
+              <option value="">Select a category...</option>
+              <option value="bug">Bug Report</option>
+              <option value="payment">Payment Issue</option>
+              <option value="booking">Booking Problem</option>
+              <option value="feedback">Feedback</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="ticketPriority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="ticketDescription" placeholder="Describe your issue in detail..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" style="width: 100%;">Create Ticket</button>
+        </form>
+      </div>
+
+      <!-- My Tickets -->
+      <div class="support-section">
+        <h2>My Tickets</h2>
+        <div id="ticketsList">
+          <p style="text-align: center; color: #999;">Loading your tickets...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Detail Modal -->
+  <div id="ticketModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTicketTitle">Ticket Details</h2>
+        <button class="modal-close" onclick="closeTicketModal()">×</button>
+      </div>
+
+      <div id="ticketDetails"></div>
+
+      <div class="messages-container" id="messagesContainer">
+        <p style="text-align: center; color: #999;">Loading messages...</p>
+      </div>
+
+      <div class="form-group">
+        <textarea id="replyMessage" placeholder="Type your reply..." class="reply-input"></textarea>
+      </div>
+
+      <button onclick="sendReply()" class="btn-submit" style="width: 100%;">Send Reply</button>
+    </div>
+  </div>
+
+  <script>
+    const getApiUrl = (endpoint) => {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+      return baseUrl + '/api' + endpoint;
+    };
+
+    const token = localStorage.getItem('token');
+    let user = null;
+    let currentTicketId = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        user = JSON.parse(localStorage.getItem('user'));
+      } catch (e) {
+        user = null;
+      }
+
+      if (!token || !user) {
+        window.location.href = '../pages/login.html';
+        return;
+      }
+
+      loadTickets();
+
+      document.getElementById('ticketForm').addEventListener('submit', createTicket);
+    });
+
+    async function createTicket(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('ticketTitle').value;
+      const description = document.getElementById('ticketDescription').value;
+      const category = document.getElementById('ticketCategory').value;
+      const priority = document.getElementById('ticketPriority').value;
+
+      try {
+        const response = await fetch(getApiUrl('/support'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ title, description, category, priority })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('✅ Ticket created successfully!');
+          document.getElementById('ticketForm').reset();
+          loadTickets();
+        } else {
+          alert('❌ ' + (data.error || 'Failed to create ticket'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error creating ticket');
+      }
+    }
+
+    async function loadTickets() {
+      try {
+        const response = await fetch(getApiUrl('/support'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.data.length > 0) {
+          displayTickets(data.data);
+        } else {
+          document.getElementById('ticketsList').innerHTML = `
+            <div class="no-tickets">
+              <p>No tickets yet. Create one to get help!</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading tickets:', error);
+        document.getElementById('ticketsList').innerHTML = `
+          <div class="error-msg">Failed to load tickets</div>
+        `;
+      }
+    }
+
+    function displayTickets(tickets) {
+      const html = tickets.map(ticket => `
+        <div class="ticket-card" onclick="openTicket('${ticket.id}')">
+          <div class="ticket-header">
+            <h3 class="ticket-title">${ticket.title}</h3>
+            <span class="ticket-status status-${ticket.status}">${ticket.status.toUpperCase()}</span>
+          </div>
+          <div class="ticket-info">
+            <span>${ticket.category} • Created ${new Date(ticket.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div class="ticket-description">${ticket.description.substring(0, 100)}...</div>
+        </div>
+      `).join('');
+
+      document.getElementById('ticketsList').innerHTML = html;
+    }
+
+    async function openTicket(ticketId) {
+      currentTicketId = ticketId;
+
+      try {
+        const response = await fetch(getApiUrl(`/support/${ticketId}`), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const ticket = data.data;
+          document.getElementById('modalTicketTitle').textContent = ticket.title;
+
+          document.getElementById('ticketDetails').innerHTML = `
+            <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+              <div style="margin-bottom: 8px;">
+                <strong>Category:</strong> ${ticket.category}
+              </div>
+              <div style="margin-bottom: 8px;">
+                <strong>Priority:</strong> ${ticket.priority.toUpperCase()}
+              </div>
+              <div style="margin-bottom: 8px;">
+                <strong>Status:</strong> <span class="ticket-status status-${ticket.status}">${ticket.status.toUpperCase()}</span>
+              </div>
+              <div style="margin-bottom: 8px;">
+                <strong>Description:</strong><br>
+                <p style="color: #555; line-height: 1.5; margin: 4px 0 0;">${ticket.description}</p>
+              </div>
+            </div>
+          `;
+
+          // Display messages
+          const messagesHtml = ticket.messages.map(msg => `
+            <div class="message-item">
+              <div class="message-author">${msg.sender.firstName} ${msg.sender.lastName}</div>
+              <div class="message-time">${new Date(msg.createdAt).toLocaleString()}</div>
+              <div class="message-text">${msg.message}</div>
+            </div>
+          `).join('');
+
+          document.getElementById('messagesContainer').innerHTML = messagesHtml || `
+            <p style="text-align: center; color: #999;">No messages yet</p>
+          `;
+
+          document.getElementById('replyMessage').value = '';
+          document.getElementById('ticketModal').classList.add('active');
+        }
+      } catch (error) {
+        console.error('Error loading ticket:', error);
+        alert('❌ Failed to load ticket');
+      }
+    }
+
+    async function sendReply() {
+      const message = document.getElementById('replyMessage').value.trim();
+
+      if (!message || !currentTicketId) {
+        alert('Please enter a message');
+        return;
+      }
+
+      try {
+        const response = await fetch(getApiUrl(`/support/${currentTicketId}/messages`), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('replyMessage').value = '';
+          openTicket(currentTicketId); // Reload ticket
+        } else {
+          alert('❌ ' + (data.error || 'Failed to send message'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Error sending message');
+      }
+    }
+
+    function closeTicketModal() {
+      document.getElementById('ticketModal').classList.remove('active');
+      currentTicketId = null;
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '../pages/login.html';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('ticketModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('ticketModal')) {
+        closeTicketModal();
+      }
+    });
+  </script>
+</body>
+
+</html>
