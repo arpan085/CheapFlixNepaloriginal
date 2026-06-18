@@ -7,7 +7,10 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const allowedOrigins = [
-  "https://cheapflixnepal.netlify.app"
+  "https://cheapflixnepal.live",
+  "https://cheapflixnepal.netlify.app",
+  "http://localhost:5500",
+  "http://localhost:3000"
 ];
 
 app.use(cors({
