@@ -274,7 +274,7 @@ h1,h2,h3,h4,button{font-family:'Plus Jakarta Sans',sans-serif}
       <div style="display:flex;align-items:flex-start;gap:16px;margin-bottom:20px">
         <div id="profileAvatar" style="width:72px;height:72px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;color:white;background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
         <div style="flex:1">
-          <div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:4px" id="profileName">Rajesh Maharjan</div>
+          <div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:4px" id="profileName">No provider selected</div>
           <div style="font-size:14px;color:var(--t3);margin-bottom:8px" id="profileRole">Senior Electrician · 8 yrs experience</div>
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <div style="display:flex;align-items:center;gap:4px;font-size:13px"><span style="color:#F59E0B">★★★★★</span><span style="color:var(--t1);font-weight:600" id="profileRating">5.0</span><span style="color:var(--t3)" id="profileReviews">(284 reviews)</span></div>
@@ -429,7 +429,7 @@ h1,h2,h3,h4,button{font-family:'Plus Jakarta Sans',sans-serif}
     <div id="confirmCard" style="background:white;border:1.5px solid var(--slate-2);border-radius:var(--r-xl);padding:20px;margin-bottom:24px">
       <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--slate-2)">
         <div style="font-size:12px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;font-weight:600">Service Provider</div>
-        <div id="confirmProvider" style="font-size:16px;font-weight:700;color:var(--t1)">Rajesh Maharjan</div>
+        <div id="confirmProvider" style="font-size:16px;font-weight:700;color:var(--t1)">No provider selected</div>
       </div>
 
       <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1.5px solid var(--slate-2)">
@@ -479,7 +479,7 @@ h1,h2,h3,h4,button{font-family:'Plus Jakarta Sans',sans-serif}
     <button class="btn-back" style="display:none" onclick="goBack()" title="Go back">←</button>
     <div class="selection-hint" id="selectionHint">
       <div class="hint-avatar" id="hintAvatar" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">RM</div>
-      <span class="hint-text" id="hintText">Rajesh Maharjan selected</span>
+      <span class="hint-text" id="hintText">Select a provider</span>
     </div>
     <button class="btn-next" id="btnNext" onclick="nextStep()">Select Provider →</button>
   </div>
@@ -521,11 +521,21 @@ function calculateFees(baseCost) {
 
 // ── PROVIDER SELECTION ──
 function selectProvider(el, idx) {
-  document.querySelectorAll('.pcard').forEach(c => c.classList.remove('selected'));
+
+  document.querySelectorAll('.pcard')
+  .forEach(c => c.classList.remove('selected'));
+
   el.classList.add('selected');
+
   state.provider = idx;
+
   updateHintDisplay(idx);
-  document.getElementById('btnNext').textContent = 'Continue →';
+
+  // update profile immediately
+  updateProfileDisplay();
+
+  document.getElementById('btnNext')
+  .textContent = 'Continue →';
 }
 
 function selectChip(el, label) {
@@ -914,20 +924,43 @@ async function loadRealProviders() {
         }
         
         return {
-          id: p.id,
-          serviceId: serviceId,
-          initials: (p.user.firstName.charAt(0) + p.user.lastName.charAt(0)).toUpperCase(),
-          name: p.user.firstName + ' ' + p.user.lastName,
-          role: p.category + ' · ' + p.experience,
-          gradient: gradients[idx % gradients.length],
-          rating: (p.rating || 4.5).toFixed(1),
-          jobs: Math.floor(Math.random() * 300) + 50,
-          exp: p.experience || '5 yrs',
-          price: Math.floor(Math.random() * 400) + 500,  // Random price between 500-900
-          location: 'Kathmandu',
-          verified: p.verified,
-          category: p.category
-        };
+  id: p.id,
+  serviceId: p.services[0].id,
+
+  initials:
+    (p.user.firstName.charAt(0) +
+     p.user.lastName.charAt(0)).toUpperCase(),
+
+  name:
+    p.user.firstName + ' ' + p.user.lastName,
+
+  role:
+    p.category + ' · ' + p.experience + ' yrs',
+
+  gradient:
+    gradients[idx % gradients.length],
+
+  rating:
+    Number(p.rating || 0).toFixed(1),
+
+  jobs: 0,
+
+  exp:
+    p.experience + ' years',
+
+  // REAL PRICE FROM DATABASE
+  price:
+    p.services[0].price,
+
+  location:
+    'Kathmandu',
+
+  verified:
+    p.verified,
+
+  category:
+    p.category
+};
       }).filter(p => p !== null);  // Remove null entries (providers without services)
       
       console.log('✅ Mapped providers:', providers);
