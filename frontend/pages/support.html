@@ -418,10 +418,10 @@
   </div>
 
   <script>
+    const API_BASE_URL = 'https://cheapflixnepal-backend.onrender.com/api';
+
     const getApiUrl = (endpoint) => {
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
-      return baseUrl + '/api' + endpoint;
+    return API_BASE_URL + endpoint;
     };
 
     const token = localStorage.getItem('token');
