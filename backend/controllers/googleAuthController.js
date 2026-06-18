@@ -4,7 +4,7 @@ const prisma = require('../config/database');
 
 // Initialize Google OAuth client
 // Note: Replace with your actual Google OAuth Client ID
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '844456219437-f0o1fk0v8u8q1k7b7b7b7b7b7b7b7b7b.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com';
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 /**
