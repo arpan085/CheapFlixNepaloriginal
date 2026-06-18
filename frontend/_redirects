@@ -1,0 +1,5 @@
+/login        /pages/login.html   200
+/dashboard    /pages/dashboard.html 200
+/provider     /pages/provider-dashboard.html 200
+/admin        /pages/admin-dashboard.html 200
+/discord /pages/discord.html 200
