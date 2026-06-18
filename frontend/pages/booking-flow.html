@@ -488,10 +488,17 @@ h1,h2,h3,h4,button{font-family:'Plus Jakarta Sans',sans-serif}
 <script>
   // Global API URL helper - works for both localhost and production
   const getApiUrl = (endpoint) => {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
-    return baseUrl + '/api' + endpoint;
-  };
+
+  const isLocalhost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+  const baseUrl = isLocalhost
+    ? 'http://localhost:5000'
+    : 'https://cheapflixnepal-backend.onrender.com';
+
+  return baseUrl + '/api' + endpoint;
+};
 
 // ── STATE ──
 const state = {
