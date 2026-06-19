@@ -407,6 +407,15 @@
         sendChatMessageCustomer();
       }
     });
+
+    
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    console.log('Save clicked');
+
+    alert('Save button works');
+    });
   </script>
 
   <!-- Chat Modal for Customer Dashboard -->
