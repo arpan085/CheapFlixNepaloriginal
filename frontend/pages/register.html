@@ -148,13 +148,28 @@
 
   <script>
     const getApiUrl = (endpoint) => {
-    return 'https://cheapflixnepal-backend.onrender.com/api' + endpoint;
+      if (window.CONFIG && window.CONFIG.getApiUrl) {
+        return window.CONFIG.getApiUrl(endpoint);
+      }
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const base = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
+      return base + '/api' + endpoint;
     };
 
     // Initialize Google Sign-In
     window.onload = function() {
+      // Pre-select provider if coming from "Join as a Provider" button
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('type') === 'provider') {
+        const userTypeSelect = document.getElementById('userType');
+        if (userTypeSelect) {
+          userTypeSelect.value = 'provider';
+          toggleProviderFields();
+        }
+      }
+
       google.accounts.id.initialize({
-        client_id: '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com', // Replace with your actual Google OAuth Client ID
+        client_id: '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com',
         callback: handleGoogleSignUp,
         auto_select: false
       });

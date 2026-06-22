@@ -256,14 +256,14 @@
       color: #15803D;
     }
 
-    .status-in-progress {
+    .status-in-progress, .status-in_progress {
       background: #DBEAFE;
-      color: #0C4A6E;
+      color: #1d4ed8;
     }
 
     .status-completed {
-      background: #DBEAFE;
-      color: #0C4A6E;
+      background: #D1FAE5;
+      color: #065f46;
     }
 
     .status-cancelled {
@@ -814,8 +814,12 @@
         }
         bookingsList.innerHTML = bookings.map(booking => {
           const isPending = booking.status === 'pending';
-          const acceptBtn = isPending ? `<button class="btn-small btn-primary" onclick="acceptBooking('${booking.id}')">Accept</button>` : '';
-          const rejectBtn = isPending ? `<button class="btn-small btn-secondary-light" onclick="rejectBooking('${booking.id}')">Reject</button>` : '';
+          const isActive = booking.status === 'confirmed' || booking.status === 'in_progress';
+          const isCompleted = booking.status === 'completed';
+          const acceptBtn = isPending ? `<button class="btn-small btn-primary" onclick="acceptBooking('${booking.id}')">✅ Accept</button>` : '';
+          const rejectBtn = isPending ? `<button class="btn-small btn-secondary-light" onclick="rejectBooking('${booking.id}')">❌ Reject</button>` : '';
+          const completeBtn = isActive ? `<button class="btn-small" onclick="markBookingCompleted('${booking.id}')" style="background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;">🏁 Mark Completed</button>` : '';
+          const completedLabel = isCompleted ? `<span style="color:#10b981;font-weight:600;font-size:13px;">✅ Completed</span>` : '';
           const customerName = `${booking.user?.firstName || 'Customer'} ${booking.user?.lastName || ''}`;
           return `
           <div class="booking-card">
@@ -833,6 +837,8 @@
               <button class="btn-small btn-secondary-light" onclick="openChat('${booking.id}', '${customerName}', '${booking.user?.id}')">Message</button>
               ${acceptBtn}
               ${rejectBtn}
+              ${completeBtn}
+              ${completedLabel}
             </div>
           </div>
         `}).join('');
@@ -929,6 +935,24 @@
       } catch (err) {
         console.error('Reject error:', err);
         alert('❌ Error rejecting booking: ' + (err.message || err));
+      }
+    };
+
+    // ── MARK BOOKING AS COMPLETED ──
+    window.markBookingCompleted = async function(bookingId) {
+      if (!confirm('Mark this booking as completed? The customer will be notified and can then leave a review.')) return;
+      try {
+        const res = await fetch(window.getApiUrl(`/bookings/${bookingId}/complete`), {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to mark as completed');
+        alert('✅ Booking marked as completed! The customer has been notified.');
+        await loadBookings();
+      } catch (err) {
+        console.error('Mark completed error:', err);
+        alert('❌ Error: ' + (err.message || 'Could not mark as completed'));
       }
     };
 

@@ -217,3 +217,60 @@ exports.cancelBooking = async (req, res) => {
     return res.status(500).json({ error: 'Failed to cancel booking' });
   }
 };
+
+// Mark booking as completed (provider only)
+exports.markCompleted = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+
+    if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: String(bookingId) },
+      include: {
+        provider: true,
+        service: { select: { name: true } }
+      }
+    });
+
+    if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+    // Only the assigned provider can mark as completed
+    if (booking.provider.userId !== String(req.user.id)) {
+      return res.status(403).json({ error: 'Only the assigned provider can mark this booking as completed' });
+    }
+
+    if (!['confirmed', 'in_progress'].includes(booking.status)) {
+      return res.status(400).json({ error: 'Only confirmed or in-progress bookings can be marked as completed' });
+    }
+
+    const updated = await prisma.booking.update({
+      where: { id: String(bookingId) },
+      data: { status: 'completed' }
+    });
+
+    // Get provider name for notification
+    const providerUser = await prisma.user.findUnique({
+      where: { id: booking.provider.userId },
+      select: { firstName: true, lastName: true }
+    });
+
+    // Notify the customer
+    await prisma.notification.create({
+      data: {
+        bookingId: booking.id,
+        providerId: booking.providerId,
+        userId: booking.userId,
+        type: 'booking_completed',
+        title: 'Service Completed!',
+        message: `${providerUser.firstName} ${providerUser.lastName} has marked your ${booking.service.name} booking as completed. Please leave a review!`,
+        status: 'unread'
+      }
+    });
+
+    return res.json({ success: true, message: 'Booking marked as completed', data: updated });
+  } catch (error) {
+    console.error('Mark completed error:', error);
+    return res.status(500).json({ error: 'Failed to mark booking as completed' });
+  }
+};

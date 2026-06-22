@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Support Tickets - Cheapflix Nepal</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../config.js"></script>
   <style>
     body {
       background: #f5f5f5;
@@ -418,10 +419,13 @@
   </div>
 
   <script>
-    const API_BASE_URL = 'https://cheapflixnepal-backend.onrender.com/api';
-
     const getApiUrl = (endpoint) => {
-    return API_BASE_URL + endpoint;
+      if (window.CONFIG && window.CONFIG.getApiUrl) {
+        return window.CONFIG.getApiUrl(endpoint);
+      }
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const base = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
+      return base + '/api' + endpoint;
     };
 
     const token = localStorage.getItem('token');

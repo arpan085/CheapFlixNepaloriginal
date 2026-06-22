@@ -614,7 +614,7 @@
       <h2 class="section-title">Grow your business with Cheapflix</h2>
       <p>Join 2,400+ verified providers earning more with zero marketing spend. Get found by customers ready to hire — right now.</p>
     </div>
-    <button class="btn-white">Join as a provider →</button>
+    <button class="btn-white" onclick="window.location.href='pages/register.html?type=provider'">Join as a provider →</button>
   </div>
 </section>
 
@@ -673,10 +673,14 @@
 </footer>
 
 <script>
-  // Get API base URL
+  // Get API base URL — uses config.js (loaded in <head>) for correct localhost vs production URL
   function getApiUrl(endpoint) {
+    if (window.CONFIG && window.CONFIG.getApiUrl) {
+      return window.CONFIG.getApiUrl(endpoint);
+    }
+    // Fallback: detect localhost
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
+    const baseUrl = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
     return baseUrl + '/api' + endpoint;
   }
 

@@ -6,6 +6,7 @@
   <title>Dashboard - Cheapflix Nepal</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/dashboard.css">
+  <script src="../config.js"></script>
 </head>
 
 <body>
@@ -45,6 +46,7 @@
 
       <section id="profile" class="dashboard-section">
         <h2>Profile</h2>
+        <div id="profileMsg" style="display:none; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 500;"></div>
         <form id="profileForm">
           <div class="form-group">
             <label>Name:</label>
@@ -58,22 +60,27 @@
 
           <div class="form-group">
             <label>Phone:</label>
-            <input type="tel" id="profilePhone">
+            <input type="tel" id="profilePhone" placeholder="e.g. 9800000000">
           </div>
 
           <div class="form-group">
             <label>Address:</label>
-            <input type="text" id="profileAddress">
+            <input type="text" id="profileAddress" placeholder="e.g. Kathmandu, Nepal">
           </div>
 
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <div class="form-group">
+            <label>City:</label>
+            <input type="text" id="profileCity" placeholder="e.g. Kathmandu">
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
         </form>
       </section>
 
       <section id="reviews" class="dashboard-section">
         <h2>My Reviews</h2>
-        <div class="reviews-list">
-          <p>No reviews yet</p>
+        <div id="myReviewsList">
+          <p style="color:#999;">Loading reviews...</p>
         </div>
       </section>
 
@@ -85,426 +92,79 @@
     </div>
   </main>
 
-  <script>
-    // Global API URL helper - works for both localhost and production
-    const getApiUrl = (endpoint) => {
+  <!-- ── Review Modal ── -->
+  <div id="reviewModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:2000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:16px; padding:32px; max-width:480px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <h2 style="margin:0 0 8px; font-size:1.4rem; color:#1f2937;">⭐ Leave a Review</h2>
+      <p id="reviewProviderName" style="color:#6b7280; margin:0 0 24px; font-size:14px;"></p>
 
-    const isLocalhost =
-     window.location.hostname === 'localhost' ||
-     window.location.hostname === '127.0.0.1';
-
-    const baseUrl = isLocalhost
-     ? 'http://localhost:5000'
-     : 'https://cheapflixnepal-backend.onrender.com';
-
-    return baseUrl + '/api' + endpoint;
-    };
-
-    // SAFE AUTH CHECK (NO RANDOM LOGOUT BUG)
-    window.addEventListener("DOMContentLoaded", () => {
-
-      const token = localStorage.getItem("token");
-
-      let user = null;
-      try {
-        user = JSON.parse(localStorage.getItem("user"));
-      } catch (e) {
-        user = null;
-      }
-
-      // redirect only if truly not logged in
-      if (!token || !user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      // ✅ REDIRECT PROVIDERS TO PROVIDER DASHBOARD
-      if (user.role === 'provider') {
-        window.location.href = 'provider-dashboard.html';
-        return;
-      }
-
-      // ✅ REDIRECT ADMINS TO ADMIN DASHBOARD
-      if (user.role === 'admin') {
-        window.location.href = 'admin-dashboard.html';
-        return;
-      }
-
-      // show username
-      document.getElementById("userName").textContent =
-        `Welcome, ${user.firstName}`;
-
-      // load profile safely
-      loadProfile(user);
-
-      // ✅ LOAD BOOKINGS FOR THIS USER
-      loadBookings(user.id, token);
-
-      // menu navigation (NO page reload)
-      document.querySelectorAll(".menu-link").forEach(link => {
-        link.addEventListener("click", (e) => {
-          e.preventDefault();
-
-          const target = e.target.getAttribute("href");
-
-          document.querySelectorAll(".dashboard-section")
-            .forEach(s => s.classList.remove("active"));
-
-          document.querySelectorAll(".menu-link")
-            .forEach(m => m.classList.remove("active"));
-
-          document.querySelector(target).classList.add("active");
-          e.target.classList.add("active");
-        });
-      });
-
-    });
-
-    // PROFILE LOADER (FIXED)
-    function loadProfile(user) {
-      document.getElementById("profileName").value =
-        `${user.firstName} ${user.lastName}`;
-
-      document.getElementById("profileEmail").value =
-        user.email;
-    }
-
-    // ✅ LOAD BOOKINGS FROM API
-    async function loadBookings(userId, token) {
-      try {
-        const response = await fetch(getApiUrl(`/bookings/user/${userId}`), {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-          displayBookings(data.data);
-        } else {
-          displayBookings([]); // No bookings
-        }
-      } catch (error) {
-        console.error('Error loading bookings:', error);
-        document.getElementById("bookingsList").innerHTML = 
-          '<p style="color: red;">Failed to load bookings. Please refresh.</p>';
-      }
-    }
-
-    // ✅ DISPLAY BOOKINGS IN DASHBOARD
-    function displayBookings(bookings) {
-      const bookingsList = document.getElementById("bookingsList");
-
-      if (!bookings || bookings.length === 0) {
-        bookingsList.innerHTML = `
-          <div style="text-align: center; padding: 40px; color: #999;">
-            <p>No bookings yet</p>
-            <p style="font-size: 12px; margin-top: 10px;">Book a service to see it here</p>
-          </div>
-        `;
-        return;
-      }
-
-      bookingsList.innerHTML = bookings.map(booking => `
-        <div style="background: white; border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-            <div>
-              <h3 style="margin: 0 0 4px; color: #333;">${booking.service?.name || 'Service'}</h3>
-              <p style="margin: 0; font-size: 13px; color: #666;">
-                Provider: <strong>${booking.provider?.user?.firstName} ${booking.provider?.user?.lastName}</strong>
-              </p>
-            </div>
-            <span style="background: ${getStatusColor(booking.status)}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
-              ${booking.status?.toUpperCase()}
-            </span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; font-size: 13px;">
-            <div>
-              <span style="color: #999;">📅 Date:</span>
-              <strong>${new Date(booking.date).toLocaleDateString()}</strong>
-            </div>
-            <div>
-              <span style="color: #999;">⏰ Time:</span>
-              <strong>${booking.startTime}</strong>
-            </div>
-            <div>
-              <span style="color: #999;">📍 Location:</span>
-              <strong>${booking.location}</strong>
-            </div>
-            <div>
-              <span style="color: #999;">💰 Amount:</span>
-              <strong>Rs ${booking.totalAmount?.toLocaleString()}</strong>
-            </div>
-          </div>
-
-          <div style="padding-top: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; align-items: center; justify-content: space-between;">
-            <small style="color: #999;">Ref: <strong>${booking.bookingRef}</strong></small>
-            <button onclick="openCustomerChat('${booking.id}', '${booking.provider?.user?.firstName} ${booking.provider?.user?.lastName}', '${booking.provider?.user?.id}')" style="background: #6366f1; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
-              💬 Chat with Provider
-            </button>
-          </div>
+      <!-- Star Rating -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-weight:600; color:#374151; margin-bottom:10px;">Rating:</label>
+        <div id="starRating" style="display:flex; gap:8px;">
+          <span class="star-btn" data-val="1" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(1)">★</span>
+          <span class="star-btn" data-val="2" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(2)">★</span>
+          <span class="star-btn" data-val="3" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(3)">★</span>
+          <span class="star-btn" data-val="4" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(4)">★</span>
+          <span class="star-btn" data-val="5" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(5)">★</span>
         </div>
-      `).join('');
-    }
+        <input type="hidden" id="reviewRating" value="0">
+      </div>
 
-    // ✅ HELPER: Get status color
-    function getStatusColor(status) {
-      const colors = {
-        'pending': '#FFA500',
-        'confirmed': '#4CAF50',
-        'in_progress': '#2196F3',
-        'completed': '#8BC34A',
-        'cancelled': '#f44336'
-      };
-      return colors[status] || '#999';
-    }
+      <!-- Comment -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block; font-weight:600; color:#374151; margin-bottom:8px;">Comment (optional):</label>
+        <textarea id="reviewComment" rows="4" placeholder="Tell others about your experience..." style="width:100%; border:1.5px solid #DDD6FE; border-radius:8px; padding:12px; font-family:inherit; font-size:14px; resize:vertical; outline:none;"></textarea>
+      </div>
 
-    // LOGOUT (SAFE)
-    function logout() {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      <div id="reviewError" style="color:#ef4444; font-size:13px; margin-bottom:12px; display:none;"></div>
 
-      window.location.href = "login.html";
-    }
+      <div style="display:flex; gap:10px;">
+        <button onclick="submitReview()" style="flex:1; background:linear-gradient(135deg,#7C3AED,#D946EF); color:white; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:15px;">Submit Review</button>
+        <button onclick="closeReviewModal()" style="flex:1; background:#f3f4f6; color:#374151; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:15px;">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-    // ✅ CHAT SYSTEM FOR CUSTOMERS
-    let currentChatBookingId = null;
-    let currentChatProviderName = null;
-    let currentChatReceiverId = null;
-    let chatMessages = [];
-    let currentToken = localStorage.getItem('token');
-
-    function openCustomerChat(bookingId, providerName, receiverId) {
-      currentChatBookingId = bookingId;
-      currentChatProviderName = providerName;
-      currentChatReceiverId = receiverId;
-      document.getElementById('providerNameDisplay').textContent = providerName || 'Provider';
-      loadChatMessages();
-      openChatModal();
-    }
-
-    async function loadChatMessages() {
-      try {
-        const response = await fetch(getApiUrl(`/chat/booking/${currentChatBookingId}`), {
-          headers: { 'Authorization': `Bearer ${currentToken}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          chatMessages = data.data || [];
-        }
-      } catch (err) {
-        console.error('Error loading messages:', err);
-      }
-      renderChatMessages();
-    }
-
-    function renderChatMessages() {
-      const container = document.getElementById('customerChatMessages');
-      
-      if (!container) {
-        console.error('Chat messages container not found');
-        return;
-      }
-      
-      if (chatMessages.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; color: #999; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
-            <div>No messages yet. Start the conversation!</div>
-          </div>
-        `;
-        return;
-      }
-      
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      container.innerHTML = chatMessages.map(msg => {
-        const time = new Date(msg.createdAt || new Date()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const isFromMe = msg.senderId === currentUser.id;
-        
-        return `
-          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; ${isFromMe ? 'justify-content: flex-end;' : ''}">
-            <div style="max-width: 70%;">
-              <div style="background: ${isFromMe ? '#6366f1' : '#e5e7eb'}; color: ${isFromMe ? 'white' : '#333'}; padding: 0.75rem 1rem; border-radius: 8px; word-wrap: break-word;">
-                ${msg.text || ''}
-              </div>
-              <div style="font-size: 0.75rem; color: #999; margin-top: 0.25rem; ${isFromMe ? 'text-align: right;' : ''}">${time}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      
-      // Scroll to bottom
-      container.scrollTop = container.scrollHeight;
-    }
-
-    async function sendChatMessageCustomer() {
-      const input = document.getElementById('customerChatInput');
-      const message = input.value.trim();
-      
-      if (!message || !currentChatBookingId || !currentChatReceiverId) return;
-      
-      try {
-        const response = await fetch(getApiUrl('/chat/send'), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${currentToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            bookingId: currentChatBookingId,
-            receiverId: currentChatReceiverId,
-            text: message
-          })
-        });
-        
-        if (response.ok) {
-          input.value = '';
-          const data = await response.json();
-          chatMessages.push(data.data || { message, createdAt: new Date() });
-          renderChatMessages();
-        } else {
-          const error = await response.json();
-          alert('❌ Failed to send message: ' + (error.error || 'Unknown error'));
-        }
-      } catch (err) {
-        console.error('Error sending message:', err);
-        alert('❌ Failed to send message');
-      }
-    }
-
-    function openChatModal() {
-      const modal = document.getElementById('customerChatModal');
-      if (modal) {
-        modal.style.display = 'flex';
-        setTimeout(() => document.getElementById('customerChatInput').focus(), 100);
-      }
-    }
-
-    function closeChatModal() {
-      const modal = document.getElementById('customerChatModal');
-      if (modal) {
-        modal.style.display = 'none';
-      }
-    }
-
-    // Close modal when clicking outside
-    document.addEventListener('click', (e) => {
-      const modal = document.getElementById('customerChatModal');
-      if (modal && e.target === modal) {
-        closeChatModal();
-      }
-    });
-
-    // Send on Enter key
-    document.addEventListener('keypress', (e) => {
-      const input = document.getElementById('customerChatInput');
-      if (input && e.key === 'Enter' && e.target === input) {
-        e.preventDefault();
-        sendChatMessageCustomer();
-      }
-    });
-
-    
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    console.log('Save clicked');
-
-    alert('Save button works');
-    });
-  </script>
-
-  <!-- Chat Modal for Customer Dashboard -->
+  <!-- ── Chat Modal for Customer Dashboard ── -->
   <style>
     #customerChatModal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.5);
       z-index: 1000;
       align-items: center;
       justify-content: center;
     }
-
-    #customerChatModal.active {
-      display: flex;
-    }
-
     .customer-chat-container {
-      background: white;
-      border-radius: 12px;
-      max-width: 600px;
-      width: 90%;
-      height: 500px;
-      display: flex;
-      flex-direction: column;
+      background: white; border-radius: 12px;
+      max-width: 600px; width: 90%; height: 500px;
+      display: flex; flex-direction: column;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
-
     .customer-chat-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 1.5rem; border-bottom: 1px solid #e5e7eb;
+      display: flex; justify-content: space-between; align-items: center;
     }
-
     .customer-chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1.5rem;
-      background: #f9f9f9;
-      display: flex;
-      flex-direction: column;
+      flex: 1; overflow-y: auto; padding: 1.5rem;
+      background: #f9f9f9; display: flex; flex-direction: column;
     }
-
     .customer-chat-input {
-      padding: 1rem;
-      border-top: 1px solid #e5e7eb;
-      display: flex;
-      gap: 0.75rem;
+      padding: 1rem; border-top: 1px solid #e5e7eb; display: flex; gap: 0.75rem;
     }
-
     .customer-chat-input input {
-      flex: 1;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      padding: 0.75rem;
-      font-size: 0.95rem;
+      flex: 1; border: 1px solid #d1d5db; border-radius: 6px;
+      padding: 0.75rem; font-size: 0.95rem;
     }
-
     .customer-chat-input button {
-      background: #6366f1;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 0.75rem 1.5rem;
-      cursor: pointer;
-      font-weight: 600;
+      background: #6366f1; color: white; border: none; border-radius: 6px;
+      padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 600;
     }
-
-    .customer-chat-input button:hover {
-      background: #4f46e5;
-    }
-
-    .customer-chat-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .customer-chat-close:hover {
-      color: #333;
-    }
+    .customer-chat-input button:hover { background: #4f46e5; }
+    .customer-chat-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
+    .customer-chat-close:hover { color: #333; }
   </style>
 
   <div id="customerChatModal">
@@ -523,5 +183,432 @@
     </div>
   </div>
 
+  <script>
+    // ── API URL HELPER ──
+    function getApiUrl(endpoint) {
+      if (window.CONFIG && window.CONFIG.getApiUrl) {
+        return window.CONFIG.getApiUrl(endpoint);
+      }
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const base = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
+      return base + '/api' + endpoint;
+    }
+
+    const currentToken = localStorage.getItem('token');
+    let currentUserId = null;
+
+    // ── AUTH CHECK ──
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem('user')); } catch (e) { user = null; }
+
+      if (!token || !user) { window.location.href = 'login.html'; return; }
+      if (user.role === 'provider') { window.location.href = 'provider-dashboard.html'; return; }
+      if (user.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+
+      currentUserId = user.id;
+      document.getElementById('userName').textContent = `Welcome, ${user.firstName}`;
+
+      // Load profile from API (to get phone/address)
+      loadProfileFromAPI(token);
+      loadBookings(user.id, token);
+      loadMyReviews(token);
+
+      // Sidebar navigation
+      document.querySelectorAll('.menu-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const href = e.target.getAttribute('href');
+          if (!href || !href.startsWith('#')) return; // let external links work
+          e.preventDefault();
+          document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+          document.querySelectorAll('.menu-link').forEach(m => m.classList.remove('active'));
+          const target = document.querySelector(href);
+          if (target) target.classList.add('active');
+          e.target.classList.add('active');
+        });
+      });
+
+      // Profile form submit
+      document.getElementById('profileForm').addEventListener('submit', saveProfile);
+    });
+
+    // ── LOAD PROFILE FROM API ──
+    async function loadProfileFromAPI(token) {
+      try {
+        const res = await fetch(getApiUrl('/users/profile'), {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to load profile');
+        const data = await res.json();
+        const user = data.data || data;
+
+        document.getElementById('profileName').value = `${user.firstName} ${user.lastName}`;
+        document.getElementById('profileEmail').value = user.email;
+        document.getElementById('profilePhone').value = user.phone || '';
+        document.getElementById('profileAddress').value = user.address || '';
+        document.getElementById('profileCity').value = user.city || '';
+      } catch (err) {
+        console.error('Error loading profile:', err);
+        // Fallback to localStorage
+        try {
+          const user = JSON.parse(localStorage.getItem('user'));
+          if (user) {
+            document.getElementById('profileName').value = `${user.firstName} ${user.lastName}`;
+            document.getElementById('profileEmail').value = user.email;
+          }
+        } catch (e) {}
+      }
+    }
+
+    // ── SAVE PROFILE ──
+    async function saveProfile(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveProfileBtn');
+      const msgEl = document.getElementById('profileMsg');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const phone = document.getElementById('profilePhone').value.trim();
+      const address = document.getElementById('profileAddress').value.trim();
+      const city = document.getElementById('profileCity').value.trim();
+
+      try {
+        const res = await fetch(getApiUrl('/users/profile'), {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ phone, address, city })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          // Show success
+          msgEl.style.display = 'block';
+          msgEl.style.background = '#f0fdf4';
+          msgEl.style.color = '#15803d';
+          msgEl.style.border = '1px solid #bbf7d0';
+          msgEl.textContent = '✅ Profile updated successfully!';
+
+          // Update localStorage user if phone/address changed
+          try {
+            const stored = JSON.parse(localStorage.getItem('user'));
+            if (stored) {
+              stored.phone = phone || stored.phone;
+              localStorage.setItem('user', JSON.stringify(stored));
+            }
+          } catch (e) {}
+
+          setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+        } else {
+          msgEl.style.display = 'block';
+          msgEl.style.background = '#fef2f2';
+          msgEl.style.color = '#dc2626';
+          msgEl.style.border = '1px solid #fecaca';
+          msgEl.textContent = '❌ ' + (data.error || 'Failed to update profile');
+          setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
+        }
+      } catch (err) {
+        console.error('Save profile error:', err);
+        msgEl.style.display = 'block';
+        msgEl.style.background = '#fef2f2';
+        msgEl.style.color = '#dc2626';
+        msgEl.style.border = '1px solid #fecaca';
+        msgEl.textContent = '❌ Network error. Please try again.';
+        setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save Changes';
+      }
+    }
+
+    // ── LOAD BOOKINGS ──
+    async function loadBookings(userId, token) {
+      try {
+        const res = await fetch(getApiUrl(`/bookings/user/${userId}`), {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) displayBookings(data.data);
+        else displayBookings([]);
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+        document.getElementById('bookingsList').innerHTML =
+          '<p style="color:red;">Failed to load bookings. Please refresh.</p>';
+      }
+    }
+
+    // ── DISPLAY BOOKINGS ──
+    function displayBookings(bookings) {
+      const list = document.getElementById('bookingsList');
+      if (!bookings || bookings.length === 0) {
+        list.innerHTML = `
+          <div style="text-align:center; padding:40px; color:#999;">
+            <p>No bookings yet</p>
+            <p style="font-size:12px; margin-top:10px;">Book a service to see it here</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = bookings.map(booking => {
+        const isCompleted = booking.status === 'completed';
+        const hasReview = booking.review != null;
+        const providerFirstName = booking.provider?.user?.firstName || '';
+        const providerLastName = booking.provider?.user?.lastName || '';
+        const providerFullName = `${providerFirstName} ${providerLastName}`.trim();
+        const providerId = booking.provider?.user?.id || '';
+
+        const reviewBtn = isCompleted && !hasReview
+          ? `<button onclick="openReviewModal('${booking.id}', '${providerFullName.replace(/'/g,"\\'")}', '${booking.providerId}')"
+               style="background:linear-gradient(135deg,#7C3AED,#D946EF); color:white; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:600;">
+               ⭐ Leave Review
+             </button>`
+          : isCompleted && hasReview
+            ? `<span style="color:#10b981; font-size:12px; font-weight:600;">✅ Review Submitted</span>`
+            : '';
+
+        return `
+        <div style="background:white; border:1px solid #eee; border-radius:8px; padding:16px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+            <div>
+              <h3 style="margin:0 0 4px; color:#333;">${booking.service?.name || 'Service'}</h3>
+              <p style="margin:0; font-size:13px; color:#666;">
+                Provider: <strong>${providerFullName}</strong>
+              </p>
+            </div>
+            <span style="background:${getStatusColor(booking.status)}; color:white; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
+              ${booking.status?.toUpperCase()}
+            </span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; font-size:13px;">
+            <div><span style="color:#999;">📅 Date:</span> <strong>${new Date(booking.date).toLocaleDateString()}</strong></div>
+            <div><span style="color:#999;">⏰ Time:</span> <strong>${booking.startTime}</strong></div>
+            <div><span style="color:#999;">📍 Location:</span> <strong>${booking.location}</strong></div>
+            <div><span style="color:#999;">💰 Amount:</span> <strong>Rs ${booking.totalAmount?.toLocaleString()}</strong></div>
+          </div>
+
+          <div style="padding-top:12px; border-top:1px solid #eee; display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
+            <small style="color:#999;">Ref: <strong>${booking.bookingRef}</strong></small>
+            <div style="display:flex; gap:8px; align-items:center;">
+              ${reviewBtn}
+              <button onclick="openCustomerChat('${booking.id}', '${providerFullName.replace(/'/g,"\\'")}', '${providerId}')"
+                style="background:#6366f1; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:600;">
+                💬 Chat
+              </button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function getStatusColor(status) {
+      return { pending:'#FFA500', confirmed:'#4CAF50', in_progress:'#2196F3', completed:'#10b981', cancelled:'#f44336' }[status] || '#999';
+    }
+
+    // ── LOAD MY REVIEWS ──
+    async function loadMyReviews(token) {
+      const el = document.getElementById('myReviewsList');
+      try {
+        const res = await fetch(getApiUrl(`/bookings/user/${currentUserId}`), {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const bookings = (data.data || []).filter(b => b.review);
+        if (!bookings.length) {
+          el.innerHTML = '<p style="color:#999;">No reviews submitted yet. Complete a booking to leave a review!</p>';
+          return;
+        }
+        el.innerHTML = bookings.map(b => {
+          const stars = '★'.repeat(b.review.rating) + '☆'.repeat(5 - b.review.rating);
+          return `
+          <div style="background:white; border:1px solid #eee; border-radius:8px; padding:16px; margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+              <strong style="color:#1f2937;">${b.service?.name || 'Service'}</strong>
+              <span style="color:#f59e0b; font-size:18px;">${stars}</span>
+            </div>
+            <p style="color:#555; margin:0 0 4px; font-size:14px;">${b.review.comment || '(No comment)'}</p>
+            <small style="color:#999;">${new Date(b.review.createdAt).toLocaleDateString()}</small>
+          </div>`;
+        }).join('');
+      } catch (err) {
+        el.innerHTML = '<p style="color:#999;">Could not load reviews.</p>';
+      }
+    }
+
+    // ── REVIEW MODAL ──
+    let reviewBookingId = null;
+    let reviewProviderId = null;
+    let selectedRating = 0;
+
+    function openReviewModal(bookingId, providerName, providerId) {
+      reviewBookingId = bookingId;
+      reviewProviderId = providerId;
+      selectedRating = 0;
+      document.getElementById('reviewProviderName').textContent = `For: ${providerName}`;
+      document.getElementById('reviewComment').value = '';
+      document.getElementById('reviewError').style.display = 'none';
+      document.getElementById('reviewRating').value = '0';
+      // Reset stars
+      document.querySelectorAll('.star-btn').forEach(s => s.style.color = '#DDD6FE');
+      document.getElementById('reviewModal').style.display = 'flex';
+    }
+
+    function closeReviewModal() {
+      document.getElementById('reviewModal').style.display = 'none';
+      reviewBookingId = null;
+      selectedRating = 0;
+    }
+
+    function selectStar(val) {
+      selectedRating = val;
+      document.getElementById('reviewRating').value = val;
+      document.querySelectorAll('.star-btn').forEach(s => {
+        s.style.color = parseInt(s.dataset.val) <= val ? '#f59e0b' : '#DDD6FE';
+      });
+    }
+
+    async function submitReview() {
+      const errEl = document.getElementById('reviewError');
+      errEl.style.display = 'none';
+
+      if (selectedRating < 1) {
+        errEl.textContent = 'Please select a star rating.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const comment = document.getElementById('reviewComment').value.trim();
+
+      try {
+        const res = await fetch(getApiUrl('/reviews'), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            bookingId: reviewBookingId,
+            rating: parseInt(selectedRating),
+            comment
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          closeReviewModal();
+          // Show success and reload bookings
+          alert('✅ Review submitted! Thank you for your feedback.');
+          const user = JSON.parse(localStorage.getItem('user'));
+          if (user) loadBookings(user.id, currentToken);
+          loadMyReviews(currentToken);
+        } else {
+          errEl.textContent = '❌ ' + (data.error || 'Failed to submit review');
+          errEl.style.display = 'block';
+        }
+      } catch (err) {
+        errEl.textContent = '❌ Network error. Please try again.';
+        errEl.style.display = 'block';
+      }
+    }
+
+    // Close review modal on backdrop click
+    document.getElementById('reviewModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('reviewModal')) closeReviewModal();
+    });
+
+    // ── LOGOUT ──
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    // ── CHAT SYSTEM ──
+    let currentChatBookingId = null;
+    let currentChatReceiverId = null;
+    let chatMessages = [];
+
+    function openCustomerChat(bookingId, providerName, receiverId) {
+      currentChatBookingId = bookingId;
+      currentChatReceiverId = receiverId;
+      document.getElementById('providerNameDisplay').textContent = providerName || 'Provider';
+      loadChatMessages();
+      document.getElementById('customerChatModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('customerChatInput').focus(), 100);
+    }
+
+    async function loadChatMessages() {
+      try {
+        const res = await fetch(getApiUrl(`/chat/booking/${currentChatBookingId}`), {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (res.ok) { const d = await res.json(); chatMessages = d.data || []; }
+      } catch (err) { console.error('Load messages error:', err); }
+      renderChatMessages();
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('customerChatMessages');
+      if (!container) return;
+      if (!chatMessages.length) {
+        container.innerHTML = `<div style="text-align:center;color:#999;padding:2rem;">💬 No messages yet. Start the conversation!</div>`;
+        return;
+      }
+      const me = JSON.parse(localStorage.getItem('user') || '{}');
+      container.innerHTML = chatMessages.map(msg => {
+        const time = new Date(msg.createdAt || new Date()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+        const mine = msg.senderId === me.id;
+        return `
+          <div style="display:flex; gap:.75rem; margin-bottom:1rem; ${mine ? 'justify-content:flex-end;' : ''}">
+            <div style="max-width:70%;">
+              <div style="background:${mine ? '#6366f1' : '#e5e7eb'}; color:${mine ? 'white' : '#333'}; padding:.75rem 1rem; border-radius:8px; word-wrap:break-word;">${msg.text || ''}</div>
+              <div style="font-size:.75rem; color:#999; margin-top:.25rem; ${mine ? 'text-align:right;' : ''}">${time}</div>
+            </div>
+          </div>`;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendChatMessageCustomer() {
+      const input = document.getElementById('customerChatInput');
+      const message = input.value.trim();
+      if (!message || !currentChatBookingId || !currentChatReceiverId) return;
+      try {
+        const res = await fetch(getApiUrl('/chat/send'), {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId: currentChatBookingId, receiverId: currentChatReceiverId, text: message })
+        });
+        if (res.ok) {
+          input.value = '';
+          const d = await res.json();
+          chatMessages.push(d.data || { text: message, createdAt: new Date(), senderId: currentUserId });
+          renderChatMessages();
+        } else {
+          const err = await res.json();
+          alert('❌ ' + (err.error || 'Failed to send message'));
+        }
+      } catch (err) { alert('❌ Failed to send message'); }
+    }
+
+    function closeChatModal() {
+      document.getElementById('customerChatModal').style.display = 'none';
+    }
+
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('customerChatModal');
+      if (modal && e.target === modal) closeChatModal();
+    });
+
+    document.addEventListener('keypress', (e) => {
+      const input = document.getElementById('customerChatInput');
+      if (input && e.key === 'Enter' && e.target === input) { e.preventDefault(); sendChatMessageCustomer(); }
+    });
+  </script>
 </body>
 </html>

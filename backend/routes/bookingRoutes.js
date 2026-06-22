@@ -21,7 +21,11 @@ router.get('/:bookingId', bookingController.getBooking);
 // Update booking status
 router.patch('/:bookingId/status', bookingController.updateBookingStatus);
 
+// Mark booking as completed (provider only)
+router.post('/:bookingId/complete', bookingController.markCompleted);
+
 // Cancel booking
 router.post('/:bookingId/cancel', bookingController.cancelBooking);
 
 module.exports = router;
+
