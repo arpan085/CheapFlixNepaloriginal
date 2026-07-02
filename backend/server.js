@@ -1,30 +1,59 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 require('dotenv').config();
 
+const { generalLimiter } = require('./middleware/rateLimiter');
+
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 const allowedOrigins = [
-  "https://cheapflixnepal.live",
-  "https://cheapflixnepal.netlify.app",
-  "http://localhost:5500",
-  "http://localhost:3000"
+  'https://cheapflixnepal.live',
+  'https://cheapflixnepal.netlify.app',
+  'http://localhost:5500',
+  'http://localhost:3000'
 ];
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'"],
+      frameAncestors: ["'self'"],
+      objectSrc: ["'none'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
+      return callback(null, true);
     }
+    return callback(new Error('CORS policy violation'));
   },
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['Authorization']
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.options('*', cors());
+app.use(express.json({ limit: '20kb' }));
+app.use(express.urlencoded({ extended: true, limit: '20kb' }));
+app.use(generalLimiter);
+
+app.use((err, req, res, next) => {
+  if (err) {
+    console.error('Unexpected middleware error:', err);
+    return res.status(400).json({ error: 'Invalid request payload or headers' });
+  }
+  next();
+});
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');

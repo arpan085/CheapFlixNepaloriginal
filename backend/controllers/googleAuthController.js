@@ -3,8 +3,16 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../config/database');
 
 // Initialize Google OAuth client
-// Note: Replace with your actual Google OAuth Client ID
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
+}
+if (!JWT_SECRET) {
+  throw new Error('Missing JWT_SECRET environment variable');
+}
+
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 /**
@@ -53,7 +61,7 @@ exports.googleAuth = async (req, res) => {
     // Generate JWT token
     const jwtToken = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'your-secret-key',
+      JWT_SECRET,
       { expiresIn: '7d' }
     );
 

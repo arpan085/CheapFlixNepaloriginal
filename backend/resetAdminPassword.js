@@ -5,7 +5,11 @@ const prisma = new PrismaClient();
 
 async function resetPassword() {
   try {
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword) {
+      throw new Error('Missing ADMIN_PASSWORD environment variable');
+    }
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
     await prisma.user.update({
       where: {

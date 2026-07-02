@@ -773,7 +773,13 @@ function updateConfirmDisplay() {
   document.getElementById('confirmTotalAmount').textContent = `Rs ${total.toLocaleString()}`;
 }
 
+let bookingRequestInProgress = false;
+
 function confirmBooking() {
+  if (bookingRequestInProgress) {
+    return;
+  }
+
   const user = JSON.parse(localStorage.getItem('user'));
   const token = localStorage.getItem('token');
 
@@ -788,11 +794,17 @@ function confirmBooking() {
     return;
   }
 
+  bookingRequestInProgress = true;
+  const confirmButton = document.getElementById('btnNext');
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Booking…';
+  }
+
   const p = providers[state.provider];
   const baseCost = parseInt(state.duration) * p.price;
   const { platformFee, tax, total } = calculateFees(baseCost);
 
-  // ✅ CREATE BOOKING REQUEST DATA
   const bookingData = {
     providerId: p.id,
     serviceId: p.serviceId,
@@ -805,9 +817,8 @@ function confirmBooking() {
     paymentMethod: state.paymentMethod
   };
 
-  console.log('📤 Sending booking:', bookingData);
+  console.log('Sending booking:', bookingData);
 
-  // ✅ SEND TO BACKEND
   fetch(getApiUrl('/bookings'), {
     method: 'POST',
     headers: {
@@ -816,16 +827,13 @@ function confirmBooking() {
     },
     body: JSON.stringify(bookingData)
   })
-  .then(res => {
-    console.log('📥 Response status:', res.status);
-    return res.json();
-  })
-  .then(data => {
-    console.log('📥 Response data:', data);
-    if (data.success) {
-      // Show success screen with real booking reference
+  .then(async res => {
+    const data = await res.json().catch(() => ({}));
+    console.log('Booking response status:', res.status, data);
+
+    if (res.ok && data.success) {
       const bar = document.getElementById('bottomBar');
-      bar.style.display = 'none';
+      if (bar) bar.style.display = 'none';
       document.getElementById('progressSteps').style.opacity = '0';
       document.querySelectorAll('.step-panel').forEach(s => s.classList.remove('active'));
       
@@ -833,17 +841,30 @@ function confirmBooking() {
       s.style.display = 'flex';
       setTimeout(() => s.classList.add('active'), 10);
       
-      // Display real booking reference from backend
-      document.getElementById('bookingRef').textContent = data.data.bookingRef;
+      document.getElementById('bookingRef').textContent = data.data?.bookingRef || 'N/A';
       document.getElementById('successMessage').textContent = `${p.name} has been notified and will confirm within 10 minutes. You'll receive an SMS once confirmed.`;
+      return;
+    }
+
+    const message = data.error || 'Unknown error occurred';
+    if (res.status === 409) {
+      alert('This booking is already recorded. Please check your existing bookings or choose a different date/time.');
+    } else if (res.status === 429) {
+      alert('Too many requests. Please wait a moment and try again.');
     } else {
-      console.error('❌ Booking error:', data);
-      alert('Booking failed: ' + (data.error || 'Unknown error'));
+      alert('Booking failed: ' + message);
     }
   })
   .catch(err => {
-    console.error('❌ Network error:', err);
+    console.error('Network error:', err);
     alert('Failed to create booking: ' + err.message);
+  })
+  .finally(() => {
+    bookingRequestInProgress = false;
+    if (confirmButton) {
+      confirmButton.disabled = false;
+      confirmButton.textContent = 'Review and Book';
+    }
   });
 }
 
@@ -1026,10 +1047,39 @@ document.getElementById('selectionHint').classList.add('visible');
 updateProgress(1);
 updateBottomBar(1);
 
+function getQueryParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+function applySearchQuery() {
+  const query = getQueryParam('q');
+  const providerId = getQueryParam('providerId');
+  const input = document.getElementById('searchInput');
+  if (query && input) {
+    input.value = query;
+    setTimeout(() => {
+      filterProviders(query);
+    }, 50);
+  }
+  if (providerId && providers.length > 0) {
+    const targetIndex = providers.findIndex(p => p.id === providerId);
+    if (targetIndex >= 0) {
+      const providerCard = document.getElementById(`pcard${targetIndex}`);
+      if (providerCard) {
+        providerCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        selectProvider(providerCard, targetIndex);
+      }
+    }
+  }
+}
+
 // Load real providers when page loads
 window.addEventListener('load', () => {
   console.log('🚀 Page loaded, fetching providers...');
-  loadRealProviders();
+  loadRealProviders().then(() => {
+    applySearchQuery();
+  });
 });
 </script>
 </body>

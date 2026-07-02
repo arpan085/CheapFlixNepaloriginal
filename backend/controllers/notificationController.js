@@ -71,6 +71,16 @@ exports.getNotification = async (req, res) => {
       return res.status(404).json({ error: 'Notification not found' });
     }
 
+    // Only the owning provider or admin may view this notification
+    const provider = await prisma.provider.findUnique({ where: { id: String(notification.providerId) } });
+    if (!provider) {
+      return res.status(404).json({ error: 'Provider not found' });
+    }
+
+    if (req.user.role !== 'admin' && String(req.user.id) !== provider.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     // Mark as read
     if (notification.status === 'unread') {
       await prisma.notification.update({
@@ -233,12 +243,29 @@ exports.markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
 
-    const notification = await prisma.notification.update({
+    const notification = await prisma.notification.findUnique({
+      where: { id: String(notificationId) }
+    });
+
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+
+    const provider = await prisma.provider.findUnique({ where: { id: String(notification.providerId) } });
+    if (!provider) {
+      return res.status(404).json({ error: 'Provider not found' });
+    }
+
+    if (req.user.role !== 'admin' && String(req.user.id) !== provider.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const updated = await prisma.notification.update({
       where: { id: String(notificationId) },
       data: { status: 'read' }
     });
 
-    res.json({ success: true, data: notification });
+    res.json({ success: true, data: updated });
   } catch (error) {
     console.error('Error marking notification as read:', error);
     res.status(500).json({ error: 'Failed to mark notification as read' });

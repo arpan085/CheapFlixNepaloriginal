@@ -9,13 +9,10 @@
   let API_BASE_URL;
   
   if (isLocalhost) {
-    // Development: always use localhost
     API_BASE_URL = 'http://localhost:5000/api';
   } else {
-    // Production: Check if we have a custom backend URL
-    // Update the RENDER_BACKEND_URL below with your Render backend URL
-    const RENDER_BACKEND_URL = 'https://cheapflixnepal-backend.onrender.com/api';
-    API_BASE_URL = RENDER_BACKEND_URL;
+    const RENDER_BACKEND_URL = 'https://cheapflixnepal-backend.onrender.com';
+    API_BASE_URL = RENDER_BACKEND_URL + '/api';
   }
   
   // Create a global getApiUrl function

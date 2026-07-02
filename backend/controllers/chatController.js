@@ -180,18 +180,23 @@ exports.getConversations = async (req, res) => {
     }
 
     const userId = String(req.user.id);
+    let bookingWhere = { userId };
 
-    // Get all bookings involved
+    if (req.user.role === 'provider') {
+      const provider = await prisma.provider.findUnique({
+        where: { userId }
+      });
+      if (!provider) {
+        return res.status(404).json({ error: 'Provider profile not found' });
+      }
+      bookingWhere = { providerId: provider.id };
+    }
+
     const bookings = await prisma.booking.findMany({
-      where: {
-        OR: [
-          { userId },
-          { providerId: userId }
-        ]
-      },
+      where: bookingWhere,
       include: {
         user: { select: { id: true, firstName: true, lastName: true, avatar: true } },
-        provider: { select: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } } },
+        provider: { include: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } } },
         service: { select: { name: true } },
         messages: {
           orderBy: { createdAt: 'desc' },
@@ -206,7 +211,7 @@ exports.getConversations = async (req, res) => {
 
     const conversations = bookings.map(booking => {
       const lastMessage = booking.messages[0] || null;
-      const otherParty = booking.userId === userId ? booking.provider.user : booking.user;
+      const otherParty = req.user.role === 'provider' ? booking.user : booking.provider.user;
 
       return {
         bookingId: booking.id,

@@ -104,6 +104,23 @@ model Booking {
   review      Review?
   notifications Notification[]
   messages    Message[]
+
+  @@unique([userId, providerId, serviceId, date, startTime])
+}
+
+model AuthAttempt {
+  id           String   @id @default(cuid())
+  email        String?
+  ipAddress    String?
+  userAgent    String?
+  failedCount  Int      @default(0)
+  blockedUntil DateTime?
+  lastFailedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+  @@index([ipAddress])
 }
 
 // Notification Model - For provider booking requests

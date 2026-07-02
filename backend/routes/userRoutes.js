@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const prisma = require('../config/database');
 
 // Get user profile
@@ -60,8 +60,8 @@ router.put('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-// Get all users (admin only - will be checked by frontend)
-router.get('/', authMiddleware, async (req, res) => {
+// Get all users (admin only)
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       where: { role: 'user' },

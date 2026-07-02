@@ -54,9 +54,14 @@ async function testRegistration() {
   
   try {
     // Register customer
+    const testPassword = process.env.TEST_PASSWORD;
+    if (!testPassword) {
+      throw new Error('Missing TEST_PASSWORD environment variable');
+    }
+
     const res1 = await makeRequest('POST', '/auth/register', {
       email: `customer_${Date.now()}@test.com`,
-      password: 'Test@123456',
+      password: testPassword,
       firstName: 'John',
       lastName: 'Doe',
       phone: '9800000001',
@@ -75,7 +80,7 @@ async function testRegistration() {
     // Register provider
     const res2 = await makeRequest('POST', '/auth/register', {
       email: `provider_${Date.now()}@test.com`,
-      password: 'Test@123456',
+      password: testPassword,
       firstName: 'Jane',
       lastName: 'Smith',
       phone: '9800000002',
