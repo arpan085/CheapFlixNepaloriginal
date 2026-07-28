@@ -1,7 +1,7 @@
 # Cheapflix Nepal - Full Project Setup
 
 ## Project Structure
-
+\
 ```
 cheapflix-nepal/
 ├── backend/                    # Node.js + Express Backend
