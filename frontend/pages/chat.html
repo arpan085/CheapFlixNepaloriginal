@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <title>Messages — Cheapflix Nepal</title>
+  <meta name="description" content="Chat in real time with your provider or customer about a booking." />
+  <link rel="stylesheet" href="../css/design-system.css" />
+  <script src="../config.js"></script>
+  <script src="../js/app.js" defer></script>
+</head>
+<body>
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <nav class="nav-links"><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="chat.html" class="active">Messages</a><a href="support.html">Help</a></nav>
+    <div class="nav-cta" data-nav-cta><a class="btn btn-line btn-sm" href="login.html">Log in</a></div>
+    <button class="burger" id="navBurger" aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a></div>
+
+<div class="flow-shell" style="max-width:1080px">
+  <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div><div class="kicker" data-i18n="chat.k">Messages</div>
+    <h1 class="display" style="font-size:clamp(28px,3.2vw,40px)" data-i18n="chat.h">Chat with your pro</h1></div>
+    <span class="pill pill-grey" id="unreadPill">0 unread</span>
+  </div>
+  <p class="muted small" style="margin:8px 0 20px">One thread per booking · replies usually within the hour · never share passwords or OTPs.</p>
+
+  <div class="chat-shell">
+    <div class="chat-list" id="convList"><div style="padding:18px"><div class="skel" style="height:64px"></div><div class="skel" style="height:64px;margin-top:8px"></div></div></div>
+    <div class="chat-main">
+      <div class="chat-head" id="chatHead"><p class="muted small">Select a conversation to start chatting.</p></div>
+      <div class="chat-body" id="chatBody"><div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg></div><b>No thread open</b><p class="small">Pick a booking on the left. New here? <a href="booking-flow.html">Book a service</a> first.</p></div></div>
+      <div class="typing" id="typing" style="padding:0 20px 6px" hidden>typing…</div>
+      <form class="chat-input" id="chatForm">
+        <label class="icon-btn" title="Attach photo or PDF" style="border-radius:50%;flex-shrink:0;cursor:pointer">+
+          <input id="chatFile" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden />
+        </label>
+        <input id="chatText" type="text" placeholder="Write a message…" autocomplete="off" maxlength="1000" aria-label="Write a message" />
+        <button class="btn btn-pine" type="submit" id="sendBtn">Send</button>
+      </form>
+      <p class="small muted" id="attachHint" style="padding:0 20px 10px" hidden></p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var user = CF.requireAuth(['user', 'provider', 'admin']);
+  if (!user) return;
+
+  var convs = [], activeId = new URLSearchParams(window.location.search).get('booking'), lastCount = 0, pollT = null;
+
+  /* Offline outbox: failed sends queue in localStorage and flush on reconnect. */
+  function getOutbox() {
+    try { var a = JSON.parse(localStorage.getItem('cf_outbox') || '[]'); return Array.isArray(a) ? a : []; }
+    catch (e) { return []; }
+  }
+  function queueOffline(msg) {
+    var box = getOutbox();
+    box.push(msg);
+    try { localStorage.setItem('cf_outbox', JSON.stringify(box.slice(-20))); } catch (e) {}
+    CF.toast('Offline — message queued, will send on reconnect.');
+  }
+  async function flushOutbox() {
+    var box = getOutbox();
+    if (!box.length || !navigator.onLine) return;
+    var rest = [];
+    for (var i = 0; i < box.length; i++) {
+      try {
+        await CF.api('/chat/send', 'POST', box[i]);
+      } catch (e) { rest.push(box[i]); }
+    }
+    try { localStorage.setItem('cf_outbox', JSON.stringify(rest)); } catch (e2) {}
+    if (rest.length < box.length) {
+      CF.toast('Queued messages sent.');
+      loadThread(true);
+    }
+  }
+  window.addEventListener('online', flushOutbox);
+
+  function otherName(c) {
+    var o = c.otherParty || {};
+    return ((o.firstName || '') + ' ' + (o.lastName || '')).trim() || 'Chat';
+  }
+
+  function renderList() {
+    var box = document.getElementById('convList');
+    if (!convs.length) {
+      box.innerHTML = '<div class="empty" style="padding:28px 18px"><b>No conversations yet.</b><p class="small">Messages appear here once you have a booking.</p><br /><a class="btn btn-pine btn-sm" href="booking-flow.html">Book a service</a></div>';
+      return;
+    }
+    box.innerHTML = convs.map(function (c) {
+      var nm = otherName(c);
+      var last = c.lastMessage ? c.lastMessage.text : 'No messages yet';
+      var unread = c.unread || 0;
+      return '<button class="chat-thread-btn' + (c.bookingId === activeId ? ' on' : '') + '" data-conv="' + CF.esc(c.bookingId) + '" type="button">' +
+        CF.avatarImg(c.otherParty || nm, 'cell-avatar') +
+        '<span class="t"><b>' + CF.esc(nm) + ' · ' + CF.esc(c.bookingRef || '') + '</b><small>' + CF.esc(c.service || '') + ' · ' + CF.esc(String(last).slice(0, 60)) + '</small></span>' +
+        (unread ? '<span class="unread-dot">' + unread + '</span>' : '') + '</button>';
+    }).join('');
+  }
+
+  async function loadConvs(silent) {
+    try {
+      var res = await CF.api('/chat', 'GET');
+      var fresh = res.data || [];
+      // unread per thread is not returned; derive: last message from other party counts as activity
+      convs = fresh;
+      if (!silent) renderList();
+      else {
+        // light update: only re-render list to keep scroll, preserve active highlight
+        renderList();
+      }
+      // unread total
+      try {
+        var u = await CF.api('/chat/unread/count', 'GET');
+        var n = u.unreadCount || 0;
+        document.getElementById('unreadPill').textContent = n + ' unread';
+      } catch (e) {}
+      if (activeId && !convs.find(function (c) { return c.bookingId === activeId; })) {
+        // deep-linked booking not in list (e.g. other role) — still try to open
+      }
+    } catch (e) {
+      if (!silent) document.getElementById('convList').innerHTML = '<div class="empty"><b>Could not load chats.</b><p class="small">' + CF.esc(e.message) + '</p></div>';
+    }
+  }
+
+  function paintHead() {
+    var c = convs.find(function (x) { return x.bookingId === activeId; });
+    var head = document.getElementById('chatHead');
+    if (!c) {
+      head.innerHTML = '<p class="muted small">Booking ' + CF.esc(activeId || '') + '</p>';
+      return;
+    }
+    var nm = otherName(c);
+    head.innerHTML =
+      CF.avatarImg(c.otherParty || nm, 'cell-avatar') +
+      '<span style="min-width:0"><b>' + CF.esc(nm) + '</b><br /><span class="small muted">' + CF.esc(c.service || '') + ' · ' + CF.esc(c.bookingRef || '') + ' · ' + CF.pillFor(c.status) + '</span></span>' +
+      '<span class="spacer"></span>' +
+      '<a class="icon-btn chat" id="headChat" title="Booking details" href="' + (user.role === 'provider' ? 'provider-dashboard.html' : 'dashboard.html') + '" style="width:auto;padding:0 14px;gap:8px;font-size:13px;font-weight:700;height:38px">Details</a>';
+  }
+
+  async function loadThread(silent) {
+    if (!activeId) return;
+    paintHead();
+    try {
+      var res = await CF.api('/chat/booking/' + encodeURIComponent(activeId), 'GET');
+      var msgs = res.data || [];
+      var body = document.getElementById('chatBody');
+      var nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 120;
+      if (!msgs.length) {
+        body.innerHTML = '<div class="empty"><b>Say namaste 👋</b><p class="small">Introduce yourself, confirm the address &amp; time.</p></div>';
+      } else {
+        var origin = CF.apiBase().replace(/\/api$/, '');
+        body.innerHTML = msgs.map(function (m, idx) {
+          var mine = m.senderId === user.id;
+          var t = m.createdAt ? new Date(m.createdAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '';
+          var att = '';
+          if (m.attachment) {
+            var au = /^https?:\/\//.test(m.attachment) ? m.attachment : origin + m.attachment;
+            var isImg = /\.(jpe?g|png|webp|gif)$/i.test(m.attachment);
+            att = isImg
+              ? '<a href="' + CF.esc(au) + '" target="_blank" rel="noopener"><img src="' + CF.esc(au) + '" alt="Attachment" loading="lazy" style="max-width:220px;border-radius:10px;margin-bottom:6px;display:block" /></a>'
+              : '<a href="' + CF.esc(au) + '" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:6px;font-weight:700">📎 View attachment</a><br />';
+          }
+          var txt = (m.text && m.text !== '[attachment]') ? CF.esc(m.text) : '';
+          // read receipt on the last message I sent
+          var receipt = '';
+          if (mine && idx === msgs.length - 1) receipt = m.isRead ? ' · ✓✓ Seen' : ' · ✓ Sent';
+          else if (mine && m.isRead) receipt = ' · ✓✓';
+          return '<div class="bubble ' + (mine ? 'mine' : 'theirs') + '">' + att + txt + '<div class="bubble-time">' + t + receipt + '</div></div>';
+        }).join('');
+      }
+      if (!silent || nearBottom) body.scrollTop = body.scrollHeight;
+      // new incoming?
+      if (msgs.length > lastCount && lastCount !== 0 && msgs[msgs.length - 1].senderId !== user.id) {
+        var prefs = CF.notifPrefs();
+        if (prefs.chat) CF.notify('New message', msgs[msgs.length - 1].text.slice(0, 80));
+      }
+      lastCount = msgs.length;
+    } catch (e) {
+      if (!silent) CF.toast(e.message, 'err');
+    }
+  }
+
+  document.getElementById('convList').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-conv]');
+    if (!b) return;
+    activeId = b.dataset.conv;
+    lastCount = 0;
+    try { history.replaceState(null, '', 'chat.html?booking=' + encodeURIComponent(activeId)); } catch (e2) {}
+    renderList();
+    loadThread(false);
+  });
+
+  document.getElementById('chatFile').addEventListener('change', async function (e) {
+    var f = e.target.files[0];
+    if (!f || !activeId) { e.target.value = ''; return; }
+    if (f.size > 5 * 1024 * 1024) { CF.toast('File must be under 5MB.', 'err'); e.target.value = ''; return; }
+    var hint = document.getElementById('attachHint');
+    hint.hidden = false;
+    hint.textContent = 'Uploading ' + f.name + '…';
+    try {
+      var fd = new FormData();
+      fd.append('file', f);
+      var up = await CF.apiFile('/chat/attachment', fd);
+      hint.textContent = 'Attached: ' + (up.name || f.name) + ' — press Send.';
+      var inp = document.getElementById('chatText');
+      inp.dataset.attachment = up.url;
+      inp.focus();
+    } catch (ex) {
+      CF.toast(ex.message, 'err');
+      hint.hidden = true;
+    }
+    e.target.value = '';
+  });
+
+  document.getElementById('chatForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var inp = document.getElementById('chatText');
+    var text = inp.value.trim();
+    var attach = inp.dataset.attachment || null;
+    if ((!text && !attach) || !activeId) {
+      if (!activeId) CF.toast('Pick a conversation first.', 'err');
+      return;
+    }
+    var c = convs.find(function (x) { return x.bookingId === activeId; });
+    var receiverId = c && c.otherParty ? c.otherParty.id : null;
+    if (!receiverId) {
+      // resolve via booking detail
+      try {
+        var b = await CF.api('/bookings/' + encodeURIComponent(activeId), 'GET');
+        var d = b.data || b;
+        receiverId = (user.role === 'provider') ? d.userId || (d.user && d.user.id) : (d.provider && (d.provider.userId || (d.provider.user && d.provider.user.id)));
+      } catch (e2) {}
+    }
+    if (!receiverId) { CF.toast('Could not find the other person.', 'err'); return; }
+    var btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    try {
+      await CF.api('/chat/send', 'POST', { bookingId: activeId, receiverId: receiverId, text: text, attachment: attach });
+      inp.value = '';
+      delete inp.dataset.attachment;
+      document.getElementById('attachHint').hidden = true;
+      await loadThread(true);
+    } catch (ex) {
+      if (!navigator.onLine || /Failed to fetch|NetworkError|Load failed/i.test(ex.message)) {
+        queueOffline({ bookingId: activeId, receiverId: receiverId, text: text, attachment: attach });
+        inp.value = '';
+        delete inp.dataset.attachment;
+      } else {
+        CF.toast(ex.message, 'err');
+      }
+    }
+    btn.disabled = false;
+    inp.focus();
+  });
+
+  async function tick() {
+    await loadConvs(true);
+    await loadThread(true);
+    await flushOutbox();
+  }
+
+  document.addEventListener('DOMContentLoaded', async function () {
+    await flushOutbox();
+    await loadConvs(false);
+    if (activeId) {
+      renderList();
+      await loadThread(false);
+    }
+    pollT = setInterval(tick, 5000);
+  });
+  window.addEventListener('beforeunload', function () { if (pollT) clearInterval(pollT); });
+})();
+</script>
+</body>
+</html>

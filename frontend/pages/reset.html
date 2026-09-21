@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set new password — Cheapflix Nepal</title>
+  <meta name="description" content="Choose a new password for your Cheapflix Nepal account." />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/design-system.css" />
+  <script src="../config.js"></script>
+  <script src="../js/app.js" defer></script>
+</head>
+<body>
+<div class="auth-shell">
+  <aside class="auth-side">
+    <div>
+      <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name" style="color:#fff">Cheapflix<small>Nepal</small></span></a>
+      <h2>Almost there.</h2>
+      <p>Choose a fresh password — at least 6 characters, and different from the old one.</p>
+    </div>
+    <p style="font-size:13px;color:rgba(243,236,221,.55);position:relative;z-index:1">Link expired? <a href="forgot.html" style="color:#e9b44c">Request a new one</a>.</p>
+  </aside>
+  <main class="auth-main">
+    <div class="auth-card">
+      <a class="back-link" href="login.html">&larr; Back to log in</a>
+      <h1 data-i18n="auth.newpw.h">New password</h1>
+      <p id="sub">Set the password for your account.</p>
+      <div class="alert alert-err" id="errBox" role="alert"></div>
+      <div class="alert alert-ok" id="okBox" role="status"></div>
+      <form id="resetForm" novalidate>
+        <div class="field" id="fPass"><label for="password">New password</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input id="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" id="pwToggle">Show</button>
+          </div>
+          <div class="pw-meter" id="pwMeter" data-s="0"><i></i><i></i><i></i><i></i></div>
+          <div class="field-err">Password needs at least 6 characters.</div>
+        </div>
+        <button class="btn btn-pine btn-block btn-lg" type="submit" id="saveBtn">Update password</button>
+      </form>
+    </div>
+  </main>
+</div>
+<script>
+(function () {
+  var token = new URLSearchParams(window.location.search).get('token');
+  var err = document.getElementById('errBox');
+  if (!token) {
+    err.textContent = 'This page needs a reset link. Request one first.';
+    err.classList.add('show');
+    document.getElementById('resetForm').style.display = 'none';
+    document.getElementById('sub').innerHTML = '<a href="forgot.html">Request a reset link</a>';
+    return;
+  }
+  var pw = document.getElementById('password'), meter = document.getElementById('pwMeter');
+  document.getElementById('pwToggle').addEventListener('click', function () {
+    var show = pw.type === 'password';
+    pw.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+  });
+  pw.addEventListener('input', function () {
+    var v = pw.value, s = 0;
+    if (v.length >= 6) s = 1;
+    if (v.length >= 8 && /[A-Z]/.test(v)) s = 2;
+    if (v.length >= 8 && /[A-Z]/.test(v) && /\d/.test(v)) s = 3;
+    if (v.length >= 10 && /[^A-Za-z0-9]/.test(v)) s = 4;
+    meter.dataset.s = String(s);
+  });
+  document.getElementById('resetForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    err.classList.remove('show');
+    document.getElementById('okBox').classList.remove('show');
+    if (pw.value.length < 6) { document.getElementById('fPass').classList.add('invalid'); return; }
+    var btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      var res = await CF.api('/auth/reset', 'POST', { token: token, password: pw.value }, false);
+      var ok = document.getElementById('okBox');
+      ok.textContent = res.message + ' Redirecting to log in…';
+      ok.classList.add('show');
+      document.getElementById('resetForm').style.display = 'none';
+      setTimeout(function () { window.location.href = 'login.html'; }, 1400);
+    } catch (ex) {
+      err.textContent = ex.message; err.classList.add('show');
+      btn.disabled = false; btn.classList.remove('loading'); btn.textContent = 'Update password';
+    }
+  });
+})();
+</script>
+<footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>
+</body>
+</html>

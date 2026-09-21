@@ -1,243 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome Back - Cheapflix Nepal</title>
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/auth.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <title>Log in — Cheapflix Nepal</title>
+  <meta name="description" content="Log in to track bookings, chat with providers and book trusted home services across Nepal." />
+  <link rel="canonical" href="https://cheapflixnepal.live/pages/login.html" />
+  <link rel="stylesheet" href="../css/design-system.css" />
   <script src="../config.js"></script>
-  <!-- Google Sign-In SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="../js/app.js" defer></script>
 </head>
-<body class="auth-page">
-  <div class="auth-container">
-    <div class="auth-card">
-      <button type="button" class="auth-back-btn" onclick="window.location.href='../index.html'" title="Go back to home">✕</button>
-      
-      <div class="auth-header">
-        <h1>Welcome Back</h1>
-        <p>Sign in to access your account</p>
+<body>
+<div class="auth-shell">
+  <aside class="auth-side">
+    <div>
+      <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name" style="color:#fff">Cheapflix<small>Nepal</small></span></a>
+      <h2>Welcome back.<br />Your home missed you.</h2>
+      <p>Pick up where you left off — track a booking, message your provider, or book the next job in under two minutes.</p>
+      <div class="auth-steps">
+        <div class="auth-step"><i>1</i><div><b>Track live</b><span>See arrival times without calling</span></div></div>
+        <div class="auth-step"><i>2</i><div><b>Chat in-app</b><span>Nepali &amp; English support, 9am–7pm</span></div></div>
+        <div class="auth-step"><i>3</i><div><b>Pay with confidence</b><span>Cash, eSewa or bank — after the job</span></div></div>
       </div>
-
-      <!-- Email/Phone Tabs -->
-      <div class="auth-tabs">
-        <button type="button" class="auth-tab active" data-tab="email">📧 Email</button>
-        <button type="button" class="auth-tab" data-tab="phone">📱 Phone</button>
-      </div>
-
-      <!-- Login Form -->
-      <form id="loginForm" class="auth-form">
-        <!-- Email Input -->
-        <div id="email-tab" class="tab-content">
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <div class="form-group-input-wrapper">
-              <span class="form-group-icon">✉️</span>
-              <input type="email" id="email" name="email" placeholder="Enter your email" required>
-            </div>
-          </div>
-        </div>
-
-        <!-- Phone Input -->
-        <div id="phone-tab" class="tab-content" style="display: none;">
-          <div class="form-group">
-            <label for="phone">Phone Number</label>
-            <div class="form-group-input-wrapper">
-              <span class="form-group-icon">📱</span>
-              <input type="tel" id="phone" name="phone" placeholder="Enter your phone number">
-            </div>
-          </div>
-        </div>
-
-        <!-- Password Input -->
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="form-group-input-wrapper">
-            <span class="form-group-icon">🔒</span>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">👁️</button>
-          </div>
-        </div>
-
-        <!-- Remember me & Forgot Password -->
-        <div class="form-actions">
-          <div class="form-group checkbox">
-            <input type="checkbox" id="remember" name="remember">
-            <label for="remember">Remember me</label>
-          </div>
-          <a href="#forgot">Forgot password?</a>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn-block">Sign In</button>
-        <span class="error-msg" id="formError"></span>
-      </form>
-
-      <!-- OAuth Divider -->
-      <div class="oauth-divider">
-        <span class="oauth-divider-text">Or continue with</span>
-      </div>
-
-      <!-- OAuth Buttons -->
-      <div class="oauth-buttons">
-        <div id="google-signin-btn"></div>
-        <button type="button" class="btn-oauth" onclick="loginWithFacebook()">
-          <span class="btn-oauth-icon">f</span>
-          <span>Facebook</span>
-        </button>
-      </div>
-
-      <!-- Footer -->
-      <div class="auth-footer">
-        <p>Don't have an account? <a href="register.html">Sign up</a></p>
+      <div class="auth-proof">
+        <div><b>18k+</b><span>jobs done</span></div>
+        <div><b>4.8</b><span>avg. rating</span></div>
+        <div><b>45 min</b><span>median arrival</span></div>
       </div>
     </div>
-  </div>
+    <p style="font-size:13px;color:rgba(243,236,221,.55);position:relative;z-index:1">Support in Nepali &amp; English, 9am–7pm &middot; 01-5900000</p>
+  </aside>
 
-  <script src="../js/auth.js"></script>
-  <script>
-    const getApiUrl = (endpoint) => {
-      if (window.CONFIG && window.CONFIG.getApiUrl) {
-        return window.CONFIG.getApiUrl(endpoint);
-      }
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const base = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
-      return base + '/api' + endpoint;
-    };
+  <main class="auth-main">
+    <div class="auth-card">
+      <a class="back-link" href="../index.html">&larr; Back to home</a>
+      <h1 data-i18n="auth.login.h">Log in</h1>
+      <p>Good to see you again. Your bookings are waiting.</p>
+      <div class="alert alert-err" id="errBox" role="alert"></div>
+      <div class="alert alert-ok" id="okBox" role="status"></div>
+      <div class="chip-row" style="margin-bottom:16px" role="tablist" aria-label="Login method">
+        <button class="chip on" id="tabPass" type="button" role="tab" aria-selected="true">Password</button>
+        <button class="chip" id="tabOtp" type="button" role="tab" aria-selected="false">SMS code</button>
+      </div>
+      <form id="otpForm" novalidate hidden>
+        <div class="field">
+          <label for="otpPhone">Mobile number</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/><path d="M11 18h2"/></svg>
+            <input id="otpPhone" type="tel" placeholder="98XXXXXXXX" autocomplete="tel" maxlength="10" inputmode="numeric" />
+          </div>
+          <div class="hint">The number saved on your account — code arrives by SMS.</div>
+        </div>
+        <div class="field" id="otpCodeWrap" hidden>
+          <label for="otpCode">6-digit code</label>
+          <div class="input-wrap">
+            <input id="otpCode" type="text" placeholder="••••••" maxlength="6" inputmode="numeric" autocomplete="one-time-code" />
+          </div>
+          <div class="hint">Valid 5 minutes · 5 tries max.</div>
+        </div>
+        <button class="btn btn-pine btn-block btn-lg" type="submit" id="otpBtn">Send code</button>
+      </form>
+      <form id="loginForm" novalidate>
+        <div class="field" id="fEmail">
+          <label for="email">Email address</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false" />
+          </div>
+          <div class="field-err">Enter a valid email address.</div>
+        </div>
+        <div class="field" id="fPass">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input id="password" type="password" placeholder="Your password" autocomplete="current-password" />
+            <button type="button" class="pw-toggle" data-toggle="password">Show</button>
+          </div>
+          <div class="field-err">Password is required.</div>
+        </div>
+        <div class="row" style="justify-content:space-between;margin-bottom:18px">
+          <label class="row small" style="gap:8px;cursor:pointer"><input type="checkbox" id="remember" checked style="accent-color:var(--pine);width:16px;height:16px" /> <span class="muted">Remember me</span></label>
+          <a href="forgot.html" class="small" style="font-weight:600">Forgot password?</a>
+        </div>
+        <button class="btn btn-pine btn-block btn-lg" type="submit" id="loginBtn">Log in</button>
+      </form>
+      <p class="form-note">New to Cheapflix? <a href="register.html" style="font-weight:700">Create an account</a></p>
+      <p class="form-note muted" style="margin-top:10px;font-size:12.5px">Are you a professional? <a href="register.html?type=provider">Join as a provider</a></p>
+    </div>
+  </main>
+</div>
 
+<script>
+(function () {
+  var emailEl = document.getElementById('email');
+  var passEl = document.getElementById('password');
 
-    // Tab switching
-    document.querySelectorAll('.auth-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-        
-        this.classList.add('active');
-        document.getElementById(this.dataset.tab + '-tab').style.display = 'block';
-      });
+  document.querySelectorAll('[data-toggle]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = document.getElementById(b.dataset.toggle);
+      var show = t.type === 'password';
+      t.type = show ? 'text' : 'password';
+      b.textContent = show ? 'Hide' : 'Show';
+      t.focus();
     });
+  });
 
-    // Password visibility toggle
-    function togglePasswordVisibility() {
-      const passwordInput = document.getElementById('password');
-      const isPassword = passwordInput.type === 'password';
-      passwordInput.type = isPassword ? 'text' : 'password';
+  function validate(live) {
+    var email = emailEl.value.trim();
+    var okE = /.+@.+\..+/.test(email);
+    var okP = passEl.value.length > 0;
+    document.getElementById('fEmail').classList.toggle('invalid', !okE && (live === 'submit' || email.length > 0));
+    document.getElementById('fPass').classList.toggle('invalid', !okP && live === 'submit');
+    return okE && okP;
+  }
+  emailEl.addEventListener('input', function () { validate('email'); });
+  passEl.addEventListener('input', function () { document.getElementById('fPass').classList.remove('invalid'); });
+  passEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('loginForm').requestSubmit(); });
+
+  // deep-link message e.g. register.html -> login.html?created=1
+  try {
+    if (new URLSearchParams(window.location.search).get('created')) {
+      var ok = document.getElementById('okBox');
+      ok.textContent = 'Account created — log in to continue.';
+      ok.classList.add('show');
     }
+  } catch (e) {}
 
-    // Initialize Google Sign-In
-    window.onload = function() {
-      // Initialize Google Sign-In button
-      google.accounts.id.initialize({
-        client_id: '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com', // Replace with your actual Google OAuth Client ID
-        callback: handleGoogleSignIn,
-        auto_select: false
-      });
+  // password <-> SMS tabs
+  var tabPass = document.getElementById('tabPass'), tabOtp = document.getElementById('tabOtp');
+  var loginForm = document.getElementById('loginForm'), otpForm = document.getElementById('otpForm');
+  function showTab(which) {
+    var otp = which === 'otp';
+    tabPass.classList.toggle('on', !otp);
+    tabOtp.classList.toggle('on', otp);
+    tabPass.setAttribute('aria-selected', String(!otp));
+    tabOtp.setAttribute('aria-selected', String(otp));
+    loginForm.hidden = otp;
+    otpForm.hidden = !otp;
+    document.getElementById('errBox').classList.remove('show');
+  }
+  tabPass.addEventListener('click', function () { showTab('pass'); });
+  tabOtp.addEventListener('click', function () { showTab('otp'); });
 
-      google.accounts.id.renderButton(
-        document.getElementById('google-signin-btn'),
-        { 
-          theme: 'outline', 
-          size: 'large',
-          width: '100%',
-          text: 'signin_with'
-        }
-      );
-    };
-
-    // Handle Google Sign-In response
-    async function handleGoogleSignIn(response) {
-      const formError = document.getElementById('formError');
-      
-      try {
-        const result = await fetch(getApiUrl('/auth/google'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            token: response.credential
-          }),
-        });
-
-        const data = await result.json();
-
-        if (result.ok) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          
-          if (data.user.role === 'admin') {
-            window.location.href = 'admin-dashboard.html';
-          } else if (data.user.role === 'provider') {
-            window.location.href = 'provider-dashboard.html';
-          } else {
-            window.location.href = 'dashboard.html';
-          }
-        } else {
-          formError.textContent = data.error || 'Google login failed';
-        }
-      } catch (error) {
-        console.error('Google login error:', error);
-        formError.textContent = 'Google login failed. Please try manual login.';
-      }
+  function saveSession(res, remember) {
+    try {
+      (remember ? localStorage : sessionStorage).setItem('token', res.token);
+      (remember ? localStorage : sessionStorage).setItem('user', JSON.stringify(res.user));
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      if (res.refreshToken) (remember ? localStorage : sessionStorage).setItem('cf_refresh', res.refreshToken);
+    } catch (se) {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      if (res.refreshToken) { try { localStorage.setItem('cf_refresh', res.refreshToken); } catch (e2) {} }
     }
+  }
 
-    // OAuth functions
-    function loginWithFacebook() {
-      alert('Facebook OAuth integration coming soon!');
-    }
-
-    // Form submission
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
-      const password = document.getElementById('password').value;
-      const formError = document.getElementById('formError');
-      
-      const loginIdentifier = email || phone;
-      
-      if (!loginIdentifier || !password) {
-        formError.textContent = 'Please fill in all fields';
+  // SMS OTP flow: submit once to send, again to verify
+  var otpSent = false;
+  otpForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var err = document.getElementById('errBox');
+    err.classList.remove('show');
+    var phone = document.getElementById('otpPhone').value.replace(/[\s-]/g, '');
+    var btn = document.getElementById('otpBtn');
+    if (!/^9[678]\d{8}$/.test(phone)) { err.textContent = 'Enter a Nepali mobile (98XXXXXXXX).'; err.classList.add('show'); return; }
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      if (!otpSent) {
+        await CF.api('/auth/otp-request', 'POST', { phone: phone }, false);
+        otpSent = true;
+        document.getElementById('otpCodeWrap').hidden = false;
+        btn.textContent = 'Verify code';
+        CF.toast('Code sent — check your SMS.');
+      } else {
+        var code = document.getElementById('otpCode').value.trim();
+        if (!/^\d{6}$/.test(code)) throw new Error('Enter the 6-digit code.');
+        var res = await CF.api('/auth/otp-verify', 'POST', { phone: phone, code: code }, false);
+        var remember = document.getElementById('remember').checked;
+        saveSession(res, remember);
+        try { await CF.syncFavs(); } catch (se2) {}
+        CF.toast('Welcome back, ' + res.user.firstName + '!');
+        setTimeout(function () { window.location.href = CF.dashboardFor(res.user.role, true); }, 450);
         return;
       }
+    } catch (ex) {
+      err.textContent = ex.message || 'Could not send code. Try again.';
+      err.classList.add('show');
+    }
+    btn.disabled = false; btn.classList.remove('loading');
+    if (!otpSent) btn.textContent = 'Send code';
+  });
 
-      formError.textContent = '';
-      
-      try {
-        const response = await fetch(getApiUrl('/auth/login'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            email: email || null, 
-            phone: phone || null, 
-            password 
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          
-          if (data.user.role === 'admin') {
-            window.location.href = 'admin-dashboard.html';
-          } else if (data.user.role === 'provider') {
-            window.location.href = 'provider-dashboard.html';
-          } else {
-            window.location.href = 'dashboard.html';
-          }
-        } else {
-          formError.textContent = data.error || 'Login failed';
-        }
-      } catch (error) {
-        formError.textContent = 'Connection error. Please try again.';
-      }
-    });
-  </script>
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var err = document.getElementById('errBox');
+    err.classList.remove('show');
+    if (!validate('submit')) return;
+    var btn = document.getElementById('loginBtn');
+    var label = btn.textContent;
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      var res = await CF.api('/auth/login', 'POST', { email: emailEl.value.trim(), password: passEl.value }, false);
+      var remember = document.getElementById('remember').checked;
+      saveSession(res, remember);
+      try { await CF.syncFavs(); } catch (se2) {}
+      CF.toast('Welcome back, ' + res.user.firstName + '!');
+      setTimeout(function () { window.location.href = CF.dashboardFor(res.user.role, true); }, 450);
+    } catch (ex) {
+      err.textContent = ex.message || 'Could not log you in. Check your details and try again.';
+      err.classList.add('show');
+      btn.disabled = false; btn.classList.remove('loading'); btn.textContent = label;
+    }
+  });
+})();
+</script>
+<footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>
 </body>
 </html>

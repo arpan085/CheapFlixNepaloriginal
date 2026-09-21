@@ -1,614 +1,571 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Cheapflix Nepal</title>
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/dashboard.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <title>My bookings — Cheapflix Nepal</title>
+  <meta name="description" content="Track, review and manage your home service bookings." />
+  <link rel="stylesheet" href="../css/design-system.css" />
   <script src="../config.js"></script>
+  <script src="../js/app.js" defer></script>
 </head>
-
 <body>
-  <nav class="navbar">
-    <div class="container">
-      <div class="navbar-brand">
-        <h1>Cheapflix Nepal</h1>
-      </div>
+<div class="dash">
+  <div id="dashScrim"></div>
+  <aside class="dash-side" id="dashSide">
+    <a href="../index.html" class="brand" style="padding:4px 10px 6px"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <div class="dash-profile" id="dashProfile">
+      <label class="avatar-edit" title="Change photo" style="display:inline-flex">
+        <span id="paAvatarWrap" style="display:inline-flex"><span class="pa" id="paAvatar" style="background:#1d4a38">–</span></span>
+        <span class="cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h3l2-3h6l2 3h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+        <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" hidden />
+      </label>
+      <div style="min-width:0"><b id="paName">Loading…</b><span id="paMail">—</span></div>
+    </div>
+    <div class="dash-sec" data-i18n="menu.title">Menu</div>
+    <a class="dash-link on" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span data-i18n="nav.bookings">My bookings</span> <span class="count" id="navCount" hidden>0</span></a>
+    <a class="dash-link" href="booking-flow.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="nav.book">Book a service</span></a>
+    <a class="dash-link" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg><span data-i18n="nav.messages">Messages</span> <span class="count" id="navMsg" hidden>0</span></a>
+    <a class="dash-link" href="support.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 2-2.4 3.3M12 17h.01"/></svg><span data-i18n="nav.support">Help &amp; support</span></a>
+    <a class="dash-link" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg><span data-i18n="nav.home">Home</span></a>
+    <div class="dash-side-foot">
+      <button class="dash-link" data-logout><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span data-i18n="nav.logout">Log out</span></button>
+    </div>
+  </aside>
 
-      <div class="navbar-menu">
-        <a href="../index.html" class="nav-link">Home</a>
-        <span class="nav-link" id="userName"></span>
-        <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+  <main class="dash-main">
+    <div class="dash-top">
+      <button class="btn btn-line btn-sm" id="menuBtn" style="display:none">☰ Menu</button>
+      <div><h1 id="helloTitle" data-i18n="dash.bookings.h">My bookings</h1><p id="helloSub">Loading…</p></div>
+      <span class="spacer"></span>
+      <label class="top-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="tableSearch" type="search" placeholder="Search bookings, providers…" aria-label="Search bookings" /></label>
+      <a class="btn btn-pine" href="booking-flow.html" data-i18n="dash.new">+ New booking</a>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><span class="stat-ic" style="background:#fdf0d5;color:#b45309"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><div><span>Upcoming</span><b id="stUpcoming">–</b><small id="stUpcomingSub">scheduled &amp; pending</small></div></div>
+      <div class="stat"><span class="stat-ic" style="background:#e7f6ec;color:#15803d"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg></span><div><span>Completed</span><b id="stDone">–</b><small>jobs done</small></div></div>
+      <div class="stat"><span class="stat-ic" style="background:#e3efe7;color:#1d4a38"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M7 8h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/></svg></span><div><span>Total spent</span><b id="stSpent">–</b><small>on completed jobs</small></div></div>
+      <div class="stat"><span class="stat-ic" style="background:#e6effc;color:#1d4ed8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><span>Next visit</span><b id="stNext" style="font-size:19px">—</b><small id="stNextSub">nothing scheduled</small></div></div>
+    </div>
+
+    <div class="flow-grid" style="grid-template-columns:1fr 1fr;margin-bottom:20px">
+      <div class="panel" style="margin-bottom:0">
+        <div class="cal-head"><h2 style="font-size:19px">Calendar</h2><span class="row"><button class="btn btn-line btn-sm" id="calPrev" type="button">‹</button><b id="calTitle">—</b><button class="btn btn-line btn-sm" id="calNext" type="button">›</button></span></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <p class="small muted" style="margin-top:10px" id="calHint">Tap a highlighted day to filter the list.</p>
+      </div>
+      <div class="panel" style="margin-bottom:0">
+        <div class="panel-head"><h2>Saved providers</h2><a class="btn btn-line btn-sm" href="booking-flow.html">Find more</a></div>
+        <div id="favBox"><div class="skel" style="height:64px"></div></div>
       </div>
     </div>
-  </nav>
 
-  <main class="dashboard-container">
-    <div class="sidebar">
-      <ul class="sidebar-menu">
-        <li><a href="#bookings" class="menu-link active">My Bookings</a></li>
-        <li><a href="#profile" class="menu-link">Profile</a></li>
-        <li><a href="#reviews" class="menu-link">My Reviews</a></li>
-        <li><a href="../pages/support.html" class="menu-link" style="background: linear-gradient(135deg, #7C3AED, #D946EF); color: white; border-radius: 6px; margin-top: 10px;">🎟️ Support Tickets</a></li>
-        <li><a href="#settings" class="menu-link">Settings</a></li>
-      </ul>
+    <div class="panel">
+      <div class="panel-head">
+        <h2 data-i18n="dash.all">All bookings</h2>
+        <div class="chip-row" id="filterChips" role="tablist" aria-label="Filter bookings">
+          <button class="chip on" data-f="all" type="button">All</button>
+          <button class="chip" data-f="pending" type="button">Pending</button>
+          <button class="chip" data-f="confirmed" type="button">Confirmed</button>
+          <button class="chip" data-f="completed" type="button">Completed</button>
+          <button class="chip" data-f="cancelled" type="button">Cancelled</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Reference</th><th>Service</th><th>Provider</th><th>Schedule</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="bookRows"><tr><td colspan="7"><div class="skel" style="height:52px"></div><div class="skel" style="height:52px;margin-top:8px"></div><div class="skel" style="height:52px;margin-top:8px"></div></td></tr></tbody></table></div>
     </div>
 
-    <div class="dashboard-content">
-
-      <section id="bookings" class="dashboard-section active">
-        <h2>My Bookings</h2>
-        <div class="bookings-list" id="bookingsList">
-          <p>Loading bookings...</p>
-        </div>
-      </section>
-
-      <section id="profile" class="dashboard-section">
-        <h2>Profile</h2>
-        <div id="profileMsg" style="display:none; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 500;"></div>
-        <form id="profileForm">
-          <div class="form-group">
-            <label>Name:</label>
-            <input type="text" id="profileName" disabled>
-          </div>
-
-          <div class="form-group">
-            <label>Email:</label>
-            <input type="email" id="profileEmail" disabled>
-          </div>
-
-          <div class="form-group">
-            <label>Phone:</label>
-            <input type="tel" id="profilePhone" placeholder="e.g. 9800000000">
-          </div>
-
-          <div class="form-group">
-            <label>Address:</label>
-            <input type="text" id="profileAddress" placeholder="e.g. Kathmandu, Nepal">
-          </div>
-
-          <div class="form-group">
-            <label>City:</label>
-            <input type="text" id="profileCity" placeholder="e.g. Kathmandu">
-          </div>
-
-          <button type="submit" class="btn btn-primary" id="saveProfileBtn">Save Changes</button>
-        </form>
-      </section>
-
-      <section id="reviews" class="dashboard-section">
-        <h2>My Reviews</h2>
-        <div id="myReviewsList">
-          <p style="color:#999;">Loading reviews...</p>
-        </div>
-      </section>
-
-      <section id="settings" class="dashboard-section">
-        <h2>Settings</h2>
-        <button class="btn btn-danger" onclick="logout()">Logout</button>
-      </section>
-
+    <div class="panel" style="background:var(--pine-dark);border-color:var(--pine-dark);color:#fff">
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:14px">
+        <div><h2 style="color:#fff;margin-bottom:6px">Need something else fixed?</h2><p style="color:rgba(255,255,255,.65);font-size:14px">Electricians, plumbers, tutors &amp; 50+ trades — median arrival 45 minutes in the valley.</p></div>
+        <a class="btn" style="background:#fdf6e3;color:var(--pine-dark)" href="booking-flow.html">Book a service</a>
+      </div>
     </div>
   </main>
+</div>
 
-  <!-- ── Review Modal ── -->
-  <div id="reviewModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:2000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:16px; padding:32px; max-width:480px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-      <h2 style="margin:0 0 8px; font-size:1.4rem; color:#1f2937;">⭐ Leave a Review</h2>
-      <p id="reviewProviderName" style="color:#6b7280; margin:0 0 24px; font-size:14px;"></p>
+<div class="modal-veil" id="detailVeil" role="dialog" aria-modal="true"><div class="modal"><h2>Booking <span id="dRef"></span></h2><p id="dMeta" class="muted small" style="margin-bottom:14px"></p><div id="dBody"></div>
+  <div style="display:flex;gap:10px;margin-top:18px"><button class="btn btn-line" id="dClose" type="button">Close</button><button class="btn btn-pine" id="dReview" type="button" style="flex:1">Leave a review</button></div></div></div>
 
-      <!-- Star Rating -->
-      <div style="margin-bottom:20px;">
-        <label style="display:block; font-weight:600; color:#374151; margin-bottom:10px;">Rating:</label>
-        <div id="starRating" style="display:flex; gap:8px;">
-          <span class="star-btn" data-val="1" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(1)">★</span>
-          <span class="star-btn" data-val="2" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(2)">★</span>
-          <span class="star-btn" data-val="3" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(3)">★</span>
-          <span class="star-btn" data-val="4" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(4)">★</span>
-          <span class="star-btn" data-val="5" style="font-size:32px; cursor:pointer; color:#DDD6FE;" onclick="selectStar(5)">★</span>
-        </div>
-        <input type="hidden" id="reviewRating" value="0">
-      </div>
+<div class="modal-veil" id="reviewVeil" role="dialog" aria-modal="true"><div class="modal"><h2>How was the work?</h2><p class="muted" style="margin-bottom:14px;font-size:14px">Your review helps neighbours choose with confidence.</p>
+  <div class="field"><label>Rating</label><div class="chip-row" id="starRow"></div></div>
+  <div class="field"><label for="revText">Review (optional)</label><textarea id="revText" rows="3" placeholder="Punctual? Tidy? Fair price?"></textarea></div>
+  <div class="field"><label for="revPhotos">Photos (optional, up to 3)</label><input type="file" id="revPhotos" accept="image/jpeg,image/png,image/webp" multiple style="font-size:13.5px" /><div class="hint">Show the finished work — helps neighbours trust your review.</div></div>
+  <div style="display:flex;gap:10px"><button class="btn btn-line" id="rClose" type="button">Cancel</button><button class="btn btn-pine" id="rSend" type="button" style="flex:1">Submit review</button></div></div></div>
 
-      <!-- Comment -->
-      <div style="margin-bottom:20px;">
-        <label style="display:block; font-weight:600; color:#374151; margin-bottom:8px;">Comment (optional):</label>
-        <textarea id="reviewComment" rows="4" placeholder="Tell others about your experience..." style="width:100%; border:1.5px solid #DDD6FE; border-radius:8px; padding:12px; font-family:inherit; font-size:14px; resize:vertical; outline:none;"></textarea>
-      </div>
+<div class="modal-veil" id="receiptVeil" role="dialog" aria-modal="true"><div class="modal receipt-modal">
+  <div class="receipt-head"><span class="brand-mark">Cf</span><div><b>Cheapflix Nepal Pvt. Ltd.</b><br /><span class="small muted">Payment receipt · Kathmandu</span></div><span class="spacer"></span><span id="rStatus"></span></div>
+  <div id="receiptBody"></div>
+  <div style="display:flex;gap:10px;margin-top:18px" class="no-print"><button class="btn btn-line" id="rCloseBtn" type="button">Close</button><button class="btn btn-pine" id="rPrint" type="button" style="flex:1">Print / Save PDF</button></div>
+</div></div>
 
-      <div id="reviewError" style="color:#ef4444; font-size:13px; margin-bottom:12px; display:none;"></div>
+<script>
+(function () {
+  var user = CF.requireAuth(['user', 'provider', 'admin']);
+  if (!user) return;
+  if (user.role !== 'user') { window.location.href = CF.dashboardFor(user.role, true); return; }
 
-      <div style="display:flex; gap:10px;">
-        <button onclick="submitReview()" style="flex:1; background:linear-gradient(135deg,#7C3AED,#D946EF); color:white; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:15px;">Submit Review</button>
-        <button onclick="closeReviewModal()" style="flex:1; background:#f3f4f6; color:#374151; border:none; padding:12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:15px;">Cancel</button>
-      </div>
-    </div>
-  </div>
+  var bookings = [], filter = 'all', reviewFor = null, stars = 5, query = '', dateFilter = null;
+  var calCursor = new Date(); calCursor.setDate(1);
 
-  <!-- ── Chat Modal for Customer Dashboard ── -->
-  <style>
-    #customerChatModal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-    }
-    .customer-chat-container {
-      background: white; border-radius: 12px;
-      max-width: 600px; width: 90%; height: 500px;
-      display: flex; flex-direction: column;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    .customer-chat-header {
-      padding: 1.5rem; border-bottom: 1px solid #e5e7eb;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .customer-chat-messages {
-      flex: 1; overflow-y: auto; padding: 1.5rem;
-      background: #f9f9f9; display: flex; flex-direction: column;
-    }
-    .customer-chat-input {
-      padding: 1rem; border-top: 1px solid #e5e7eb; display: flex; gap: 0.75rem;
-    }
-    .customer-chat-input input {
-      flex: 1; border: 1px solid #d1d5db; border-radius: 6px;
-      padding: 0.75rem; font-size: 0.95rem;
-    }
-    .customer-chat-input button {
-      background: #6366f1; color: white; border: none; border-radius: 6px;
-      padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 600;
-    }
-    .customer-chat-input button:hover { background: #4f46e5; }
-    .customer-chat-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999; }
-    .customer-chat-close:hover { color: #333; }
-  </style>
+  // sidebar identity
+  function paintMe(u) {
+    try {
+      document.getElementById('paName').textContent = (u.firstName + ' ' + (u.lastName || '')).trim();
+      document.getElementById('paMail').textContent = u.email || u.phone || 'Customer';
+      document.getElementById('paAvatarWrap').innerHTML = CF.avatarImg(u, 'pa');
+      document.getElementById('helloSub').textContent = 'Namaste, ' + u.firstName + ' — here is everything you have booked.';
+    } catch (e) {}
+  }
+  paintMe(user);
+  document.getElementById('avatarInput').addEventListener('change', async function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 2 * 1024 * 1024) { CF.toast('Photo must be under 2MB.', 'err'); return; }
+    var fd = new FormData();
+    fd.append('avatar', f);
+    try {
+      CF.toast('Uploading photo…');
+      var res = await CF.apiFile('/users/avatar', fd);
+      user.avatar = res.data.avatar;
+      try { localStorage.setItem('user', JSON.stringify(user)); } catch (se) {}
+      paintMe(user);
+      CF.toast('Profile photo updated.');
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+    e.target.value = '';
+  });
+  if (window.innerWidth <= 1020) document.getElementById('menuBtn').style.display = '';
+  document.getElementById('menuBtn').addEventListener('click', function () {
+    document.getElementById('dashSide').classList.add('open');
+    document.getElementById('dashScrim').classList.add('show');
+  });
+  document.getElementById('dashScrim').addEventListener('click', function () {
+    document.getElementById('dashSide').classList.remove('open');
+    this.classList.remove('show');
+  });
+  document.getElementById('tableSearch').addEventListener('input', function (e) { query = e.target.value.toLowerCase(); render(); });
 
-  <div id="customerChatModal">
-    <div class="customer-chat-container">
-      <div class="customer-chat-header">
-        <h2 style="font-size: 1.5rem; color: #333; margin: 0;">💬 Chat with <span id="providerNameDisplay">Provider</span></h2>
-        <button class="customer-chat-close" onclick="closeChatModal()">✕</button>
-      </div>
-      <div class="customer-chat-messages" id="customerChatMessages">
-        <div style="text-align: center; color: #999;">Loading messages...</div>
-      </div>
-      <div class="customer-chat-input">
-        <input type="text" id="customerChatInput" placeholder="Type your message...">
-        <button onclick="sendChatMessageCustomer()">Send</button>
-      </div>
-    </div>
-  </div>
+  document.getElementById('filterChips').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-f]'); if (!b) return;
+    filter = b.dataset.f;
+    this.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+    render();
+  });
 
-  <script>
-    // ── API URL HELPER ──
-    function getApiUrl(endpoint) {
-      if (window.CONFIG && window.CONFIG.getApiUrl) {
-        return window.CONFIG.getApiUrl(endpoint);
-      }
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const base = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
-      return base + '/api' + endpoint;
-    }
+  function svcName(b) { return (b.service && b.service.name) || b.serviceName || 'Service'; }
+  function proName(b) {
+    if (b.provider && b.provider.user) return ((b.provider.user.firstName || '') + ' ' + (b.provider.user.lastName || '')).trim();
+    return b.providerName || 'Assigned soon';
+  }
 
-    const currentToken = localStorage.getItem('token');
-    let currentUserId = null;
-
-    // ── AUTH CHECK ──
-    window.addEventListener('DOMContentLoaded', () => {
-      const token = localStorage.getItem('token');
-      let user = null;
-      try { user = JSON.parse(localStorage.getItem('user')); } catch (e) { user = null; }
-
-      if (!token || !user) { window.location.href = 'login.html'; return; }
-      if (user.role === 'provider') { window.location.href = 'provider-dashboard.html'; return; }
-      if (user.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
-
-      currentUserId = user.id;
-      document.getElementById('userName').textContent = `Welcome, ${user.firstName}`;
-
-      // Load profile from API (to get phone/address)
-      loadProfileFromAPI(token);
-      loadBookings(user.id, token);
-      loadMyReviews(token);
-
-      // Sidebar navigation
-      document.querySelectorAll('.menu-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-          const href = e.target.getAttribute('href');
-          if (!href || !href.startsWith('#')) return; // let external links work
-          e.preventDefault();
-          document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
-          document.querySelectorAll('.menu-link').forEach(m => m.classList.remove('active'));
-          const target = document.querySelector(href);
-          if (target) target.classList.add('active');
-          e.target.classList.add('active');
-        });
-      });
-
-      // Profile form submit
-      document.getElementById('profileForm').addEventListener('submit', saveProfile);
+  function render() {
+    var rows = bookings.filter(function (b) {
+      var okF = filter === 'all' || String(b.status).toLowerCase() === filter;
+      if (!okF) return false;
+      if (dateFilter && (!b.date || new Date(b.date).toISOString().slice(0, 10) !== dateFilter)) return false;
+      if (!query) return true;
+      var hay = (svcName(b) + ' ' + proName(b) + ' ' + (b.bookingRef || '') + ' ' + (b.location || '')).toLowerCase();
+      return hay.indexOf(query) !== -1;
     });
+    var up = bookings.filter(function (b) { return ['pending', 'confirmed', 'in_progress'].indexOf(String(b.status).toLowerCase()) !== -1; }).length;
+    var done = bookings.filter(function (b) { return String(b.status).toLowerCase() === 'completed'; }).length;
+    var spent = bookings.filter(function (b) { return String(b.status).toLowerCase() === 'completed'; })
+      .reduce(function (s, b) { return s + (Number(b.totalAmount) || 0); }, 0);
+    document.getElementById('stUpcoming').textContent = up;
+    document.getElementById('stDone').textContent = done;
+    document.getElementById('stSpent').textContent = CF.money(spent);
+    var nc = document.getElementById('navCount');
+    nc.hidden = !up; nc.textContent = up;
 
-    // ── LOAD PROFILE FROM API ──
-    async function loadProfileFromAPI(token) {
-      try {
-        const res = await fetch(getApiUrl('/users/profile'), {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error('Failed to load profile');
-        const data = await res.json();
-        const user = data.data || data;
-
-        document.getElementById('profileName').value = `${user.firstName} ${user.lastName}`;
-        document.getElementById('profileEmail').value = user.email;
-        document.getElementById('profilePhone').value = user.phone || '';
-        document.getElementById('profileAddress').value = user.address || '';
-        document.getElementById('profileCity').value = user.city || '';
-      } catch (err) {
-        console.error('Error loading profile:', err);
-        // Fallback to localStorage
-        try {
-          const user = JSON.parse(localStorage.getItem('user'));
-          if (user) {
-            document.getElementById('profileName').value = `${user.firstName} ${user.lastName}`;
-            document.getElementById('profileEmail').value = user.email;
-          }
-        } catch (e) {}
-      }
+    var upcoming = bookings.filter(function (b) { return ['pending', 'confirmed', 'in_progress'].indexOf(String(b.status).toLowerCase()) !== -1; })
+      .sort(function (a, c) { return new Date(a.date || 0) - new Date(c.date || 0); })[0];
+    if (upcoming && upcoming.date) {
+      document.getElementById('stNext').textContent = new Date(upcoming.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      document.getElementById('stNextSub').textContent = svcName(upcoming) + ' · ' + (upcoming.startTime || '');
+    } else {
+      document.getElementById('stNext').textContent = '—';
+      document.getElementById('stNextSub').textContent = 'nothing scheduled';
     }
 
-    // ── SAVE PROFILE ──
-    async function saveProfile(e) {
-      e.preventDefault();
-      const btn = document.getElementById('saveProfileBtn');
-      const msgEl = document.getElementById('profileMsg');
-      btn.disabled = true;
-      btn.textContent = 'Saving...';
-
-      const phone = document.getElementById('profilePhone').value.trim();
-      const address = document.getElementById('profileAddress').value.trim();
-      const city = document.getElementById('profileCity').value.trim();
-
-      try {
-        const res = await fetch(getApiUrl('/users/profile'), {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${currentToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ phone, address, city })
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          // Show success
-          msgEl.style.display = 'block';
-          msgEl.style.background = '#f0fdf4';
-          msgEl.style.color = '#15803d';
-          msgEl.style.border = '1px solid #bbf7d0';
-          msgEl.textContent = '✅ Profile updated successfully!';
-
-          // Update localStorage user if phone/address changed
-          try {
-            const stored = JSON.parse(localStorage.getItem('user'));
-            if (stored) {
-              stored.phone = phone || stored.phone;
-              localStorage.setItem('user', JSON.stringify(stored));
-            }
-          } catch (e) {}
-
-          setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
-        } else {
-          msgEl.style.display = 'block';
-          msgEl.style.background = '#fef2f2';
-          msgEl.style.color = '#dc2626';
-          msgEl.style.border = '1px solid #fecaca';
-          msgEl.textContent = '❌ ' + (data.error || 'Failed to update profile');
-          setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
-        }
-      } catch (err) {
-        console.error('Save profile error:', err);
-        msgEl.style.display = 'block';
-        msgEl.style.background = '#fef2f2';
-        msgEl.style.color = '#dc2626';
-        msgEl.style.border = '1px solid #fecaca';
-        msgEl.textContent = '❌ Network error. Please try again.';
-        setTimeout(() => { msgEl.style.display = 'none'; }, 5000);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save Changes';
-      }
+    var tb = document.getElementById('bookRows');
+    if (!rows.length) {
+      var msg = dateFilter ? 'Nothing scheduled on ' + CF.esc(dateFilter) + '. <a href="#" id="clearDay">Show all</a>.' : query ? 'No bookings match “' + CF.esc(query) + '”.' : (filter === 'all' ? 'Nothing here yet — your first booking takes two minutes.' : 'Nothing with this status.');
+      tb.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></div><b>' + msg + '</b><p class="small">Verified pros · upfront prices · pay after the job</p><br /><a class="btn btn-pine btn-sm" href="booking-flow.html">Book your first service</a></div></td></tr>';
+      var cd = document.getElementById('clearDay');
+      if (cd) cd.addEventListener('click', function (e) { e.preventDefault(); dateFilter = null; render(); });
+      renderCal();
+      return;
     }
+    tb.innerHTML = rows.map(function (b) {
+      var dt = b.date ? new Date(b.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—';
+      var canReview = String(b.status).toLowerCase() === 'completed' && !b.review;
+      var nm = proName(b);
+      var init = nm.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || '–';
+      var canChat = ['pending', 'confirmed', 'in_progress', 'completed'].indexOf(String(b.status).toLowerCase()) !== -1;
+      var pid = (b.provider && b.provider.id) || b.providerId;
+      var pav = (b.provider && b.provider.user) || nm;
+      return '<tr><td><b>' + CF.esc(b.bookingRef || String(b.id).slice(0, 8)) + '</b></td>' +
+        '<td><b>' + CF.esc(svcName(b)) + '</b><br /><span class="small muted">' + CF.esc(b.location ? String(b.location).slice(0, 28) : '') + '</span></td>' +
+        '<td><span class="cell-main">' + CF.avatarImg(pav, 'cell-avatar') + '<span><b>' + (pid ? '<a href="provider-profile.html?id=' + CF.esc(pid) + '" style="color:inherit">' + CF.esc(nm) + '</a>' : CF.esc(nm)) + '</b><br /><span class="small muted">' + CF.pillFor(b.paymentStatus || 'unpaid') + ' ' + CF.esc((b.paymentMethod || 'cash').toUpperCase()) + '</span></span></span></td>' +
+        '<td>' + CF.esc(dt) + ' · ' + CF.esc(b.startTime || '') + '</td>' +
+        '<td><b>' + CF.money(b.totalAmount) + '</b></td>' +
+        '<td>' + CF.pillFor(b.status) + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn btn-line btn-sm" data-view="' + CF.esc(b.id) + '" type="button">Details</button> ' +
+        (canChat ? '<a class="btn btn-line btn-sm" href="chat.html?booking=' + CF.esc(b.id) + '">Chat</a> ' : '') +
+        (canReview ? '<button class="btn btn-pine btn-sm" data-rev="' + CF.esc(b.id) + '" type="button">Review</button>' : '') +
+        (['pending'].indexOf(String(b.status).toLowerCase()) !== -1 ? ' <button class="btn btn-line btn-sm" data-cancel="' + CF.esc(b.id) + '" type="button">Cancel</button>' : '') + '</td></tr>';
+    }).join('');
+    renderCal();
+  }
 
-    // ── LOAD BOOKINGS ──
-    async function loadBookings(userId, token) {
-      try {
-        const res = await fetch(getApiUrl(`/bookings/user/${userId}`), {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-        });
-        const data = await res.json();
-        if (data.success) displayBookings(data.data);
-        else displayBookings([]);
-      } catch (err) {
-        console.error('Error loading bookings:', err);
-        document.getElementById('bookingsList').innerHTML =
-          '<p style="color:red;">Failed to load bookings. Please refresh.</p>';
-      }
+  /* ---- month calendar ---- */
+  function dayKey(d) { return d.toISOString().slice(0, 10); }
+  function renderCal() {
+    var grid = document.getElementById('calGrid');
+    if (!grid) return;
+    var y = calCursor.getFullYear(), m = calCursor.getMonth();
+    document.getElementById('calTitle').textContent = calCursor.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+    var first = new Date(y, m, 1);
+    var startDow = (first.getDay() + 6) % 7; // Monday first
+    var daysIn = new Date(y, m + 1, 0).getDate();
+    var byDay = {};
+    bookings.forEach(function (b) {
+      if (!b.date) return;
+      var k = new Date(b.date).toISOString().slice(0, 10);
+      (byDay[k] = byDay[k] || []).push(b);
+    });
+    var html = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(function (d) { return '<div class="cal-dow">' + d + '</div>'; }).join('');
+    for (var i = 0; i < startDow; i++) html += '<div></div>';
+    var todayK = dayKey(new Date());
+    for (var d = 1; d <= daysIn; d++) {
+      var dt = new Date(y, m, d);
+      var k = dayKey(dt);
+      var list = byDay[k] || [];
+      html += '<button type="button" class="cal-day' + (dateFilter === k ? ' sel' : '') + (k === todayK ? '' : '') + '" data-day="' + k + '"' + (list.length ? '' : ' style="cursor:default"') + '><b>' + d + '</b>' +
+        (list.length ? '<span class="dots">' + list.slice(0, 4).map(function (b) {
+          var s = String(b.status).toLowerCase();
+          return '<i class="' + (s === 'completed' ? 'done' : s === 'cancelled' ? 'cancel' : '') + '"></i>';
+        }).join('') + '</span>' : '') + '</button>';
     }
+    grid.innerHTML = html;
+    var hint = list.length ? '' : null;
+    document.getElementById('calHint').innerHTML = dateFilter
+      ? 'Showing <b>' + CF.esc(dateFilter) + '</b> · <a href="#" id="clearDay2">clear</a>'
+      : 'Tap a highlighted day to filter the list.';
+    var c2 = document.getElementById('clearDay2');
+    if (c2) c2.addEventListener('click', function (e) { e.preventDefault(); dateFilter = null; render(); });
+  }
+  document.getElementById('calPrev').addEventListener('click', function () { calCursor.setMonth(calCursor.getMonth() - 1); renderCal(); });
+  document.getElementById('calNext').addEventListener('click', function () { calCursor.setMonth(calCursor.getMonth() + 1); renderCal(); });
+  document.getElementById('calGrid').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-day]'); if (!b) return;
+    var k = b.dataset.day;
+    dateFilter = (dateFilter === k) ? null : k;
+    render();
+  });
 
-    // ── DISPLAY BOOKINGS ──
-    function displayBookings(bookings) {
-      const list = document.getElementById('bookingsList');
-      if (!bookings || bookings.length === 0) {
-        list.innerHTML = `
-          <div style="text-align:center; padding:40px; color:#999;">
-            <p>No bookings yet</p>
-            <p style="font-size:12px; margin-top:10px;">Book a service to see it here</p>
-          </div>`;
+  /* ---- saved providers ---- */
+  async function loadFavs() {
+    var box = document.getElementById('favBox');
+    var favs = CF.getFavs();
+    if (!favs.length) {
+      box.innerHTML = '<div class="empty" style="padding:20px"><b>No saved providers yet.</b><p class="small">Tap ♡ on any provider to pin them here.</p></div>';
+      return;
+    }
+    try {
+      var res = await CF.api('/providers', 'GET', null, false);
+      var all = res.data || [];
+      var list = all.filter(function (p) { return favs.indexOf(String(p.id)) !== -1; });
+      if (!list.length) {
+        box.innerHTML = '<div class="empty" style="padding:20px"><b>Saved providers unavailable.</b><p class="small">They may have been unverified.</p></div>';
         return;
       }
-
-      list.innerHTML = bookings.map(booking => {
-        const isCompleted = booking.status === 'completed';
-        const hasReview = booking.review != null;
-        const providerFirstName = booking.provider?.user?.firstName || '';
-        const providerLastName = booking.provider?.user?.lastName || '';
-        const providerFullName = `${providerFirstName} ${providerLastName}`.trim();
-        const providerId = booking.provider?.user?.id || '';
-
-        const reviewBtn = isCompleted && !hasReview
-          ? `<button onclick="openReviewModal('${booking.id}', '${providerFullName.replace(/'/g,"\\'")}', '${booking.providerId}')"
-               style="background:linear-gradient(135deg,#7C3AED,#D946EF); color:white; border:none; padding:6px 14px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:600;">
-               ⭐ Leave Review
-             </button>`
-          : isCompleted && hasReview
-            ? `<span style="color:#10b981; font-size:12px; font-weight:600;">✅ Review Submitted</span>`
-            : '';
-
-        return `
-        <div style="background:white; border:1px solid #eee; border-radius:8px; padding:16px; margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
-            <div>
-              <h3 style="margin:0 0 4px; color:#333;">${booking.service?.name || 'Service'}</h3>
-              <p style="margin:0; font-size:13px; color:#666;">
-                Provider: <strong>${providerFullName}</strong>
-              </p>
-            </div>
-            <span style="background:${getStatusColor(booking.status)}; color:white; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">
-              ${booking.status?.toUpperCase()}
-            </span>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; font-size:13px;">
-            <div><span style="color:#999;">📅 Date:</span> <strong>${new Date(booking.date).toLocaleDateString()}</strong></div>
-            <div><span style="color:#999;">⏰ Time:</span> <strong>${booking.startTime}</strong></div>
-            <div><span style="color:#999;">📍 Location:</span> <strong>${booking.location}</strong></div>
-            <div><span style="color:#999;">💰 Amount:</span> <strong>Rs ${booking.totalAmount?.toLocaleString()}</strong></div>
-          </div>
-
-          <div style="padding-top:12px; border-top:1px solid #eee; display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap;">
-            <small style="color:#999;">Ref: <strong>${booking.bookingRef}</strong></small>
-            <div style="display:flex; gap:8px; align-items:center;">
-              ${reviewBtn}
-              <button onclick="openCustomerChat('${booking.id}', '${providerFullName.replace(/'/g,"\\'")}', '${providerId}')"
-                style="background:#6366f1; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:600;">
-                💬 Chat
-              </button>
-            </div>
-          </div>
-        </div>`;
+      box.innerHTML = list.map(function (p) {
+        var u = p.user || {};
+        var nm = ((u.firstName || '') + ' ' + (u.lastName || '')).trim() || 'Verified pro';
+        return '<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials(u.firstName, u.lastName)) + '</span><span><b>' + CF.esc(nm) + '</b><br /><span class="small muted">' + CF.esc(p.category || '') + ' · ' + Number(p.rating || 4.7).toFixed(1) + ' ★</span></span></span><span class="row"><a class="btn btn-pine btn-sm" href="booking-flow.html?provider=' + CF.esc(p.id) + '">Book</a><button class="btn btn-line btn-sm" data-unfav="' + CF.esc(p.id) + '" type="button">Remove</button></span></div>';
       }).join('');
+    } catch (e) {
+      box.innerHTML = '<p class="small muted">Could not load saved providers.</p>';
     }
+  }
+  document.getElementById('favBox').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-unfav]');
+    if (!b) return;
+    CF.toggleFav(b.dataset.unfav);
+    loadFavs();
+  });
 
-    function getStatusColor(status) {
-      return { pending:'#FFA500', confirmed:'#4CAF50', in_progress:'#2196F3', completed:'#10b981', cancelled:'#f44336' }[status] || '#999';
-    }
-
-    // ── LOAD MY REVIEWS ──
-    async function loadMyReviews(token) {
-      const el = document.getElementById('myReviewsList');
+  document.getElementById('bookRows').addEventListener('click', async function (e) {
+    var v = e.target.closest('[data-view]');
+    var r = e.target.closest('[data-rev]');
+    var c = e.target.closest('[data-cancel]');
+    if (v) openDetail(v.dataset.view);
+    if (r) openReview(r.dataset.rev);
+    if (c) {
+      if (!confirm('Cancel this booking? Your provider will be notified.')) return;
       try {
-        const res = await fetch(getApiUrl(`/bookings/user/${currentUserId}`), {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        const bookings = (data.data || []).filter(b => b.review);
-        if (!bookings.length) {
-          el.innerHTML = '<p style="color:#999;">No reviews submitted yet. Complete a booking to leave a review!</p>';
+        await CF.api('/bookings/' + c.dataset.cancel + '/cancel', 'POST', {});
+        CF.toast('Booking cancelled.');
+        load();
+      } catch (ex) { CF.toast(ex.message, 'err'); }
+    }
+  });
+
+  function closeVeils() {
+    document.getElementById('detailVeil').classList.remove('show');
+    document.getElementById('reviewVeil').classList.remove('show');
+    document.getElementById('receiptVeil').classList.remove('show');
+  }
+  document.querySelectorAll('.modal-veil').forEach(function (v) {
+    v.addEventListener('click', function (e) { if (e.target === v) closeVeils(); });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeVeils(); });
+
+  function openDetail(id) {
+    var b = bookings.find(function (x) { return x.id === id; });
+    if (!b) return;
+    document.getElementById('dRef').textContent = b.bookingRef || '';
+    document.getElementById('dMeta').textContent = svcName(b) + ' · ' + (b.date ? new Date(b.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) : '');
+    document.getElementById('dBody').innerHTML =
+      '<div class="timeline">' +
+      ['pending', 'confirmed', 'in_progress', 'completed'].map(function (s, i, arr) {
+        var order = ['pending', 'confirmed', 'in_progress', 'completed'];
+        var cur = order.indexOf(String(b.status).toLowerCase());
+        var cls = i < cur ? 'done' : (i === cur ? (String(b.status).toLowerCase() === 'cancelled' ? '' : 'now') : '');
+        if (String(b.status).toLowerCase() === 'cancelled') cls = i === 0 ? 'done' : '';
+        return '<div class="tl-step ' + cls + '"><span class="tl-dot">' + (cls === 'done' ? '✓' : (i + 1)) + '</span><span><b>' + s.replace('_', ' ') + '</b><span>' + (i === 0 ? 'Request sent' : i === 1 ? 'Provider accepted' : i === 2 ? 'Work in progress' : 'Done · pay & review') + '</span></span></div>';
+      }).join('') + '</div>' +
+      '<div class="sum-row"><span>Provider</span><span><b>' + CF.esc(proName(b)) + '</b></span></div>' +
+      '<div class="sum-row"><span>Time</span><span>' + CF.esc(b.startTime || '—') + ' · ' + CF.esc(b.duration || '') + '</span></div>' +
+      '<div class="sum-row"><span>Address</span><span style="text-align:right;max-width:55%">' + CF.esc(b.location || '—') + '</span></div>' +
+      (['pending', 'confirmed'].indexOf(String(b.status).toLowerCase()) !== -1
+        ? '<div class="panel" style="background:var(--paper);margin:12px 0;padding:16px"><b style="font-size:14px">Reschedule</b><p class="small muted">Move to a new date &amp; time — the provider is notified instantly.</p>' +
+          '<div class="field-row" style="margin-top:10px"><div class="field"><label for="dDate">New date</label><input id="dDate" type="date" value="' + CF.esc(b.date ? new Date(b.date).toISOString().slice(0, 10) : '') + '" min="' + new Date().toISOString().slice(0, 10) + '" /></div>' +
+          '<div class="field"><label for="dTime">New time</label><select id="dTime">' +
+            ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM'].map(function (t) {
+              return '<option' + (b.startTime === t ? ' selected' : '') + '>' + t + '</option>';
+            }).join('') + '</select></div></div>' +
+          '<div class="alert alert-err" id="dRsErr"></div>' +
+          '<button class="btn btn-pine btn-sm btn-block" id="dResched" type="button">Save new schedule</button></div>'
+        : '') +
+      '<div class="sum-row"><span>Payment</span><span class="pay-badge">' + CF.icon('wallet', 'ic ic-sm') + ' ' + CF.esc((b.paymentMethod || 'cash').toUpperCase()) + ' · ' + CF.pillFor(b.paymentStatus || 'unpaid') + '</span></div>' +
+      '<div class="field" style="margin-top:10px"><label>Pay with</label><div class="chip-row" id="dPayRow">' +
+        ['cash', 'esewa', 'khalti', 'bank'].map(function (m) { return '<button type="button" class="chip' + (String(b.paymentMethod || 'cash').toLowerCase() === m ? ' on' : '') + '" data-dpay="' + m + '">' + m.toUpperCase() + '</button>'; }).join('') + '</div>' +
+        '<div class="hint">Switch any time before it\'s marked paid. ' + (String(b.paymentMethod || '').toLowerCase() === 'esewa' || String(b.paymentMethod || '').toLowerCase() === 'khalti' ? 'QR / ID shared on confirmation.' : '') + '</div></div>' +
+      ((String(b.paymentMethod || '').toLowerCase() === 'esewa' || String(b.paymentMethod || '').toLowerCase() === 'khalti') ? '<div class="receipt" style="margin-top:10px;text-align:center"><div class="qr-ph">Scan to pay<br />on job day</div><p class="small muted" style="margin-top:8px">Show this to the provider · pay only after work is done</p></div>' : '') +
+      (String(b.paymentStatus || '').toLowerCase() !== 'paid' && String(b.paymentMethod || 'cash').toLowerCase() !== 'cash' && ['pending', 'confirmed', 'in_progress', 'completed'].indexOf(String(b.status).toLowerCase()) !== -1
+        ? '<div class="panel" style="background:var(--paper);margin:12px 0;padding:14px"><b style="font-size:13.5px">Already paid by wallet/bank?</b><p class="small muted">Paste the transaction reference — the provider verifies it, then confirms.</p>' +
+          '<div class="row" style="margin-top:8px"><input id="dPayRef" type="text" placeholder="e.g. TXN12345678" maxlength="64" style="flex:1;padding:10px 13px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px" /><button class="btn btn-pine btn-sm" id="dClaim" type="button">I\'ve paid</button></div>' +
+          '<div class="alert alert-err" id="dClaimErr"></div></div>'
+        : '') +
+      (String(b.paymentStatus || '').toLowerCase() === 'paid'
+        ? '<button class="btn btn-line btn-sm btn-block" id="dReceipt" type="button" style="margin-top:10px">View / print receipt</button>'
+        : '') +
+      '<div class="panel" style="background:var(--paper);margin:12px 0;padding:14px"><b style="font-size:13.5px">Payment history</b><div id="dPayHist" class="small muted" style="margin-top:6px">Loading…</div></div>' +
+      (String(b.paymentStatus || '').toLowerCase() === 'paid' && ['completed', 'cancelled'].indexOf(String(b.status).toLowerCase()) !== -1
+        ? '<button class="btn btn-line btn-sm btn-block" id="dRefundReq" type="button">Request refund</button><div class="alert alert-err" id="dRefundErr"></div>'
+        : '') +
+      (String(b.paymentStatus || '').toLowerCase() === 'refund_requested'
+        ? '<p class="small muted" style="margin-top:8px">Refund requested — provider notified. Status updates here.</p>'
+        : '') +
+      (b.notes ? '<div class="sum-row"><span>Notes</span><span style="text-align:right;max-width:55%">' + CF.esc(b.notes) + '</span></div>' : '') +
+      '<div class="sum-row total"><span>Total</span><span>' + CF.money(b.totalAmount) + '</span></div>' +
+      '<div class="row" style="margin-top:12px"><a class="btn btn-line btn-sm" href="chat.html?booking=' + CF.esc(b.id) + '">Chat</a> ' +
+      ((b.provider && b.provider.user && b.provider.user.phone) ? '<a class="btn btn-line btn-sm" href="tel:' + CF.esc(b.provider.user.phone) + '">Call provider</a>' : '') +
+      ((b.provider && (b.provider.id || b.providerId)) ? '<a class="btn btn-line btn-sm" href="provider-profile.html?id=' + CF.esc((b.provider && b.provider.id) || b.providerId) + '">Profile</a>' : '') + '</div>';
+    document.getElementById('dPayRow').addEventListener('click', async function (e) {
+      var t = e.target.closest('[data-dpay]');
+      if (!t || String(b.paymentStatus || '').toLowerCase() === 'paid') return;
+      try {
+        await CF.api('/bookings/' + b.id + '/payment', 'PATCH', { paymentMethod: t.dataset.dpay });
+        b.paymentMethod = t.dataset.dpay;
+        CF.toast('Payment method updated.');
+        load();
+        openDetail(b.id);
+      } catch (ex) { CF.toast(ex.message, 'err'); }
+    });
+    var revBtn = document.getElementById('dReview');
+    revBtn.style.display = (String(b.status).toLowerCase() === 'completed' && !b.review) ? '' : 'none';
+    revBtn.onclick = function () { document.getElementById('detailVeil').classList.remove('show'); openReview(id); };
+    var claimBtn = document.getElementById('dClaim');
+    if (claimBtn) claimBtn.addEventListener('click', async function () {
+      var refIn = document.getElementById('dPayRef');
+      var cErr = document.getElementById('dClaimErr');
+      cErr.classList.remove('show');
+      var ref = refIn.value.trim();
+      if (ref.length < 4) { cErr.textContent = 'Paste the transaction reference from your wallet/bank app.'; cErr.classList.add('show'); return; }
+      claimBtn.disabled = true; claimBtn.classList.add('loading');
+      try {
+        var vr = await CF.api('/payments/verify', 'POST', { bookingId: b.id, reference: ref, method: b.paymentMethod });
+        CF.notify(vr && vr.verified ? 'Payment verified' : 'Payment claim sent', (vr && vr.message) || 'The provider will verify and confirm.');
+        load();
+        openDetail(b.id);
+      } catch (ex) {
+        cErr.textContent = ex.message; cErr.classList.add('show');
+        claimBtn.disabled = false; claimBtn.classList.remove('loading'); claimBtn.textContent = "I've paid";
+      }
+    });
+    var rcBtn = document.getElementById('dReceipt');
+    if (rcBtn) rcBtn.addEventListener('click', function () { openReceipt(b.id); });
+    (function loadPayHist() {
+      var box = document.getElementById('dPayHist');
+      if (!box) return;
+      CF.api('/payments/booking/' + b.id, 'GET').then(function (res) {
+        var rows = (res && res.data) || [];
+        if (!rows.length) {
+          box.innerHTML = res && res.migrated === false
+            ? 'Ledger not migrated yet — status: <b>' + CF.esc(b.paymentStatus || 'unpaid') + '</b> · ' + CF.esc((b.paymentMethod || 'cash').toUpperCase())
+            : 'No wallet claims yet — status: <b>' + CF.esc(b.paymentStatus || 'unpaid') + '</b>';
           return;
         }
-        el.innerHTML = bookings.map(b => {
-          const stars = '★'.repeat(b.review.rating) + '☆'.repeat(5 - b.review.rating);
-          return `
-          <div style="background:white; border:1px solid #eee; border-radius:8px; padding:16px; margin-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-              <strong style="color:#1f2937;">${b.service?.name || 'Service'}</strong>
-              <span style="color:#f59e0b; font-size:18px;">${stars}</span>
-            </div>
-            <p style="color:#555; margin:0 0 4px; font-size:14px;">${b.review.comment || '(No comment)'}</p>
-            <small style="color:#999;">${new Date(b.review.createdAt).toLocaleDateString()}</small>
-          </div>`;
+        box.innerHTML = rows.slice(0, 5).map(function (p) {
+          var when = p.createdAt ? new Date(p.createdAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+          return '<div class="sum-row"><span>' + CF.esc(p.method.toUpperCase()) + (p.reference ? ' · ' + CF.esc(p.reference) : '') + '<br /><span class="muted">' + CF.esc(when) + (p.verifyMode && p.verifyMode !== 'format' ? ' · live-verified' : '') + '</span></span><span>' + CF.pillFor(p.status) + '</span></div>';
         }).join('');
-      } catch (err) {
-        el.innerHTML = '<p style="color:#999;">Could not load reviews.</p>';
-      }
-    }
-
-    // ── REVIEW MODAL ──
-    let reviewBookingId = null;
-    let reviewProviderId = null;
-    let selectedRating = 0;
-
-    function openReviewModal(bookingId, providerName, providerId) {
-      reviewBookingId = bookingId;
-      reviewProviderId = providerId;
-      selectedRating = 0;
-      document.getElementById('reviewProviderName').textContent = `For: ${providerName}`;
-      document.getElementById('reviewComment').value = '';
-      document.getElementById('reviewError').style.display = 'none';
-      document.getElementById('reviewRating').value = '0';
-      // Reset stars
-      document.querySelectorAll('.star-btn').forEach(s => s.style.color = '#DDD6FE');
-      document.getElementById('reviewModal').style.display = 'flex';
-    }
-
-    function closeReviewModal() {
-      document.getElementById('reviewModal').style.display = 'none';
-      reviewBookingId = null;
-      selectedRating = 0;
-    }
-
-    function selectStar(val) {
-      selectedRating = val;
-      document.getElementById('reviewRating').value = val;
-      document.querySelectorAll('.star-btn').forEach(s => {
-        s.style.color = parseInt(s.dataset.val) <= val ? '#f59e0b' : '#DDD6FE';
+      }).catch(function () {
+        box.textContent = 'Status: ' + (b.paymentStatus || 'unpaid');
       });
-    }
-
-    async function submitReview() {
-      const errEl = document.getElementById('reviewError');
-      errEl.style.display = 'none';
-
-      if (selectedRating < 1) {
-        errEl.textContent = 'Please select a star rating.';
-        errEl.style.display = 'block';
-        return;
-      }
-
-      const comment = document.getElementById('reviewComment').value.trim();
-
+    })();
+    var rfBtn = document.getElementById('dRefundReq');
+    if (rfBtn) rfBtn.addEventListener('click', async function () {
+      var reason = prompt('Why are you requesting a refund?');
+      if (reason === null) return;
+      var err = document.getElementById('dRefundErr');
+      rfBtn.disabled = true;
       try {
-        const res = await fetch(getApiUrl('/reviews'), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${currentToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            bookingId: reviewBookingId,
-            rating: parseInt(selectedRating),
-            comment
-          })
-        });
+        await CF.api('/payments/' + b.id + '/refund-request', 'POST', { reason: reason });
+        CF.notify('Refund requested', 'Provider notified.');
+        load();
+        openDetail(b.id);
+      } catch (ex) {
+        if (err) { err.textContent = ex.message; err.classList.add('show'); }
+        else CF.toast(ex.message, 'err');
+        rfBtn.disabled = false;
+      }
+    });
+    var rsBtn = document.getElementById('dResched');
+    if (rsBtn) rsBtn.addEventListener('click', async function () {
+      var err = document.getElementById('dRsErr');
+      err.classList.remove('show');
+      var nd = document.getElementById('dDate').value;
+      var nt = document.getElementById('dTime').value;
+      if (!nd) { err.textContent = 'Pick a new date.'; err.classList.add('show'); return; }
+      rsBtn.disabled = true; rsBtn.classList.add('loading');
+      try {
+        await CF.api('/bookings/' + b.id + '/reschedule', 'PATCH', { date: nd, startTime: nt });
+        CF.notify('Booking rescheduled', nd + ' · ' + nt);
+        closeVeils();
+        load();
+      } catch (ex) {
+        err.textContent = ex.message; err.classList.add('show');
+        rsBtn.disabled = false; rsBtn.classList.remove('loading'); rsBtn.textContent = 'Save new schedule';
+      }
+    });
+    document.getElementById('detailVeil').classList.add('show');
+  }
+  document.getElementById('dClose').addEventListener('click', closeVeils);
 
-        const data = await res.json();
+  document.getElementById('rCloseBtn').addEventListener('click', closeVeils);
+  document.getElementById('rPrint').addEventListener('click', function () { window.print(); });
+  document.getElementById('receiptVeil').addEventListener('click', function (e) { if (e.target === this) closeVeils(); });
 
-        if (res.ok && data.success) {
-          closeReviewModal();
-          // Show success and reload bookings
-          alert('✅ Review submitted! Thank you for your feedback.');
-          const user = JSON.parse(localStorage.getItem('user'));
-          if (user) loadBookings(user.id, currentToken);
-          loadMyReviews(currentToken);
-        } else {
-          errEl.textContent = '❌ ' + (data.error || 'Failed to submit review');
-          errEl.style.display = 'block';
+  function openReceipt(id) {
+    var b = bookings.find(function (x) { return x.id === id; });
+    if (!b) return;
+    document.getElementById('rStatus').innerHTML = CF.pillFor(b.paymentStatus || 'unpaid');
+    var fee = Math.round(Number(b.totalAmount || 0) * 0.05 / 1.05);
+    var base = Number(b.totalAmount || 0) - fee;
+    document.getElementById('receiptBody').innerHTML =
+      '<div class="sum-row"><span>Receipt no</span><span><b>' + CF.esc(b.bookingRef || b.id.slice(0, 8)) + '</b></span></div>' +
+      '<div class="sum-row"><span>Date</span><span>' + (b.updatedAt ? new Date(b.updatedAt).toLocaleString('en-GB') : '—') + '</span></div>' +
+      '<div class="sum-row"><span>Billed to</span><span>' + CF.esc(user.firstName + ' ' + (user.lastName || '')) + '</span></div>' +
+      '<div class="sum-row"><span>Service</span><span>' + CF.esc(svcName(b)) + ' · ' + CF.esc(proName(b)) + '</span></div>' +
+      '<div class="sum-row"><span>Schedule</span><span>' + (b.date ? new Date(b.date).toLocaleDateString('en-GB') : '—') + ' · ' + CF.esc(b.startTime || '') + '</span></div>' +
+      '<div class="sum-row"><span>Labour</span><span>' + CF.money(base) + '</span></div>' +
+      '<div class="sum-row"><span>Service fee (5%)</span><span>' + CF.money(fee) + '</span></div>' +
+      '<div class="sum-row"><span>Method</span><span><b>' + CF.esc((b.paymentMethod || 'cash').toUpperCase()) + '</b></span></div>' +
+      '<div class="sum-row total"><span>Total paid</span><span>' + CF.money(b.totalAmount) + '</span></div>' +
+      '<p class="small muted" style="margin-top:10px">eSewa · Khalti · Bank · Cash · support: 01-5900000 (9am–7pm)</p>';
+    document.getElementById('receiptVeil').classList.add('show');
+  }
+
+  function openReview(id) {
+    reviewFor = bookings.find(function (x) { return x.id === id; });
+    if (!reviewFor) return;
+    stars = 5; drawStars();
+    document.getElementById('revText').value = '';
+    document.getElementById('revPhotos').value = '';
+    document.getElementById('reviewVeil').classList.add('show');
+  }
+  function drawStars() {
+    var box = document.getElementById('starRow');
+    box.innerHTML = '';
+    for (var i = 1; i <= 5; i++) {
+      (function (v) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'chip' + (v <= stars ? ' on' : '');
+        b.textContent = v + ' ★';
+        b.setAttribute('aria-label', v + ' stars');
+        b.addEventListener('click', function () { stars = v; drawStars(); });
+        box.appendChild(b);
+      })(i);
+    }
+  }
+  document.getElementById('rClose').addEventListener('click', closeVeils);
+  document.getElementById('rSend').addEventListener('click', async function () {
+    if (!reviewFor) return;
+    var btn = this; btn.disabled = true; btn.classList.add('loading');
+    try {
+      var created = await CF.api('/reviews', 'POST', {
+        bookingId: reviewFor.id,
+        providerId: reviewFor.providerId || (reviewFor.provider && reviewFor.provider.id),
+        rating: stars,
+        comment: document.getElementById('revText').value.trim()
+      });
+      var rid = (created.data && created.data.id) || (created.id);
+      var files = document.getElementById('revPhotos').files;
+      if (rid && files && files.length) {
+        var fd = new FormData();
+        for (var i = 0; i < Math.min(files.length, 3); i++) {
+          if (files[i].size > 2 * 1024 * 1024) { CF.toast(files[i].name + ' skipped — over 2MB.', 'err'); continue; }
+          fd.append('photos', files[i]);
         }
-      } catch (err) {
-        errEl.textContent = '❌ Network error. Please try again.';
-        errEl.style.display = 'block';
+        try { await CF.apiFile('/reviews/' + rid + '/photos', fd); }
+        catch (pe) { CF.toast('Review posted, but photos failed: ' + pe.message, 'err'); }
       }
+      CF.toast('Thank you — review posted.');
+      closeVeils();
+      load();
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+    btn.disabled = false; btn.classList.remove('loading'); btn.textContent = 'Submit review';
+  });
+
+  async function load() {
+    try {
+      var res = await CF.api('/bookings/user/' + user.id, 'GET');
+      bookings = res.data || res.bookings || res || [];
+      if (!Array.isArray(bookings)) bookings = [];
+    } catch (ex) {
+      document.getElementById('bookRows').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01M10 3h4l7 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10l7-7z"/></svg></div><b>Could not reach the server just now.</b><p class="small">Check your connection and refresh.</p><br /><button class="btn btn-pine btn-sm" onclick="location.reload()">Retry</button></div></td></tr>';
+      return;
     }
-
-    // Close review modal on backdrop click
-    document.getElementById('reviewModal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('reviewModal')) closeReviewModal();
-    });
-
-    // ── LOGOUT ──
-    function logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
-    }
-
-    // ── CHAT SYSTEM ──
-    let currentChatBookingId = null;
-    let currentChatReceiverId = null;
-    let chatMessages = [];
-
-    function openCustomerChat(bookingId, providerName, receiverId) {
-      currentChatBookingId = bookingId;
-      currentChatReceiverId = receiverId;
-      document.getElementById('providerNameDisplay').textContent = providerName || 'Provider';
-      loadChatMessages();
-      document.getElementById('customerChatModal').style.display = 'flex';
-      setTimeout(() => document.getElementById('customerChatInput').focus(), 100);
-    }
-
-    async function loadChatMessages() {
-      try {
-        const res = await fetch(getApiUrl(`/chat/booking/${currentChatBookingId}`), {
-          headers: { 'Authorization': `Bearer ${currentToken}` }
-        });
-        if (res.ok) { const d = await res.json(); chatMessages = d.data || []; }
-      } catch (err) { console.error('Load messages error:', err); }
-      renderChatMessages();
-    }
-
-    function renderChatMessages() {
-      const container = document.getElementById('customerChatMessages');
-      if (!container) return;
-      if (!chatMessages.length) {
-        container.innerHTML = `<div style="text-align:center;color:#999;padding:2rem;">💬 No messages yet. Start the conversation!</div>`;
-        return;
-      }
-      const me = JSON.parse(localStorage.getItem('user') || '{}');
-      container.innerHTML = chatMessages.map(msg => {
-        const time = new Date(msg.createdAt || new Date()).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-        const mine = msg.senderId === me.id;
-        return `
-          <div style="display:flex; gap:.75rem; margin-bottom:1rem; ${mine ? 'justify-content:flex-end;' : ''}">
-            <div style="max-width:70%;">
-              <div style="background:${mine ? '#6366f1' : '#e5e7eb'}; color:${mine ? 'white' : '#333'}; padding:.75rem 1rem; border-radius:8px; word-wrap:break-word;">${msg.text || ''}</div>
-              <div style="font-size:.75rem; color:#999; margin-top:.25rem; ${mine ? 'text-align:right;' : ''}">${time}</div>
-            </div>
-          </div>`;
-      }).join('');
-      container.scrollTop = container.scrollHeight;
-    }
-
-    async function sendChatMessageCustomer() {
-      const input = document.getElementById('customerChatInput');
-      const message = input.value.trim();
-      if (!message || !currentChatBookingId || !currentChatReceiverId) return;
-      try {
-        const res = await fetch(getApiUrl('/chat/send'), {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookingId: currentChatBookingId, receiverId: currentChatReceiverId, text: message })
-        });
-        if (res.ok) {
-          input.value = '';
-          const d = await res.json();
-          chatMessages.push(d.data || { text: message, createdAt: new Date(), senderId: currentUserId });
-          renderChatMessages();
-        } else {
-          const err = await res.json();
-          alert('❌ ' + (err.error || 'Failed to send message'));
-        }
-      } catch (err) { alert('❌ Failed to send message'); }
-    }
-
-    function closeChatModal() {
-      document.getElementById('customerChatModal').style.display = 'none';
-    }
-
-    document.addEventListener('click', (e) => {
-      const modal = document.getElementById('customerChatModal');
-      if (modal && e.target === modal) closeChatModal();
-    });
-
-    document.addEventListener('keypress', (e) => {
-      const input = document.getElementById('customerChatInput');
-      if (input && e.key === 'Enter' && e.target === input) { e.preventDefault(); sendChatMessageCustomer(); }
-    });
-  </script>
+    render();
+    loadFavs();
+  }
+  document.addEventListener('DOMContentLoaded', load);
+  document.addEventListener('DOMContentLoaded', async function () {
+    try {
+      var u = await CF.api('/chat/unread/count', 'GET');
+      var n = u.unreadCount || 0;
+      var badge = document.getElementById('navMsg');
+      badge.hidden = !n; badge.textContent = n;
+    } catch (e) {}
+  });
+})();
+</script>
 </body>
 </html>

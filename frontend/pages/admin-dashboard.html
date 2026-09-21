@@ -1,944 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Cheapflix Nepal</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Cheapflix Nepal</title>
+  <meta name="description" content="Platform control room: providers, customers, bookings and revenue." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/design-system.css" />
   <script src="../config.js"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: #f8f9fb;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    /* Header */
-    .navbar {
-      background: white;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .navbar .container {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .navbar-brand h1 {
-      font-size: 1.5rem;
-      color: #6366f1;
-      font-weight: 700;
-    }
-
-    .navbar-menu {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .nav-link {
-      color: #333;
-      font-weight: 500;
-    }
-
-    .btn {
-      padding: 0.7rem 1.5rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      font-size: 0.95rem;
-    }
-
-    .btn-secondary {
-      background: #e5e7eb;
-      color: #333;
-    }
-
-    .btn-secondary:hover {
-      background: #d1d5db;
-    }
-
-    /* Layout */
-    .admin-dashboard {
-      display: flex;
-      min-height: calc(100vh - 70px);
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background: white;
-      border-right: 1px solid #e5e7eb;
-      padding: 2rem 0;
-      overflow-y: auto;
-    }
-
-    .sidebar-menu {
-      list-style: none;
-    }
-
-    .sidebar-menu li {
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .menu-link {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 1.5rem;
-      color: #666;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      border-left: 4px solid transparent;
-    }
-
-    .menu-link:hover {
-      background: #f3f4f6;
-      color: #6366f1;
-    }
-
-    .menu-link.active {
-      background: #eef2ff;
-      color: #6366f1;
-      border-left-color: #6366f1;
-    }
-
-    /* Main Content */
-    .dashboard-content {
-      flex: 1;
-      padding: 2rem;
-      overflow-y: auto;
-    }
-
-    .section-header {
-      margin-bottom: 2rem;
-    }
-
-    .section-header h2 {
-      font-size: 2rem;
-      color: #1f2937;
-      margin-bottom: 0.5rem;
-    }
-
-    .section-header p {
-      color: #6b7280;
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-
-    .stat-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .stat-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .stat-label {
-      color: #6b7280;
-      font-size: 0.95rem;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    /* Sections */
-    .dashboard-section {
-      display: none;
-    }
-
-    .dashboard-section.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    /* Tables */
-    .table-container {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table th {
-      background: #f9fafb;
-      padding: 1rem;
-      text-align: left;
-      font-weight: 600;
-      color: #374151;
-      border-bottom: 2px solid #e5e7eb;
-    }
-
-    .table td {
-      padding: 1rem;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    .table tbody tr:hover {
-      background: #f9fafb;
-    }
-
-    .table tr:last-child td {
-      border-bottom: none;
-    }
-
-    /* Status Badges */
-    .status-badge {
-      display: inline-block;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .status-active {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .status-inactive {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .status-suspended {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .status-verified {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .status-pending {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    /* Actions */
-    .actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      padding: 0.4rem 0.8rem;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .action-btn-success {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    .action-btn-success:hover {
-      background: #bbf7d0;
-    }
-
-    .action-btn-danger {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .action-btn-danger:hover {
-      background: #fecaca;
-    }
-
-    /* Filter Bar */
-    .filter-bar {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .filter-bar input,
-    .filter-bar select {
-      padding: 0.75rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 0.95rem;
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      background: white;
-      border-radius: 12px;
-      color: #6b7280;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .admin-dashboard {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #e5e7eb;
-        padding: 0;
-      }
-
-      .sidebar-menu {
-        display: flex;
-        overflow-x: auto;
-      }
-
-      .sidebar-menu li {
-        border-bottom: none;
-        border-right: 1px solid #e5e7eb;
-      }
-
-      .menu-link {
-        padding: 1rem;
-        white-space: nowrap;
-      }
-
-      .dashboard-content {
-        padding: 1.5rem;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .table {
-        font-size: 0.9rem;
-      }
-
-      .table th, .table td {
-        padding: 0.75rem;
-      }
-
-      .actions {
-        flex-direction: column;
-      }
-
-      .action-btn {
-        width: 100%;
-      }
-    }
-  </style>
+  <script src="../js/app.js" defer></script>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="container">
-      <div class="navbar-brand">
-        <h1>🏢 Admin Dashboard</h1>
+<div class="dash">
+  <div id="dashScrim"></div>
+  <aside class="dash-side" id="dashSide">
+    <a href="../index.html" class="brand" style="padding:4px 10px 6px"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Admin</small></span></a>
+    <div class="dash-profile"><span class="pa" id="paAvatar" style="background:#b45309">A</span><div style="min-width:0"><b id="paName">Admin</b><span>Control room</span></div></div>
+    <div class="dash-sec" data-i18n="menu.manage">Manage</div>
+    <button class="dash-link on" data-tab="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><span data-i18n="nav.overview">Overview</span></button>
+    <button class="dash-link" data-tab="providers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20c0-3-2-5-4.5-5.4"/></svg><span data-i18n="nav.providers">Providers</span> <span class="count" id="navProv" hidden>0</span></button>
+    <button class="dash-link" data-tab="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/></svg><span data-i18n="nav.customers">Customers</span></button>
+    <button class="dash-link" data-tab="bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span data-i18n="nav.bookings">Bookings</span></button>
+    <button class="dash-link" data-tab="support"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg><span data-i18n="nav.support">Support</span> <span class="count" id="navTick" hidden>0</span></button>
+    <button class="dash-link" data-tab="promos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2.5 2.5 0 0 0 0 5v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2.5 2.5 0 0 0 0-5z"/><path d="M13 5v16"/></svg><span>Promos</span></button>
+    <button class="dash-link" data-tab="content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5zM19 15H6a2 2 0 0 0-2 2"/></svg><span data-i18n="nav.content">Content &amp; payouts</span></button>
+    <a class="dash-link" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg><span data-i18n="nav.viewsite">View site</span></a>
+    <div class="dash-side-foot"><button class="dash-link" data-logout><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span data-i18n="nav.logout">Log out</span></button></div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-top">
+      <button class="btn btn-line btn-sm" id="menuBtn" style="display:none">☰ Menu</button>
+      <div><h1 data-i18n="dash.admin.h">Control room</h1><p id="adminSub">Loading platform stats…</p></div>
+      <span class="spacer"></span>
+      <label class="top-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="globalSearch" type="search" placeholder="Search name, email, ref…" aria-label="Search" /></label>
+      <button class="btn btn-line btn-sm" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+
+    <div data-pane="overview">
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-ic" style="background:#e6effc;color:#1d4ed8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/></svg></span><div><span>Customers</span><b id="sUsers">–</b></div></div>
+        <div class="stat"><span class="stat-ic" style="background:#e3efe7;color:#1d4a38"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5"/></svg></span><div><span>Providers</span><b id="sProviders">–</b><small id="sVerifiedSub">– verified</small></div></div>
+        <div class="stat"><span class="stat-ic" style="background:#e7f6ec;color:#15803d"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg></span><div><span>Bookings</span><b id="sBookings">–</b><small id="sBookingsSub">all time</small></div></div>
+        <div class="stat"><span class="stat-ic" style="background:#fdf0d5;color:#b45309"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M7 8h7a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h8"/></svg></span><div><span>Revenue</span><b id="sRevenue">–</b><small>completed jobs</small></div></div>
       </div>
-      <div class="navbar-menu">
-        <span class="nav-link" id="userName">Admin</span>
-        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      <div class="flow-grid" style="grid-template-columns:1.2fr .8fr">
+        <div class="panel"><div class="panel-head"><h2>Needs your eye</h2><span class="pill pill-amber" id="needsCount">0</span></div><div id="needsBox"><div class="skel" style="height:64px"></div></div></div>
+        <div class="panel"><div class="panel-head"><h2>Bookings this week</h2><span class="small muted">Mon → Sun</span></div><div class="bars" id="weekBars"></div><p class="small muted" style="margin-top:28px" id="weekNote">Live from booking dates.</p></div>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>Bookings by status</h2></div><div class="meter-grid" id="statusMeters"><div class="skel" style="height:60px"></div></div></div>
+    </div>
+
+    <div data-pane="providers" hidden>
+      <div class="panel"><div class="panel-head"><h2>Providers</h2><div class="chip-row" id="provFilter"><button class="chip on" data-pf="all" type="button">All</button><button class="chip" data-pf="pending" type="button">Pending verification</button><button class="chip" data-pf="verified" type="button">Verified</button></div></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Trade</th><th>Contact</th><th>Exp</th><th>Status</th><th></th></tr></thead><tbody id="provRows"><tr><td colspan="6"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
+    </div>
+
+    <div data-pane="users" hidden>
+      <div class="panel"><div class="panel-head"><h2>Customers</h2><span class="small muted" id="userCount"></span></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Status</th><th></th></tr></thead><tbody id="userRows"><tr><td colspan="6"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
+    </div>
+
+    <div data-pane="bookings" hidden>
+      <div class="panel"><div class="panel-head"><h2>Bookings</h2><div class="chip-row" id="bookFilter"><button class="chip on" data-bf="all" type="button">All</button><button class="chip" data-bf="pending" type="button">Pending</button><button class="chip" data-bf="confirmed" type="button">Confirmed</button><button class="chip" data-bf="completed" type="button">Completed</button><button class="chip" data-bf="cancelled" type="button">Cancelled</button></div></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Reference</th><th>Customer</th><th>Service</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody id="bookRows"><tr><td colspan="6"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
+    </div>
+
+    <div data-pane="support" hidden>
+      <div class="flow-grid" style="grid-template-columns:1fr 1fr">
+        <div class="panel"><div class="panel-head"><h2>Tickets</h2><div class="chip-row" id="tickFilter"><button class="chip on" data-tf="open" type="button">Open</button><button class="chip" data-tf="in_progress" type="button">In progress</button><button class="chip" data-tf="resolved" type="button">Resolved</button><button class="chip" data-tf="closed" type="button">Closed</button><button class="chip" data-tf="all" type="button">All</button></div></div>
+        <div id="tickList"><div class="skel" style="height:64px"></div></div></div>
+        <div class="panel" id="tickPanel" hidden>
+          <div class="panel-head"><h2 id="tickTitle">Ticket</h2><span id="tickStatus"></span></div>
+          <p class="small muted" id="tickMeta" style="margin-bottom:12px"></p>
+          <div id="tickMsgs" style="display:grid;gap:10px;margin-bottom:14px;max-height:320px;overflow-y:auto"></div>
+          <form id="tickReply" style="display:flex;gap:8px;margin-bottom:10px">
+            <input id="tickText" type="text" placeholder="Reply as support…" style="flex:1;padding:12px 15px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px" maxlength="8000" />
+            <button class="btn btn-pine btn-sm" type="submit">Send</button>
+          </form>
+          <div class="row"><label class="small muted" for="tickState">Status</label>
+            <select id="tickState" style="font-family:inherit;font-size:13.5px;padding:8px 10px;border:1.5px solid var(--line);border-radius:10px"><option value="open">Open</option><option value="in_progress">In progress</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select>
+            <button class="btn btn-line btn-sm" id="tickSave" type="button">Save</button>
+          </div>
+        </div>
       </div>
     </div>
-  </nav>
 
-  <div class="admin-dashboard">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <ul class="sidebar-menu">
-        <li><a href="#overview" class="menu-link active" onclick="switchSection(event, 'overview')"><span>📊</span> Overview</a></li>
-        <li><a href="#users" class="menu-link" onclick="switchSection(event, 'users')"><span>👥</span> Users</a></li>
-        <li><a href="#providers" class="menu-link" onclick="switchSection(event, 'providers')"><span>🔧</span> Providers</a></li>
-        <li><a href="#bookings" class="menu-link" onclick="switchSection(event, 'bookings')"><span>📅</span> Bookings</a></li>
-        <li><a href="#services" class="menu-link" onclick="switchSection(event, 'services')"><span>🎯</span> Services</a></li>
-      </ul>
+    <div data-pane="promos" hidden>
+      <div class="panel"><div class="panel-head"><h2>Promo codes</h2><span class="small muted">usage counted on every booking</span></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Deal</th><th>Used</th><th>Status</th><th></th></tr></thead><tbody id="promoRows"><tr><td colspan="5"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
+      <div class="panel"><div class="panel-head"><h2>New code</h2></div>
+        <form id="promoForm" style="display:grid;gap:10px;grid-template-columns:1fr 1fr">
+          <div class="field"><label for="pcCode">Code</label><input id="pcCode" type="text" placeholder="DASHAIN15" maxlength="16" style="text-transform:uppercase" /></div>
+          <div class="field"><label for="pcLabel">Label</label><input id="pcLabel" type="text" placeholder="15% off up to Rs 750" maxlength="120" /></div>
+          <div class="field"><label for="pcType">Type</label><select id="pcType"><option value="pct">Percent %</option><option value="flat">Flat Rs</option></select></div>
+          <div class="field"><label for="pcValue">Value</label><input id="pcValue" type="number" min="1" placeholder="15" /></div>
+          <div class="field"><label for="pcMax">Max off (Rs, pct only)</label><input id="pcMax" type="number" min="0" placeholder="750" /></div>
+          <div class="field"><label for="pcMin">Min total (Rs)</label><input id="pcMin" type="number" min="0" placeholder="0" /></div>
+          <div class="field"><label for="pcExp">Expiry (optional)</label><input id="pcExp" type="date" /></div>
+          <div class="field"><label for="pcLimit">Usage limit (optional)</label><input id="pcLimit" type="number" min="1" placeholder="unlimited" /></div>
+          <label class="row small" style="gap:8px"><input type="checkbox" id="pcFirst" style="accent-color:var(--pine);width:16px;height:16px" /> First bookings only</label>
+          <label class="row small" style="gap:8px"><input type="checkbox" id="pcActive" checked style="accent-color:var(--pine);width:16px;height:16px" /> Active</label>
+        </form>
+        <div class="alert alert-err" id="pcErr"></div>
+        <button class="btn btn-pine btn-sm" id="pcSave" type="button" style="margin-top:10px">Create code</button>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="dashboard-content">
-      <!-- Overview -->
-      <section id="overview" class="dashboard-section active">
-        <div class="section-header">
-          <h2>Dashboard Overview</h2>
-          <p>Welcome back! Here's your system summary</p>
+    <div data-pane="content" hidden>
+      <div class="flow-grid" style="grid-template-columns:1fr 1fr">
+        <div class="panel"><div class="panel-head"><h2>Categories</h2><span class="small muted">rename / merge trades</span></div>
+          <div id="catBox"><div class="skel" style="height:64px"></div></div>
+          <form id="catForm" style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <input id="catFrom" type="text" placeholder="From (e.g. Cleaner)" list="catNames" style="flex:1;min-width:120px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px" maxlength="60" />
+            <input id="catTo" type="text" placeholder="To (e.g. Cleaning)" list="catNames" style="flex:1;min-width:120px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px" maxlength="60" />
+            <datalist id="catNames"></datalist>
+            <button class="btn btn-pine btn-sm" type="submit">Rename</button>
+          </form>
         </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value" id="statTotalUsers">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">🔧</div>
-            <div class="stat-label">Total Providers</div>
-            <div class="stat-value" id="statTotalProviders">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-label">Verified Providers</div>
-            <div class="stat-value" id="statVerifiedProviders">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">📅</div>
-            <div class="stat-label">Total Bookings</div>
-            <div class="stat-value" id="statTotalBookings">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">⏳</div>
-            <div class="stat-label">Pending Approval</div>
-            <div class="stat-value" id="statPendingProviders">0</div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">💰</div>
-            <div class="stat-label">Total Revenue</div>
-            <div class="stat-value" id="statTotalRevenue">Rs 0</div>
-          </div>
+        <div class="panel"><div class="panel-head"><h2>Payouts</h2><button class="btn btn-line btn-sm" id="csvBtn" type="button">Download CSV</button></div>
+          <div id="payBox"><div class="skel" style="height:64px"></div></div>
         </div>
-      </section>
-
-      <!-- Users Section -->
-      <section id="users" class="dashboard-section">
-        <div class="section-header">
-          <h2>Users Management</h2>
-          <p>Manage all registered customers</p>
-        </div>
-
-        <div class="filter-bar">
-          <input type="text" id="userSearchInput" placeholder="🔍 Search by name or email..." onkeyup="filterUsers()">
-          <select id="userStatusFilter" onchange="filterUsers()">
-            <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="suspended">Suspended</option>
-          </select>
-        </div>
-
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="usersList">
-              <tr><td colspan="6" style="text-align: center; padding: 3rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Providers Section -->
-      <section id="providers" class="dashboard-section">
-        <div class="section-header">
-          <h2>Providers Management</h2>
-          <p>Approve, verify, and manage service providers</p>
-        </div>
-
-        <div class="filter-bar">
-          <input type="text" id="providerSearchInput" placeholder="🔍 Search by name or email..." onkeyup="filterProviders()">
-          <select id="providerStatusFilter" onchange="filterProviders()">
-            <option value="">All Providers</option>
-            <option value="verified">Verified ✓</option>
-            <option value="pending">Pending ⏳</option>
-          </select>
-        </div>
-
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Email</th>
-                <th>Rating</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="providersList">
-              <tr><td colspan="6" style="text-align: center; padding: 3rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Bookings Section -->
-      <section id="bookings" class="dashboard-section">
-        <div class="section-header">
-          <h2>Bookings Management</h2>
-          <p>Monitor all service bookings</p>
-        </div>
-
-        <div class="filter-bar">
-          <select id="bookingStatusFilter" onchange="filterBookings()">
-            <option value="">All Bookings</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-        </div>
-
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Booking Ref</th>
-                <th>Customer</th>
-                <th>Provider</th>
-                <th>Service</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="bookingsList">
-              <tr><td colspan="7" style="text-align: center; padding: 3rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Services Section -->
-      <section id="services" class="dashboard-section">
-        <div class="section-header">
-          <h2>Services Management</h2>
-          <p>View all available services</p>
-        </div>
-
-        <div class="filter-bar">
-          <input type="text" id="serviceSearchInput" placeholder="🔍 Search by service name..." onkeyup="filterServices()">
-        </div>
-
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Service Name</th>
-                <th>Provider</th>
-                <th>Price</th>
-                <th>Duration</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody id="servicesList">
-              <tr><td colspan="5" style="text-align: center; padding: 3rem;">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>Review moderation</h2><span class="small muted">latest 100</span></div>
+        <div class="table-wrap"><table class="tbl"><thead><tr><th>Booking</th><th>Customer</th><th>Provider</th><th>Rating</th><th>Comment</th><th></th></tr></thead><tbody id="revRows"><tr><td colspan="6"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
     </div>
-  </div>
+  </main>
+</div>
 
-  <script>
-    let adminToken = null;
-    let adminUser = null;
-    let allUsers = [];
-    let allProviders = [];
-    let allBookings = [];
-    let allServices = [];
+<script>
+(function () {
+  var user = CF.requireAuth(['admin']);
+  if (!user) return;
 
-    // Fallback API URL helper - in case config.js didn't load
-    if (!window.getApiUrl) {
-      window.getApiUrl = (endpoint) => {
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const baseUrl = isLocalhost ? 'http://localhost:5000' : '';
-        return baseUrl + '/api' + endpoint;
-      };
-    }
+  var providers = [], users = [], bookings = [], provFilter = 'all', bookFilter = 'all', q = '';
+  var tickets = [], tickFilter = 'open', openTick = null, cats = [], reviews = [], promos = [];
+  try {
+    document.getElementById('paName').textContent = (user.firstName || 'Admin') + ' ' + (user.lastName || '');
+    var av = document.getElementById('paAvatar');
+    av.textContent = CF.initials(user.firstName, user.lastName);
+    av.style.background = CF.avatarColor(user.firstName + user.lastName);
+  } catch (e) {}
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      adminToken = localStorage.getItem('token');
-      try {
-        adminUser = JSON.parse(localStorage.getItem('user'));
-      } catch (e) {
-        adminUser = null;
-      }
+  if (window.innerWidth <= 1020) document.getElementById('menuBtn').style.display = '';
+  document.getElementById('menuBtn').addEventListener('click', function () {
+    document.getElementById('dashSide').classList.add('open');
+    document.getElementById('dashScrim').classList.add('show');
+  });
+  document.getElementById('dashScrim').addEventListener('click', function () {
+    document.getElementById('dashSide').classList.remove('open');
+    this.classList.remove('show');
+  });
+  document.getElementById('globalSearch').addEventListener('input', function (e) { q = e.target.value.toLowerCase(); renderProviders(); renderUsers(); renderBookings(); });
+  document.getElementById('refreshBtn').addEventListener('click', loadAll);
 
-      if (!adminToken || !adminUser) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      // ✅ REDIRECT NON-ADMINS TO CORRECT DASHBOARD
-      if (adminUser.role === 'provider') {
-        window.location.href = 'provider-dashboard.html';
-        return;
-      }
-
-      if (adminUser.role !== 'admin') {
-        window.location.href = 'dashboard.html';
-        return;
-      }
-
-      document.getElementById('userName').textContent = `👑 ${adminUser.firstName} ${adminUser.lastName || ''}`;
-      
-      await loadDashboardData();
+  document.querySelectorAll('[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-tab]').forEach(function (x) { x.classList.toggle('on', x === b); });
+      document.querySelectorAll('[data-pane]').forEach(function (p) { p.hidden = p.dataset.pane !== b.dataset.tab; });
+      document.getElementById('dashSide').classList.remove('open');
+      document.getElementById('dashScrim').classList.remove('show');
     });
+  });
+  document.getElementById('provFilter').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-pf]'); if (!b) return;
+    provFilter = b.dataset.pf;
+    this.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+    renderProviders();
+  });
+  document.getElementById('bookFilter').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-bf]'); if (!b) return;
+    bookFilter = b.dataset.bf;
+    this.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+    renderBookings();
+  });
 
-    function switchSection(event, sectionId) {
-      event.preventDefault();
-      
-      document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.menu-link').forEach(m => m.classList.remove('active'));
-      
-      document.getElementById(sectionId).classList.add('active');
-      event.target.closest('.menu-link').classList.add('active');
+  function fullName(u) { return (((u && u.firstName) || '') + ' ' + ((u && u.lastName) || '')).trim() || '—'; }
+  function matchQ() {
+    var args = Array.prototype.slice.call(arguments).join(' ').toLowerCase();
+    return !q || args.indexOf(q) !== -1;
+  }
 
-      if (sectionId === 'users') loadUsers();
-      if (sectionId === 'providers') loadProviders();
-      if (sectionId === 'bookings') loadBookings();
-      if (sectionId === 'services') loadServices();
+  async function loadAll() {
+    try {
+      var stats = await CF.api('/admin/dashboard', 'GET');
+      var d = stats.data || stats;
+      document.getElementById('sUsers').textContent = d.users != null ? d.users : users.length || '–';
+      document.getElementById('sProviders').textContent = d.providers != null ? d.providers : providers.length || '–';
+      document.getElementById('sVerifiedSub').textContent = (d.verifiedProviders != null ? d.verifiedProviders : '–') + ' verified';
+      document.getElementById('sBookings').textContent = d.bookings != null ? d.bookings : bookings.length || '–';
+      document.getElementById('sRevenue').textContent = CF.money(d.revenue || 0);
+      document.getElementById('adminSub').textContent = 'Namaste, ' + user.firstName + ' — all systems nominal.';
+    } catch (ex) { document.getElementById('adminSub').textContent = 'Stats unavailable: ' + ex.message; }
+
+    try { var pr = await CF.api('/admin/providers', 'GET'); providers = pr.data || []; } catch (e) { providers = []; }
+    try { var ur = await CF.api('/admin/users', 'GET'); users = ur.data || []; } catch (e) { users = []; }
+    try { var br = await CF.api('/admin/bookings', 'GET'); bookings = br.data || []; } catch (e) { bookings = []; }
+    try { var tr = await CF.api('/support/admin/all', 'GET'); tickets = tr.data || tr.tickets || []; if (!Array.isArray(tickets)) tickets = []; } catch (e) { tickets = []; }
+    try { var cr = await CF.api('/admin/categories', 'GET'); cats = cr.data || []; } catch (e) { cats = []; }
+    try { var rr = await CF.api('/admin/reviews', 'GET'); reviews = rr.data || []; } catch (e) { reviews = []; }
+    try { var pr2 = await CF.api('/admin/promos', 'GET'); promos = pr2.data || []; } catch (e) { promos = []; }
+    renderAll();
+  }
+
+  function renderAll() {
+    var pend = providers.filter(function (p) { return !p.verified; });
+    document.getElementById('needsCount').textContent = pend.length;
+    var np = document.getElementById('navProv');
+    np.hidden = !pend.length; np.textContent = pend.length;
+    document.getElementById('needsBox').innerHTML = pend.length
+      ? pend.slice(0, 4).map(function (p) {
+          var nm = fullName(p.user);
+          return '<div class="row" style="justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line-soft)"><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials((p.user||{}).firstName, (p.user||{}).lastName)) + '</span><span><b>' + CF.esc(nm) + '</b><br /><span class="small muted">' + CF.esc(p.category || '') + ' · ' + CF.esc((p.user||{}).email || '') + '</span></span></span><button class="btn btn-pine btn-sm" data-verify="' + CF.esc(p.id) + '" type="button">Approve</button></div>';
+        }).join('') + (pend.length > 4 ? '<p class="small muted" style="margin-top:10px">+' + (pend.length - 4) + ' more — open the Providers tab.</p><br /><button class="btn btn-line btn-sm" id="gotoProv" type="button">Review all</button>' : '<br /><button class="btn btn-line btn-sm" id="gotoProv" type="button">Review in Providers tab</button>')
+      : '<div class="empty" style="padding:24px"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg></div><b>All clear</b><p class="small">Every provider is verified.</p></div>';
+    var g = document.getElementById('gotoProv');
+    if (g) g.addEventListener('click', function () { document.querySelector('[data-tab="providers"]').click(); });
+
+    // week bars
+    var counts = [0,0,0,0,0,0,0], dow = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+    bookings.forEach(function (b) { if (b.createdAt || b.date) { var d = new Date(b.createdAt || b.date); if (!isNaN(d)) { var i = (d.getDay() + 6) % 7; counts[i]++; } } });
+    var max = Math.max.apply(null, counts.concat([1]));
+    document.getElementById('weekBars').innerHTML = counts.map(function (c, i) {
+      var h = Math.round((c / max) * 120) + 8;
+      return '<div class="bar' + (c === max && c > 0 ? ' hot' : '') + '" style="height:' + h + 'px" title="' + c + '"><span>' + dow[i] + '</span></div>';
+    }).join('');
+    var tot = counts.reduce(function (a, b2) { return a + b2; }, 0);
+    document.getElementById('weekNote').textContent = tot + ' bookings tracked this week.';
+
+    // status meters
+    var sts = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
+    var total = bookings.length || 1;
+    document.getElementById('statusMeters').innerHTML = sts.map(function (s) {
+      var c = bookings.filter(function (b) { return String(b.status).toLowerCase() === s; }).length;
+      var pct = Math.round((c / total) * 100);
+      return '<div class="meter-row"><span><b>' + s.replace('_', ' ') + '</b></span><span class="progress"><i style="width:' + pct + '%"></i></span><b>' + c + '</b></div>';
+    }).join('');
+
+    renderProviders(); renderUsers(); renderBookings();
+    renderTickets(); renderCats(); renderReviews(); renderPayouts(); renderPromos();
+  }
+
+  /* ---- promos ---- */
+  function promoDeal(p) {
+    var d = p.type === 'pct' ? p.value + '% off' : CF.money(p.value) + ' off';
+    if (p.type === 'pct' && p.maxOff) d += ' (max ' + CF.money(p.maxOff) + ')';
+    if (p.minTotal) d += ' · min ' + CF.money(p.minTotal);
+    if (p.firstBookingOnly) d += ' · first booking';
+    return d;
+  }
+  function renderPromos() {
+    var tb = document.getElementById('promoRows');
+    if (!tb) return;
+    if (!promos.length) {
+      tb.innerHTML = '<tr><td colspan="5"><div class="empty"><b>No custom codes yet.</b><p class="small">Built-ins WELCOME10 / NAMASTE200 always work. Create seasonal codes below.</p></div></td></tr>';
+      return;
     }
-
-    async function loadDashboardData() {
-      await loadUsers();
-      await loadProviders();
-      await loadBookings();
-      await loadServices();
-      updateStats();
+    tb.innerHTML = promos.map(function (p) {
+      var used = p.usageLimit ? (p.usedCount + ' / ' + p.usageLimit) : String(p.usedCount);
+      var st = !p.active ? 'off' : (p.expiresAt && new Date(p.expiresAt) < new Date()) ? 'expired' : 'active';
+      return '<tr><td><b>' + CF.esc(p.code) + '</b><br /><span class="small muted">' + CF.esc(p.label || '') + '</span></td>' +
+        '<td class="small">' + CF.esc(promoDeal(p)) + '</td><td>' + CF.esc(used) + '</td>' +
+        '<td>' + CF.pillFor(st) + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn btn-line btn-sm" data-ptoggle="' + CF.esc(p.id) + '" type="button">' + (p.active ? 'Pause' : 'Activate') + '</button> ' +
+        '<button class="btn btn-line btn-sm" data-pdel="' + CF.esc(p.id) + '" type="button">Delete</button></td></tr>';
+    }).join('');
+  }
+  document.addEventListener('click', async function (e) {
+    var t = e.target.closest && e.target.closest('[data-ptoggle]');
+    var d = e.target.closest && e.target.closest('[data-pdel]');
+    if (t) {
+      var row = promos.find(function (x) { return x.id === t.dataset.ptoggle; });
+      try { await CF.api('/admin/promos/' + t.dataset.ptoggle, 'PATCH', { active: !(row && row.active) }); loadAll(); }
+      catch (ex) { CF.toast(ex.message, 'err'); }
     }
-
-    async function loadUsers() {
-      try {
-        const response = await fetch(window.getApiUrl('/admin/users'), {
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        if (data.success) {
-          allUsers = data.data || [];
-        } else {
-          allUsers = data.data || [];
-        }
-        displayUsers(allUsers);
-      } catch (err) {
-        console.error('Error loading users:', err);
-        document.getElementById('usersList').innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading users - ' + err.message + '</td></tr>';
-      }
+    if (d && confirm('Delete this promo code?')) {
+      try { await CF.api('/admin/promos/' + d.dataset.pdel, 'DELETE', {}); loadAll(); }
+      catch (ex) { CF.toast(ex.message, 'err'); }
     }
-
-    async function loadProviders() {
-      try {
-        const response = await fetch(window.getApiUrl('/admin/providers'), {
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const data = await response.json();
-        allProviders = data.data || data || [];
-        displayProviders(allProviders);
-      } catch (err) {
-        console.error('Error loading providers:', err);
-        document.getElementById('providersList').innerHTML = '<tr><td colspan="6">Error loading providers</td></tr>';
-      }
-    }
-
-    async function loadBookings() {
-      try {
-        const response = await fetch(window.getApiUrl('/admin/bookings'), {
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const data = await response.json();
-        allBookings = data.data || data || [];
-        displayBookings(allBookings);
-      } catch (err) {
-        console.error('Error loading bookings:', err);
-        document.getElementById('bookingsList').innerHTML = '<tr><td colspan="7">Error loading bookings</td></tr>';
-      }
-    }
-
-    async function loadServices() {
-      try {
-        const response = await fetch(window.getApiUrl('/admin/services'), {
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const data = await response.json();
-        allServices = data.data || data || [];
-        displayServices(allServices);
-      } catch (err) {
-        console.error('Error:', err);
-        document.getElementById('servicesList').innerHTML = '<tr><td colspan="5">Error loading services</td></tr>';
-      }
-    }
-
-    function displayUsers(users) {
-      if (!Array.isArray(users) || users.length === 0) {
-        document.getElementById('usersList').innerHTML = '<tr><td colspan="6"><div class="empty-state">No users found</div></td></tr>';
-        return;
-      }
-
-      document.getElementById('usersList').innerHTML = users.map(user => `
-        <tr>
-          <td><strong>${user.firstName || ''} ${user.lastName || ''}</strong></td>
-          <td>${user.email}</td>
-          <td>${user.phone || 'N/A'}</td>
-          <td><span class="status-badge status-${user.status}">${user.status}</span></td>
-          <td>${new Date(user.createdAt).toLocaleDateString()}</td>
-          <td><div class="actions"><button class="action-btn action-btn-success" onclick="viewUserDetails('${user.id}', '${user.firstName} ${user.lastName}')">View</button><button class="action-btn action-btn-danger" onclick="deleteUser('${user.id}')">Delete</button></div></td>
-        </tr>
-      `).join('');
-    }
-
-    function displayProviders(providers) {
-      if (!Array.isArray(providers) || providers.length === 0) {
-        document.getElementById('providersList').innerHTML = '<tr><td colspan="6"><div class="empty-state">No providers found</div></td></tr>';
-        return;
-      }
-
-      document.getElementById('providersList').innerHTML = providers.map(provider => `
-        <tr>
-          <td><strong>${provider.user?.firstName || ''} ${provider.user?.lastName || ''}</strong></td>
-          <td>${provider.category || 'N/A'}</td>
-          <td>${provider.user?.email || 'N/A'}</td>
-          <td>⭐ ${(provider.rating || 0).toFixed(1)}</td>
-          <td><span class="status-badge status-${provider.verified ? 'verified' : 'pending'}">${provider.verified ? '✓ Verified' : '⏳ Pending'}</span></td>
-          <td>
-            <div class="actions">
-              <button class="action-btn ${provider.verified ? 'action-btn-danger' : 'action-btn-success'}" onclick="toggleProviderVerification('${provider.id}', ${!provider.verified})">${provider.verified ? 'Reject' : 'Approve'}</button>
-              <button class="action-btn action-btn-danger" onclick="deleteProvider('${provider.id}')">Delete</button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    function displayBookings(bookings) {
-      if (!Array.isArray(bookings) || bookings.length === 0) {
-        document.getElementById('bookingsList').innerHTML = '<tr><td colspan="7"><div class="empty-state">No bookings found</div></td></tr>';
-        return;
-      }
-
-      document.getElementById('bookingsList').innerHTML = bookings.map(booking => `
-        <tr>
-          <td><strong>${booking.bookingRef || 'N/A'}</strong></td>
-          <td>${booking.user?.firstName || ''}</td>
-          <td>${booking.provider?.user?.firstName || ''}</td>
-          <td>${booking.service?.name || 'N/A'}</td>
-          <td>${new Date(booking.date).toLocaleDateString()}</td>
-          <td>Rs ${booking.totalAmount}</td>
-          <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
-        </tr>
-      `).join('');
-    }
-
-    function displayServices(services) {
-      if (!Array.isArray(services) || services.length === 0) {
-        document.getElementById('servicesList').innerHTML = '<tr><td colspan="5"><div class="empty-state">No services found</div></td></tr>';
-        return;
-      }
-
-      document.getElementById('servicesList').innerHTML = services.map(service => `
-        <tr>
-          <td><strong>${service.name || 'N/A'}</strong></td>
-          <td>${service.provider?.user?.firstName || 'N/A'}</td>
-          <td>Rs ${service.price || 0}</td>
-          <td>${service.duration || 60} min</td>
-          <td>${service.description || 'N/A'}</td>
-        </tr>
-      `).join('');
-    }
-
-    async function viewUserDetails(userId, userName) {
-      try {
-        const response = await fetch(window.getApiUrl(`/admin/users`), {
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        const data = await response.json();
-        const user = data.data.find(u => u.id === userId);
-        if (user) {
-          alert(`👤 User Details:\n\nName: ${user.firstName} ${user.lastName}\nEmail: ${user.email}\nPhone: ${user.phone || 'N/A'}\nStatus: ${user.status}\nJoined: ${new Date(user.createdAt).toLocaleDateString()}`);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('❌ Error loading user details');
-      }
-    }
-
-    async function deleteUser(userId) {
-      if (!confirm('⚠️ Are you sure you want to delete this user? This action cannot be undone.')) return;
-      try {
-        const response = await fetch(window.getApiUrl(`/admin/users/${userId}`), {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        if (response.ok) {
-          alert('✅ User deleted successfully!');
-          await loadUsers();
-          updateStats();
-        } else {
-          const error = await response.json();
-          alert('❌ Error: ' + error.error);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('❌ Error deleting user');
-      }
-    }
-
-    async function deleteProvider(providerId) {
-      if (!confirm('⚠️ Are you sure you want to delete this provider? This action cannot be undone.')) return;
-      try {
-        const response = await fetch(window.getApiUrl(`/admin/providers/${providerId}`), {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${adminToken}` }
-        });
-        if (response.ok) {
-          alert('✅ Provider deleted successfully!');
-          await loadProviders();
-          updateStats();
-        } else {
-          const error = await response.json();
-          alert('❌ Error: ' + error.error);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('❌ Error deleting provider');
-      }
-    }
-
-    async function toggleProviderVerification(providerId, shouldVerify) {
-      try {
-        const response = await fetch(window.getApiUrl(`/admin/providers/${providerId}/verify`), {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${adminToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ verified: shouldVerify })
-        });
-        
-        if (response.ok) {
-          alert(`✅ Provider ${shouldVerify ? 'approved' : 'rejected'} successfully!`);
-          await loadProviders();
-          updateStats();
-        } else {
-          const error = await response.json();
-          alert('❌ Error: ' + error.error);
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('❌ Error: ' + err.message);
-      }
-    }
-
-    function filterUsers() {
-      const search = document.getElementById('userSearchInput').value.toLowerCase();
-      const status = document.getElementById('userStatusFilter').value;
-      
-      const filtered = allUsers.filter(user => {
-        const matchesSearch = (user.firstName || '').toLowerCase().includes(search) || user.email.toLowerCase().includes(search);
-        const matchesStatus = !status || user.status === status;
-        return matchesSearch && matchesStatus;
+  });
+  document.getElementById('pcSave').addEventListener('click', async function () {
+    var err = document.getElementById('pcErr');
+    err.classList.remove('show');
+    var btn = this; btn.disabled = true;
+    try {
+      await CF.api('/admin/promos', 'POST', {
+        code: document.getElementById('pcCode').value,
+        label: document.getElementById('pcLabel').value,
+        type: document.getElementById('pcType').value,
+        value: parseFloat(document.getElementById('pcValue').value),
+        maxOff: document.getElementById('pcMax').value || null,
+        minTotal: parseFloat(document.getElementById('pcMin').value) || 0,
+        expiresAt: document.getElementById('pcExp').value || null,
+        usageLimit: document.getElementById('pcLimit').value || null,
+        firstBookingOnly: document.getElementById('pcFirst').checked,
+        active: document.getElementById('pcActive').checked
       });
-      
-      displayUsers(filtered);
-    }
+      CF.toast('Promo code created.');
+      document.getElementById('promoForm').reset();
+      document.getElementById('pcActive').checked = true;
+      loadAll();
+    } catch (ex) { err.textContent = ex.message; err.classList.add('show'); }
+    btn.disabled = false;
+  });
 
-    function filterProviders() {
-      const search = document.getElementById('providerSearchInput').value.toLowerCase();
-      const status = document.getElementById('providerStatusFilter').value;
-      
-      const filtered = allProviders.filter(provider => {
-        const matchesSearch = (provider.user?.firstName || '').toLowerCase().includes(search) || (provider.user?.email || '').toLowerCase().includes(search);
-        let matchesStatus = true;
-        if (status === 'verified') matchesStatus = provider.verified === true;
-        if (status === 'pending') matchesStatus = provider.verified === false;
-        return matchesSearch && matchesStatus;
-      });
-      
-      displayProviders(filtered);
-    }
+  /* ---- support inbox ---- */
+  document.getElementById('tickFilter').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tf]'); if (!b) return;
+    tickFilter = b.dataset.tf;
+    this.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+    renderTickets();
+  });
+  function renderTickets() {
+    var open = tickets.filter(function (t) { return ['open', 'in_progress'].indexOf(String(t.status)) !== -1; }).length;
+    var badge = document.getElementById('navTick');
+    badge.hidden = !open; badge.textContent = open;
+    var list = tickets.filter(function (t) {
+      var okS = tickFilter === 'all' || String(t.status) === tickFilter;
+      return okS && matchQ(t.title, t.category, fullName(t.user), (t.user || {}).email);
+    });
+    document.getElementById('tickList').innerHTML = list.length ? list.slice(0, 60).map(function (t) {
+      return '<button type="button" data-tick="' + CF.esc(t.id) + '" class="ticket-btn' + (openTick === t.id ? ' open' : '') + '">' +
+        '<b style="font-size:14px">' + CF.esc(t.title) + '</b><br /><span style="font-size:12.5px;color:var(--muted)">' + CF.esc(fullName(t.user)) + ' · ' + CF.esc(t.category || '') + ' · ' + CF.esc(t.priority || '') + ' · ' + (t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-GB') : '') + '</span> ' + CF.pillFor(t.status) + '</button>';
+    }).join('') : '<div class="empty"><b>No tickets here.</b></div>';
+  }
+  document.getElementById('tickList').addEventListener('click', async function (e) {
+    var b = e.target.closest('[data-tick]');
+    if (!b) return;
+    openTick = b.dataset.tick;
+    renderTickets();
+    try {
+      var res = await CF.api('/support/' + openTick, 'GET');
+      var t = res.data || res;
+      document.getElementById('tickPanel').hidden = false;
+      document.getElementById('tickTitle').textContent = t.title || 'Ticket';
+      document.getElementById('tickStatus').innerHTML = CF.pillFor(t.status);
+      document.getElementById('tickMeta').textContent = fullName(t.user) + ' · ' + ((t.user || {}).email || '') + ' · ' + (t.category || '') + ' / ' + (t.priority || '');
+      document.getElementById('tickState').value = t.status;
+      var desc = t.description ? '<div class="msg theirs">' + CF.esc(t.description) + '<div class="msg-time">original request</div></div>' : '';
+      var meId = null;
+      try { meId = (CF.currentUser() || {}).id; } catch (e2) {}
+      document.getElementById('tickMsgs').innerHTML = desc + (t.messages || []).map(function (m) {
+        var mine = meId && m.senderId === meId;
+        return '<div class="msg ' + (mine ? 'mine' : 'theirs') + '"><b class="small">' + CF.esc((m.sender && (m.sender.firstName || '')) || 'user') + '</b><br />' + CF.esc(m.message) +
+          '<div class="msg-time">' + (m.createdAt ? new Date(m.createdAt).toLocaleString('en-GB') : '') + '</div></div>';
+      }).join('');
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+  });
+  document.getElementById('tickReply').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var txt = document.getElementById('tickText').value.trim();
+    if (!txt || !openTick) return;
+    try {
+      await CF.api('/support/' + openTick + '/messages', 'POST', { message: txt });
+      document.getElementById('tickText').value = '';
+      CF.toast('Reply sent.');
+      loadAll();
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+  });
+  document.getElementById('tickSave').addEventListener('click', async function () {
+    if (!openTick) return;
+    try {
+      await CF.api('/support/' + openTick + '/status', 'PATCH', { status: document.getElementById('tickState').value });
+      CF.toast('Ticket status updated.');
+      loadAll();
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+  });
 
-    function filterBookings() {
-      const status = document.getElementById('bookingStatusFilter').value;
-      
-      const filtered = allBookings.filter(booking => !status || booking.status === status);
-      displayBookings(filtered);
-    }
+  /* ---- categories ---- */
+  function renderCats() {
+    document.getElementById('catNames').innerHTML = cats.map(function (c) { return '<option value="' + CF.esc(c.name) + '">'; }).join('');
+    document.getElementById('catBox').innerHTML = cats.length ? cats.map(function (c) {
+      return '<div class="sum-row"><span><b>' + CF.esc(c.name) + '</b> <span class="small muted">· ' + c.providers + ' pros · ' + c.avgRating + ' ★</span></span>' +
+        '<button class="btn btn-line btn-sm" data-catfill="' + CF.esc(c.name) + '" type="button">Rename</button></div>';
+    }).join('') : '<p class="small muted">No categories yet.</p>';
+  }
+  document.getElementById('catBox').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-catfill]');
+    if (b) document.getElementById('catFrom').value = b.dataset.catfill;
+  });
+  document.getElementById('catForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var from = document.getElementById('catFrom').value.trim();
+    var to = document.getElementById('catTo').value.trim();
+    if (!from || !to) { CF.toast('Enter both names.', 'err'); return; }
+    if (!confirm('Rename "' + from + '" to "' + to + '" for all providers?')) return;
+    try {
+      var res = await CF.api('/admin/categories', 'PATCH', { from: from, to: to });
+      CF.toast(res.message + ' (' + res.updated + ' updated)');
+      document.getElementById('catFrom').value = '';
+      document.getElementById('catTo').value = '';
+      loadAll();
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+  });
 
-    function filterServices() {
-      const search = document.getElementById('serviceSearchInput').value.toLowerCase();
-      
-      const filtered = allServices.filter(service => (service.name || '').toLowerCase().includes(search));
-      displayServices(filtered);
-    }
+  /* ---- review moderation ---- */
+  function renderReviews() {
+    var list = reviews.filter(function (r) { return matchQ((r.booking || {}).bookingRef, fullName(r.user), r.comment); });
+    document.getElementById('revRows').innerHTML = list.length ? list.slice(0, 60).map(function (r) {
+      var sp = String(r.comment || '').replace(/\[photo:[^\]]+\]/g, '').trim();
+      return '<tr><td class="small">' + CF.esc((r.booking || {}).bookingRef || '') + '</td>' +
+        '<td>' + CF.esc(fullName(r.user)) + '</td>' +
+        '<td>' + CF.esc(fullName((r.provider || {}).user)) + '</td>' +
+        '<td><b>' + r.rating + ' ★</b></td>' +
+        '<td class="small">' + CF.esc(sp.slice(0, 90) || '—') + '</td>' +
+        '<td><button class="btn btn-line btn-sm" data-delrev="' + CF.esc(r.id) + '" type="button">Remove</button></td></tr>';
+    }).join('') : '<tr><td colspan="6"><div class="empty"><b>No reviews yet.</b></div></td></tr>';
+  }
 
-    function updateStats() {
-      document.getElementById('statTotalUsers').textContent = Array.isArray(allUsers) ? allUsers.length : 0;
-      document.getElementById('statTotalProviders').textContent = Array.isArray(allProviders) ? allProviders.length : 0;
-      document.getElementById('statVerifiedProviders').textContent = Array.isArray(allProviders) ? allProviders.filter(p => p.verified).length : 0;
-      document.getElementById('statPendingProviders').textContent = Array.isArray(allProviders) ? allProviders.filter(p => !p.verified).length : 0;
-      document.getElementById('statTotalBookings').textContent = Array.isArray(allBookings) ? allBookings.length : 0;
-      
-      const totalRevenue = Array.isArray(allBookings) ? allBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0) : 0;
-      document.getElementById('statTotalRevenue').textContent = `Rs ${totalRevenue.toLocaleString()}`;
-    }
+  /* ---- payouts ---- */
+  function renderPayouts() {
+    var paid = bookings.filter(function (b) { return String(b.paymentStatus).toLowerCase() === 'paid'; });
+    var byProv = {};
+    var byMethod = {};
+    var total = 0;
+    paid.forEach(function (b) {
+      var amt = Number(b.totalAmount) || 0;
+      total += amt;
+      var pn = fullName((b.provider || {}).user) || '—';
+      byProv[pn] = (byProv[pn] || 0) + amt;
+      var m = (b.paymentMethod || 'cash').toUpperCase();
+      byMethod[m] = (byMethod[m] || 0) + amt;
+    });
+    var provRows = Object.keys(byProv).sort(function (a, b2) { return byProv[b2] - byProv[a]; }).slice(0, 10).map(function (k) {
+      return '<div class="sum-row"><span>' + CF.esc(k) + '</span><span><b>' + CF.money(byProv[k]) + '</b></span></div>';
+    }).join('') || '<p class="small muted">No paid bookings yet.</p>';
+    document.getElementById('payBox').innerHTML =
+      '<div class="sum-row total"><span>Collected</span><span>' + CF.money(total) + '</span></div>' +
+      '<div class="meter-grid" style="margin:12px 0">' + Object.keys(byMethod).map(function (m) {
+        var pct = total ? Math.round((byMethod[m] / total) * 100) : 0;
+        return '<div class="meter-row"><span><b>' + CF.esc(m) + '</b></span><span class="progress"><i style="width:' + pct + '%"></i></span><b>' + CF.money(byMethod[m]) + '</b></div>';
+      }).join('') + '</div>' + provRows;
+  }
+  document.getElementById('csvBtn').addEventListener('click', function () {
+    var rows = [['ref', 'customer', 'provider', 'service', 'total', 'method', 'pay_status', 'status', 'date']];
+    bookings.forEach(function (b) {
+      rows.push([b.bookingRef || b.id, fullName(b.user), fullName((b.provider || {}).user), ((b.service || {}).name) || '', b.totalAmount || 0, b.paymentMethod || '', b.paymentStatus || '', b.status || '', b.date ? new Date(b.date).toISOString().slice(0, 10) : '']);
+    });
+    var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = 'cheapflix-payouts-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  });
 
-    function logout() {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
-    }
-  </script>
+  function renderProviders() {
+    var list = providers.filter(function (p) {
+      if (provFilter === 'verified') return !!p.verified;
+      if (provFilter === 'pending') return !p.verified;
+      return true;
+    }).filter(function (p) { return matchQ(fullName(p.user), p.category, (p.user||{}).email, (p.user||{}).phone); });
+    document.getElementById('provRows').innerHTML = list.length ? list.map(function (p) {
+      var nm = fullName(p.user);
+      return '<tr><td><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials((p.user||{}).firstName, (p.user||{}).lastName)) + '</span><span><b>' + CF.esc(nm) + '</b></span></span></td><td>' + CF.esc(p.category || '—') + '</td>' +
+        '<td class="small">' + CF.esc((p.user && p.user.email) || '') + (p.user && p.user.phone ? '<br />' + CF.esc(p.user.phone) : '') + '</td>' +
+        '<td>' + CF.esc(p.experience || 0) + ' yrs</td>' +
+        '<td>' + (p.verified ? '<span class="pill pill-green">verified</span>' : '<span class="pill pill-amber">pending</span>') + '</td>' +
+        '<td style="white-space:nowrap">' + (!p.verified ? '<button class="btn btn-pine btn-sm" data-verify="' + CF.esc(p.id) + '" type="button">Approve</button> ' : '') +
+        '<button class="btn btn-line btn-sm" data-suspend="' + CF.esc(p.id) + '" type="button">Suspend</button></td></tr>';
+    }).join('') : '<tr><td colspan="6"><div class="empty"><b>No providers in this view.</b></div></td></tr>';
+  }
+
+  function renderUsers() {
+    var list = users.filter(function (u) { return matchQ(fullName(u), u.email, u.phone); });
+    document.getElementById('userCount').textContent = list.length + ' total';
+    document.getElementById('userRows').innerHTML = list.length ? list.map(function (u) {
+      var nm = fullName(u);
+      return '<tr><td><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials(u.firstName, u.lastName)) + '</span><span><b>' + CF.esc(nm) + '</b></span></span></td><td class="small">' + CF.esc(u.email || '') + '</td>' +
+        '<td>' + CF.esc(u.phone || '—') + '</td><td class="small">' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB') : '—') + '</td>' +
+        '<td>' + CF.pillFor(u.status || 'active') + '</td>' +
+        '<td><button class="btn btn-line btn-sm" data-deluser="' + CF.esc(u.id) + '" type="button">Remove</button></td></tr>';
+    }).join('') : '<tr><td colspan="6"><div class="empty"><b>No customers yet.</b></div></td></tr>';
+  }
+
+  function renderBookings() {
+    var list = bookings.filter(function (b) {
+      var ok = bookFilter === 'all' || String(b.status).toLowerCase() === bookFilter;
+      return ok && matchQ(b.bookingRef, fullName(b.user), (b.service||{}).name);
+    });
+    document.getElementById('sBookingsSub').textContent = list.length + ' shown';
+    document.getElementById('bookRows').innerHTML = list.length ? list.slice(0, 120).map(function (b) {
+      var st = String(b.status || '').toLowerCase();
+      var ps = String(b.paymentStatus || 'unpaid').toLowerCase();
+      return '<tr><td><b>' + CF.esc(b.bookingRef || String(b.id).slice(0, 8)) + '</b></td>' +
+        '<td>' + CF.esc(fullName(b.user)) + '</td><td>' + CF.esc((b.service && b.service.name) || '—') + '</td>' +
+        '<td><b>' + CF.money(b.totalAmount) + '</b><br /><span class="small muted">' + CF.esc((b.paymentMethod || 'cash').toUpperCase()) + ' · ' + CF.pillFor(b.paymentStatus || 'unpaid') + '</span></td><td>' + CF.pillFor(b.status) + '</td>' +
+        '<td style="white-space:nowrap">' + (['pending', 'confirmed', 'in_progress'].indexOf(st) !== -1 ? '<button class="btn btn-line btn-sm" data-cancelbk="' + CF.esc(b.id) + '" type="button">Cancel</button> ' : '') +
+        (ps !== 'paid' ? '<button class="btn btn-line btn-sm" data-paybk="' + CF.esc(b.id) + '" type="button">Mark paid</button> ' : '<button class="btn btn-line btn-sm" data-refundbk="' + CF.esc(b.id) + '" type="button">Refund</button>') + '</td></tr>';
+    }).join('') : '<tr><td colspan="6"><div class="empty"><b>No bookings yet.</b></div></td></tr>';
+  }
+
+  document.addEventListener('click', async function (e) {
+    var v = e.target.closest('[data-verify]');
+    var s = e.target.closest('[data-suspend]');
+    var d = e.target.closest('[data-deluser]');
+    var c = e.target.closest('[data-cancelbk]');
+    var pb = e.target.closest('[data-paybk]');
+    var rb = e.target.closest('[data-refundbk]');
+    var dr = e.target.closest('[data-delrev]');
+    try {
+      if (v) { await CF.api('/admin/providers/' + v.dataset.verify + '/verify', 'PATCH', { verified: true }); CF.toast('Provider approved — they can now receive jobs.'); }
+      if (s && confirm('Suspend this provider? Their account will be locked.')) { await CF.api('/admin/providers/' + s.dataset.suspend + '/suspend', 'POST', {}); CF.toast('Provider suspended.'); }
+      if (d && confirm('Remove this customer? This cannot be undone.')) { await CF.api('/admin/users/' + d.dataset.deluser, 'DELETE'); CF.toast('Customer removed.'); }
+      if (c && confirm('Cancel this booking? Both sides will be notified.')) { await CF.api('/admin/bookings/' + c.dataset.cancelbk + '/cancel', 'PATCH', {}); CF.toast('Booking cancelled.'); }
+      if (pb && confirm('Mark this booking as paid?')) { await CF.api('/bookings/' + pb.dataset.paybk + '/payment', 'PATCH', { paymentStatus: 'paid' }); CF.toast('Payment marked as paid.'); }
+      if (rb && confirm('Refund this payment? Only after returning the money.')) { await CF.api('/bookings/' + rb.dataset.refundbk + '/payment', 'PATCH', { paymentStatus: 'refunded' }); CF.toast('Payment refunded.'); }
+      if (dr && confirm('Remove this review? This cannot be undone.')) { await CF.api('/admin/reviews/' + dr.dataset.delrev, 'DELETE'); CF.toast('Review removed.'); }
+      if (v || s || d || c || pb || rb || dr) loadAll();
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+  });
+
+  document.addEventListener('DOMContentLoaded', loadAll);
+})();
+</script>
 </body>
 </html>

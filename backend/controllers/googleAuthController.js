@@ -1,11 +1,17 @@
 const { OAuth2Client } = require('google-auth-library');
-const jwt = require('jsonwebtoken');
 const prisma = require('../config/database');
 
-// Initialize Google OAuth client
-// Note: Replace with your actual Google OAuth Client ID
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com';
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+// Google OAuth client ID comes ONLY from env (no hardcoded fallback —
+// a leaked client ID lets attackers mint phishing login buttons).
+function googleClient() {
+  const id = process.env.GOOGLE_CLIENT_ID || '';
+  if (!id) {
+    const e = new Error('Google login is not configured (set GOOGLE_CLIENT_ID).');
+    e.status = 503;
+    throw e;
+  }
+  return { client: new OAuth2Client(id), id };
+}
 
 /**
  * Verify Google token and authenticate user
@@ -20,9 +26,10 @@ exports.googleAuth = async (req, res) => {
     }
 
     // Verify the Google token
+    const { client, id } = googleClient();
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: GOOGLE_CLIENT_ID,
+      audience: id,
     });
 
     const payload = ticket.getPayload();
@@ -50,16 +57,14 @@ exports.googleAuth = async (req, res) => {
       });
     }
 
-    // Generate JWT token
-    const jwtToken = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '7d' }
-    );
+    // Generate access + refresh pair
+    const { issuePair } = require('../utils/tokens');
+    const pair = await issuePair(user);
 
     return res.json({
       success: true,
-      token: jwtToken,
+      token: pair.token,
+      refreshToken: pair.refreshToken,
       user: {
         id: user.id,
         firstName: user.firstName,

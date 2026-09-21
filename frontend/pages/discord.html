@@ -1,68 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Cheapflix Nepal Discord</title>
-
-<style>
-body{
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#111827;
-    font-family:Arial;
-}
-
-.discord-box{
-    background:white;
-    padding:40px;
-    border-radius:15px;
-    text-align:center;
-}
-
-button{
-    background:#5865F2;
-    color:white;
-    border:none;
-    padding:15px 30px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:18px;
-}
-
-button:hover{
-    background:#4752c4;
-}
-</style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community — Cheapflix Nepal</title>
+  <meta name="description" content="Join the Cheapflix Nepal community: tips, offers and help from other customers and providers." />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="canonical" href="https://cheapflixnepal.live/pages/discord.html" />
+  <link rel="stylesheet" href="../css/design-system.css" />
+  <script src="../config.js"></script>
+  <script src="../js/app.js" defer></script>
 </head>
-
 <body>
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <nav class="nav-links"><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="support.html">Help</a></nav>
+    <div class="nav-cta" data-nav-cta><a class="btn btn-line btn-sm" href="login.html">Log in</a></div>
+    <button class="burger" id="navBurger" aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="support.html">Help</a></div>
 
-<div class="discord-box">
-
-<h1>Cheapflix Nepal</h1>
-
-<p>Join our Discord Community</p>
-
-<button onclick="joinDiscord()">
-💬 Join Discord
-</button>
-
+<div class="flow-shell" style="max-width:680px;text-align:center">
+  <div class="kicker" style="display:inline-flex">Community</div>
+  <h1 class="display" style="font-size:clamp(32px,4vw,48px)">Neighbours helping neighbours.</h1>
+  <p style="margin:12px auto 30px;max-width:520px">Swap provider recommendations, ask for cost estimates, and hear about new services first. Our team hangs out there every weekday.</p>
+  <div class="panel">
+    <h2 style="font-size:22px;margin-bottom:8px">Join the Discord</h2>
+    <p style="font-size:14.5px;margin-bottom:20px">2,000+ members across Kathmandu, Pokhara and Chitwan.</p>
+    <button class="btn btn-pine btn-block" id="joinBtn" type="button">Open invite</button>
+    <p class="form-note">Prefer to talk to us directly? <a href="support.html">Raise a support ticket</a></p>
+  </div>
 </div>
 
-
 <script>
-
-function joinDiscord(){
-
-window.location.href =
-"https://discord.gg/YOUR_INVITE_CODE";
-
-}
-
+document.getElementById('joinBtn').addEventListener('click', function () {
+  CF.toast('Invite link coming right up — ask support if it has expired.');
+  window.open('https://discord.gg/cheapflixnepal', '_blank', 'noopener');
+});
 </script>
-
-
+<footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>
 </body>
 </html>

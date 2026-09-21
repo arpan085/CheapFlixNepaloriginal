@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forgot password — Cheapflix Nepal</title>
+  <meta name="description" content="Reset your Cheapflix Nepal password with a secure email link." />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="stylesheet" href="../css/design-system.css" />
+  <script src="../config.js"></script>
+  <script src="../js/app.js" defer></script>
+</head>
+<body>
+<div class="auth-shell">
+  <aside class="auth-side">
+    <div>
+      <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name" style="color:#fff">Cheapflix<small>Nepal</small></span></a>
+      <h2>Locked out?<br />No worries.</h2>
+      <p>Enter your account email and we'll send a reset link, valid for 15 minutes. It works for customers, providers and admins.</p>
+      <div class="auth-proof"><div><b>15 min</b><span>link validity</span></div><div><b>1 click</b><span>to reset</span></div></div>
+    </div>
+    <p style="font-size:13px;color:rgba(243,236,221,.55);position:relative;z-index:1">Didn't get it? Check spam, or <a href="support.html" style="color:#e9b44c">contact support</a>.</p>
+  </aside>
+  <main class="auth-main">
+    <div class="auth-card">
+      <a class="back-link" href="login.html">&larr; Back to log in</a>
+      <h1 data-i18n="auth.forgot.h">Reset password</h1>
+      <p>We'll email you a secure reset link.</p>
+      <div class="alert alert-err" id="errBox" role="alert"></div>
+      <div class="alert alert-ok" id="okBox" role="status"></div>
+      <form id="forgotForm" novalidate>
+        <div class="field" id="fEmail">
+          <label for="email">Email address</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <div class="field-err">Enter a valid email address.</div>
+        </div>
+        <button class="btn btn-pine btn-block btn-lg" type="submit" id="sendBtn">Send reset link</button>
+      </form>
+      <p class="form-note muted small" id="devBox" hidden>Dev mode — <a href="#" id="devLink">open your reset link directly</a></p>
+    </div>
+  </main>
+</div>
+<script>
+(function () {
+  var form = document.getElementById('forgotForm');
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value.trim();
+    var ok = /.+@.+\..+/.test(email);
+    document.getElementById('fEmail').classList.toggle('invalid', !ok);
+    var err = document.getElementById('errBox'), okB = document.getElementById('okBox');
+    err.classList.remove('show'); okB.classList.remove('show');
+    document.getElementById('devBox').hidden = true;
+    if (!ok) return;
+    var btn = document.getElementById('sendBtn');
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      var res = await CF.api('/auth/forgot', 'POST', { email: email }, false);
+      okB.textContent = res.message || 'Reset link sent.';
+      okB.classList.add('show');
+      if (res.devResetLink) {
+        // Non-production: API returns the link (SMTP not configured yet).
+        var parts = res.devResetLink.split('/pages/');
+        var local = 'reset.html?token=' + encodeURIComponent(res.devToken);
+        document.getElementById('devLink').href = local;
+        document.getElementById('devBox').hidden = false;
+      }
+    } catch (ex) {
+      err.textContent = ex.message; err.classList.add('show');
+    }
+    btn.disabled = false; btn.classList.remove('loading'); btn.textContent = 'Send reset link';
+  });
+})();
+</script>
+<footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>
+</body>
+</html>

@@ -13,3 +13,4 @@ yarn-error.log*
 uploads/
 .env.production
 .env.staging
+.neon

@@ -1,346 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Account - Cheapflix Nepal</title>
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/auth.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create account — Cheapflix Nepal</title>
+  <meta name="description" content="Join Cheapflix Nepal as a customer or verified provider. Free to join, bookings in minutes." />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="canonical" href="https://cheapflixnepal.live/pages/register.html" />
+  <link rel="stylesheet" href="../css/design-system.css" />
   <script src="../config.js"></script>
-  <!-- Google Sign-In SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="../js/app.js" defer></script>
 </head>
-<body class="auth-page">
-  <div class="auth-container">
+<body>
+<div class="auth-shell">
+  <aside class="auth-side">
+    <div>
+      <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name" style="color:#fff">Cheapflix<small>Nepal</small></span></a>
+      <h2 id="sideTitle">One account.<br />Every service.</h2>
+      <p id="sideSub">Book electricians, tutors, cleaners and more — with verified pros and prices agreed before anyone knocks.</p>
+      <div class="auth-steps" id="sideSteps">
+        <div class="auth-step"><i>✓</i><div><b>Verified pros only</b><span>Citizenship + skill check + trial jobs</span></div></div>
+        <div class="auth-step"><i>✓</i><div><b>Upfront pricing</b><span>Receipt for every job, no haggling</span></div></div>
+        <div class="auth-step"><i>✓</i><div><b>Help when it matters</b><span>Kathmandu team replies in a day</span></div></div>
+      </div>
+      <div class="auth-proof">
+        <div><b>2,400+</b><span>verified pros</span></div>
+        <div><b>50+</b><span>categories</span></div>
+        <div><b>Free</b><span>to join</span></div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:rgba(243,236,221,.55);position:relative;z-index:1">By joining you agree to our Terms &amp; Privacy Policy.</p>
+  </aside>
+
+  <main class="auth-main">
     <div class="auth-card">
-      <button type="button" class="auth-back-btn" onclick="window.location.href='../index.html'" title="Go back to home">✕</button>
-      
-      <div class="auth-header">
-        <h1>Create Account</h1>
-        <p>Join thousands booking services every day</p>
+      <a class="back-link" href="../index.html">&larr; Back to home</a>
+      <h1 id="formTitle">Create your account</h1>
+      <p>Takes less than a minute. No fees, no spam.</p>
+
+      <div class="role-cards" role="tablist" aria-label="Account type">
+        <button type="button" class="role-card on" id="tabUser" role="tab" aria-selected="true"><b>🧰 I need a service</b><span>Book trusted pros for home &amp; personal jobs</span></button>
+        <button type="button" class="role-card" id="tabProvider" role="tab" aria-selected="false"><b>⭐ I'm a professional</b><span>Get steady work &amp; weekly payouts</span></button>
       </div>
 
-      <!-- OAuth Buttons -->
-      <div class="oauth-buttons">
-        <div id="google-signin-btn"></div>
-        <button type="button" class="btn-oauth" onclick="signupWithFacebook()">
-          <span class="btn-oauth-icon">f</span>
-          <span>Facebook</span>
-        </button>
-      </div>
-
-      <!-- OAuth Divider -->
-      <div class="oauth-divider">
-        <span class="oauth-divider-text">Or continue with email</span>
-      </div>
-
-      <!-- Registration Form -->
-      <form id="registerForm" class="auth-form">
-        <!-- Name Fields -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" name="firstName" required placeholder="John">
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" name="lastName" required placeholder="Doe">
-          </div>
+      <div class="alert alert-err" id="errBox" role="alert"></div>
+      <form id="regForm" novalidate>
+        <div class="field-row">
+          <div class="field" id="fFirst"><label for="firstName">First name</label><input id="firstName" type="text" placeholder="Asha" autocomplete="given-name" /><div class="field-err">Required.</div></div>
+          <div class="field" id="fLast"><label for="lastName">Last name</label><input id="lastName" type="text" placeholder="Sharma" autocomplete="family-name" /><div class="field-err">Required.</div></div>
         </div>
-
-        <!-- Email -->
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <div class="form-group-input-wrapper">
-            <span class="form-group-icon">✉️</span>
-            <input type="email" id="email" name="email" required placeholder="you@example.com">
+        <div class="field" id="fEmail"><label for="email">Email address</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false" />
           </div>
+          <div class="field-err">Enter a valid email address.</div>
         </div>
-
-        <!-- Phone -->
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <div class="form-group-input-wrapper">
-            <span class="form-group-icon">📱</span>
-            <input type="tel" id="phone" name="phone" placeholder="+977 98...">
+        <div class="field"><label for="phone">Phone <span class="muted" style="font-weight:500">(optional — for job-day calls)</span></label><input id="phone" type="tel" placeholder="98XXXXXXXX" autocomplete="tel" inputmode="tel" /><div class="hint">Nepali mobile, 10 digits starting with 98.</div></div>
+        <div class="field" id="fPass"><label for="password">Password</label>
+          <div class="input-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input id="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-toggle="password">Show</button>
           </div>
+          <div class="pw-meter" id="pwMeter" data-s="0"><i></i><i></i><i></i><i></i></div>
+          <div class="field-err">Password needs at least 6 characters.</div>
         </div>
-
-        <!-- User Type -->
-        <div class="form-group">
-          <label for="userType">Account Type</label>
-          <select id="userType" name="userType" onchange="toggleProviderFields()">
-            <option value="user">📍 I want to book services (Customer)</option>
-            <option value="provider">👨‍💼 I want to provide services (Provider)</option>
-          </select>
+        <div id="providerFields" hidden>
+          <div class="field-row">
+            <div class="field">
+              <label for="category">Your trade</label>
+              <select id="category">
+                <option>Electrician</option><option>Plumber</option><option>Cleaner</option>
+                <option>Home Tutor</option><option>Web Developer</option><option>Barber</option>
+                <option>Driver</option><option>Photographer</option><option>Carpenter</option>
+                <option>Painter</option><option>Appliance Repair</option><option>General</option>
+              </select>
+            </div>
+            <div class="field"><label for="experience">Experience (years)</label><input id="experience" type="number" min="0" max="50" value="2" /></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="price">Starting price (Rs)</label><input id="price" type="number" min="0" value="500" /></div>
+            <div class="field"><label for="city">Base city</label>
+              <select id="city"><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option><option>Pokhara</option><option>Chitwan</option></select>
+            </div>
+          </div>
+          <div class="field"><label for="bio">Short intro</label><textarea id="bio" rows="2" placeholder="e.g. Licensed electrician, 8 yrs in Baneshwor. Wiring, inverters, safety checks."></textarea></div>
         </div>
-
-        <!-- ✅ PROVIDER-ONLY FIELDS -->
-        <div id="providerFields" style="display: none; background: #f5f3ff; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #7C3AED;">
-          <h3 style="margin: 0 0 16px; color: #7C3AED; font-size: 14px;">Professional Profile</h3>
-
-          <!-- Service Category -->
-          <div class="form-group">
-            <label for="category">Service Category</label>
-            <select id="category" name="category">
-              <option value="">Select your service</option>
-              <option value="Electrician">⚡ Electrician</option>
-              <option value="Plumber">🔧 Plumber</option>
-              <option value="Barber">✂️ Barber</option>
-              <option value="Cleaner">🧹 Cleaner</option>
-              <option value="Tutor">📚 Tutor</option>
-              <option value="Developer">💻 Developer</option>
-              <option value="Photographer">📷 Photographer</option>
-              <option value="Driver">🚗 Driver</option>
-              <option value="Mechanic">🔩 Mechanic</option>
-              <option value="Painter">🎨 Painter</option>
-            </select>
-          </div>
-
-          <!-- Experience -->
-          <div class="form-group">
-            <label for="experience">Years of Experience</label>
-            <input type="number" id="experience" name="experience" placeholder="5" min="0" max="100">
-          </div>
-
-          <!-- Price per Hour -->
-          <div class="form-group">
-            <label for="price">Service Price (Rs per hour)</label>
-            <input type="number" id="price" name="price" placeholder="800" min="100" step="50">
-          </div>
-
-          <!-- Bio -->
-          <div class="form-group">
-            <label for="bio">Professional Bio</label>
-            <textarea id="bio" name="bio" placeholder="Tell customers about your experience and skills..." style="min-height: 80px;"></textarea>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="form-group-input-wrapper">
-            <span class="form-group-icon">🔒</span>
-            <input type="password" id="password" name="password" required placeholder="••••••••">
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">👁️</button>
-          </div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <div class="form-group-input-wrapper">
-            <span class="form-group-icon">🔒</span>
-            <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="••••••••">
-            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">👁️</button>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn-block">Create Account</button>
-        <span class="error-msg" id="formError"></span>
+        <label class="row small" style="gap:8px;margin-bottom:16px;cursor:pointer;align-items:flex-start"><input type="checkbox" id="terms" checked style="accent-color:var(--pine);width:16px;height:16px;margin-top:3px" /><span class="muted">I agree to the Terms &amp; Privacy Policy, and to be contacted about my bookings.</span></label>
+        <button class="btn btn-pine btn-block btn-lg" type="submit" id="regBtn">Create account</button>
       </form>
+      <p class="form-note">Already have an account? <a href="login.html" style="font-weight:700">Log in</a></p>
+    </div>
+  </main>
+</div>
 
-      <!-- Footer -->
-      <div class="auth-footer">
-        <p>Already have an account? <a href="login.html">Sign in</a></p>
-      </div>
+<script>
+(function () {
+  var isProvider = new URLSearchParams(window.location.search).get('type') === 'provider';
+  var tabUser = document.getElementById('tabUser');
+  var tabProvider = document.getElementById('tabProvider');
+  var pFields = document.getElementById('providerFields');
 
-  <script>
-    const getApiUrl = (endpoint) => {
-      if (window.CONFIG && window.CONFIG.getApiUrl) {
-        return window.CONFIG.getApiUrl(endpoint);
-      }
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const base = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
-      return base + '/api' + endpoint;
-    };
+  function setMode(p) {
+    isProvider = p;
+    tabUser.classList.toggle('on', !p);
+    tabProvider.classList.toggle('on', p);
+    tabUser.setAttribute('aria-selected', String(!p));
+    tabProvider.setAttribute('aria-selected', String(p));
+    pFields.hidden = !p;
+    document.getElementById('formTitle').textContent = p ? 'Join as a professional' : 'Create your account';
+    document.getElementById('sideTitle').innerHTML = p ? 'Your skills.<br />Steady work.' : 'One account.<br />Every service.';
+    document.getElementById('sideSub').textContent = p
+      ? 'Get discovered by customers ready to hire. Weekly payouts, zero marketing cost.'
+      : 'Book electricians, tutors, cleaners and more — with verified pros and prices agreed before anyone knocks.';
+  }
+  tabUser.addEventListener('click', function () { setMode(false); });
+  tabProvider.addEventListener('click', function () { setMode(true); });
+  setMode(isProvider);
 
-    // Initialize Google Sign-In
-    window.onload = function() {
-      // Pre-select provider if coming from "Join as a Provider" button
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('type') === 'provider') {
-        const userTypeSelect = document.getElementById('userType');
-        if (userTypeSelect) {
-          userTypeSelect.value = 'provider';
-          toggleProviderFields();
-        }
-      }
-
-      google.accounts.id.initialize({
-        client_id: '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com',
-        callback: handleGoogleSignUp,
-        auto_select: false
-      });
-
-      google.accounts.id.renderButton(
-        document.getElementById('google-signin-btn'),
-        { 
-          theme: 'outline', 
-          size: 'large',
-          width: '100%',
-          text: 'signup_with'
-        }
-      );
-    };
-
-    // Handle Google Sign-Up response
-    async function handleGoogleSignUp(response) {
-      const formError = document.getElementById('formError');
-      
-      try {
-        const result = await fetch(getApiUrl('/auth/google'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            token: response.credential
-          }),
-        });
-
-        const data = await result.json();
-
-        if (result.ok) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          
-          formError.style.color = '#10B981';
-          formError.textContent = 'Registration successful! Redirecting...';
-          
-          setTimeout(() => {
-            window.location.href = 'dashboard.html';
-          }, 1500);
-        } else {
-          formError.textContent = data.error || 'Google signup failed';
-          formError.style.color = '#EF4444';
-        }
-      } catch (error) {
-        console.error('Google signup error:', error);
-        formError.textContent = 'Google signup failed. Please try manual registration.';
-        formError.style.color = '#EF4444';
-      }
-    }
-
-    // ✅ TOGGLE PROVIDER FIELDS
-    function toggleProviderFields() {
-      const userType = document.getElementById('userType').value;
-      const providerFields = document.getElementById('providerFields');
-      
-      if (userType === 'provider') {
-        providerFields.style.display = 'block';
-      } else {
-        providerFields.style.display = 'none';
-      }
-    }
-
-    // OAuth Functions
-    function signupWithFacebook() {
-      alert('Facebook OAuth integration coming soon!');
-    }
-
-    // Password visibility toggle
-    function togglePasswordVisibility(fieldId) {
-      const input = document.getElementById(fieldId);
-      input.type = input.type === 'password' ? 'text' : 'password';
-    }
-
-    // Form submission
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const firstName = document.getElementById('firstName').value;
-      const lastName = document.getElementById('lastName').value;
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
-      const password = document.getElementById('password').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const userType = document.getElementById('userType').value;
-      const formError = document.getElementById('formError');
-
-      formError.textContent = '';
-
-      // Validate passwords match
-      if (password !== confirmPassword) {
-        formError.textContent = 'Passwords do not match';
-        return;
-      }
-
-      // Validate password strength
-      if (password.length < 6) {
-        formError.textContent = 'Password must be at least 6 characters';
-        return;
-      }
-
-      // ✅ VALIDATE PROVIDER FIELDS IF PROVIDER
-      if (userType === 'provider') {
-        const category = document.getElementById('category').value;
-        const experience = document.getElementById('experience').value;
-        const price = document.getElementById('price').value;
-
-        if (!category || !experience || !price) {
-          formError.textContent = 'Please fill in all professional fields';
-          return;
-        }
-
-        if (price < 100) {
-          formError.textContent = 'Minimum price is Rs 100/hour';
-          return;
-        }
-      }
-
-      try {
-        const requestData = {
-          email,
-          password,
-          firstName,
-          lastName,
-          phone,
-          userType,
-        };
-
-        // ✅ ADD PROVIDER FIELDS IF PROVIDER
-        if (userType === 'provider') {
-          requestData.category = document.getElementById('category').value;
-          requestData.experience = parseInt(document.getElementById('experience').value);
-          requestData.price = parseFloat(document.getElementById('price').value);
-          requestData.bio = document.getElementById('bio').value;
-        }
-
-        const response = await fetch(getApiUrl('/auth/register'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestData),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          
-          formError.style.color = '#10B981';
-          formError.textContent = 'Registration successful! Redirecting...';
-          
-          // ✅ REDIRECT TO PROVIDER ONBOARDING IF PROVIDER
-          setTimeout(() => {
-            if (userType === 'provider') {
-              window.location.href = 'provider-onboarding.html';
-            } else {
-              window.location.href = 'dashboard.html';
-            }
-          }, 1500);
-        } else {
-          formError.textContent = data.error || 'Registration failed. Please try again.';
-        }
-      } catch (error) {
-        formError.textContent = 'Connection error. Please try again.';
-        console.error('Registration error:', error);
-      }
+  document.querySelectorAll('[data-toggle]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = document.getElementById(b.dataset.toggle);
+      var show = t.type === 'password';
+      t.type = show ? 'text' : 'password';
+      b.textContent = show ? 'Hide' : 'Show';
     });
-  </script>
+  });
+
+  var pw = document.getElementById('password');
+  var meter = document.getElementById('pwMeter');
+  pw.addEventListener('input', function () {
+    var v = pw.value;
+    var s = 0;
+    if (v.length >= 6) s = 1;
+    if (v.length >= 8 && /[A-Z]/.test(v)) s = 2;
+    if (v.length >= 8 && /[A-Z]/.test(v) && /\d/.test(v)) s = 3;
+    if (v.length >= 10 && /[^A-Za-z0-9]/.test(v)) s = 4;
+    meter.dataset.s = String(s);
+    document.getElementById('fPass').classList.toggle('invalid', v.length > 0 && v.length < 6);
+  });
+
+  ['firstName', 'lastName', 'email'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function (e) {
+      e.target.closest('.field').classList.remove('invalid');
+      document.getElementById('errBox').classList.remove('show');
+    });
+  });
+
+  document.getElementById('regForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var err = document.getElementById('errBox');
+    err.classList.remove('show');
+    var payload = {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim() || undefined,
+      password: pw.value,
+      userType: isProvider ? 'provider' : 'user'
+    };
+    function fail(msg, fieldId) {
+      err.textContent = msg; err.classList.add('show');
+      if (fieldId) document.getElementById(fieldId).classList.add('invalid');
+      err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    if (!payload.firstName || !payload.lastName) return fail('Please enter your full name.', !payload.firstName ? 'fFirst' : 'fLast');
+    if (!/.+@.+\..+/.test(payload.email)) return fail('Enter a valid email address.', 'fEmail');
+    if (payload.phone && !/^9[678]\d{8}$/.test(payload.phone.replace(/[\s-]/g, ''))) return fail('That phone number does not look like a Nepali mobile (e.g. 98XXXXXXXX). You can leave it blank.');
+    if (!payload.password || payload.password.length < 6) return fail('Password needs at least 6 characters.', 'fPass');
+    if (!document.getElementById('terms').checked) return fail('Please accept the Terms to continue.');
+    if (isProvider) {
+      payload.category = document.getElementById('category').value;
+      payload.experience = parseInt(document.getElementById('experience').value, 10) || 0;
+      payload.price = parseFloat(document.getElementById('price').value) || 500;
+      payload.bio = document.getElementById('bio').value.trim();
+      payload.city = document.getElementById('city').value;
+    }
+    var btn = document.getElementById('regBtn');
+    var label = btn.textContent;
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      var res = await CF.api('/auth/register', 'POST', payload, false);
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      if (res.refreshToken) { try { localStorage.setItem('cf_refresh', res.refreshToken); } catch (e2) {} }
+      CF.toast('Account created. Welcome!');
+      setTimeout(function () {
+        if (res.user.role === 'provider') window.location.href = 'provider-onboarding.html';
+        else window.location.href = 'login.html?created=1';
+      }, 450);
+    } catch (ex) {
+      err.textContent = ex.message || 'Could not create your account. Try again.';
+      err.classList.add('show');
+      btn.disabled = false; btn.classList.remove('loading'); btn.textContent = label;
+    }
+  });
+})();
+</script>
+<footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>
 </body>
 </html>

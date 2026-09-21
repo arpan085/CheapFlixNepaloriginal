@@ -2,12 +2,14 @@ const express = require('express');
 const router = express.Router();
 const supportController = require('../controllers/supportController');
 const { authMiddleware } = require('../middleware/auth');
+const { validateTicket } = require('../middleware/validate');
+const { writeLimiter } = require('../middleware/security');
 
 // All support routes require authentication
 router.use(authMiddleware);
 
 // Create new support ticket
-router.post('/', supportController.createTicket);
+router.post('/', writeLimiter, validateTicket, supportController.createTicket);
 
 // Get user's tickets
 router.get('/', supportController.getUserTickets);

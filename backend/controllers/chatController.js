@@ -9,10 +9,10 @@ exports.sendMessage = async (req, res) => {
 
     const { bookingId, receiverId, text, attachment } = req.body;
 
-    if (!bookingId || !receiverId || !text) {
-      return res.status(400).json({ 
+    if (!bookingId || !receiverId || (!text && !attachment)) {
+      return res.status(400).json({
         error: 'Missing required fields',
-        required: ['bookingId', 'receiverId', 'text']
+        required: ['bookingId', 'receiverId', 'text or attachment']
       });
     }
 
@@ -68,7 +68,7 @@ exports.sendMessage = async (req, res) => {
         bookingId: safeBookingId,
         senderId,
         receiverId: safeReceiverId,
-        text: String(text),
+        text: String(text || (attachment ? '[attachment]' : '')),
         attachment: attachment || null
       },
       include: {
@@ -76,6 +76,14 @@ exports.sendMessage = async (req, res) => {
         receiver: { select: { id: true, firstName: true, lastName: true } }
       }
     });
+
+    try {
+      require('../utils/events').emitTo(safeReceiverId, 'chat', {
+        bookingId: safeBookingId, messageId: message.id,
+        from: (message.sender.firstName || '') + ' ' + (message.sender.lastName || ''),
+        text: message.text,
+      });
+    } catch (e) {}
 
     return res.status(201).json({ success: true, data: message });
   } catch (error) {
@@ -181,14 +189,18 @@ exports.getConversations = async (req, res) => {
 
     const userId = String(req.user.id);
 
-    // Get all bookings involved
+    // Provider ids owned by this user (providers chat via their provider record)
+    const myProviders = await prisma.provider.findMany({
+      where: { userId },
+      select: { id: true }
+    });
+    const myProviderIds = myProviders.map((p) => p.id);
+
+    // Get all bookings involved (as customer OR as provider)
+    const or = [{ userId }];
+    if (myProviderIds.length) or.push({ providerId: { in: myProviderIds } });
     const bookings = await prisma.booking.findMany({
-      where: {
-        OR: [
-          { userId },
-          { providerId: userId }
-        ]
-      },
+      where: { OR: or },
       include: {
         user: { select: { id: true, firstName: true, lastName: true, avatar: true } },
         provider: { select: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } } },

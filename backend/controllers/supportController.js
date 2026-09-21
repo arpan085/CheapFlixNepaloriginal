@@ -109,8 +109,11 @@ exports.addMessage = async (req, res) => {
     const { ticketId } = req.params;
     const { message } = req.body;
 
-    if (!message) {
+    if (!message || !String(message).trim()) {
       return res.status(400).json({ error: 'Message is required' });
+    }
+    if (String(message).length > 8000) {
+      return res.status(400).json({ error: 'Message is too long (max 8000 chars).' });
     }
 
     const ticket = await prisma.supportTicket.findUnique({

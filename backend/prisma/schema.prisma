@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -48,6 +48,8 @@ model Provider {
   rating      Float      @default(0)
   verified    Boolean    @default(false)
   documents   String?    // JSON array of document paths
+  isAvailable Boolean    @default(true) // provider pause toggle (server-side)
+  weeklyOff   String?    // JSON array of weekday numbers 0-6 the provider never works, e.g. "[6]"
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -56,6 +58,7 @@ model Provider {
   bookings    Booking[]
   reviews     Review[]
   notifications Notification[]
+  dayOffs     ProviderDayOff[]
 }
 
 // Service Model - Services offered by providers
@@ -95,8 +98,8 @@ model Booking {
   
   totalAmount Float
   paymentMethod String?
-  paymentStatus String @default("unpaid") // unpaid, paid
-  
+  paymentStatus String @default("unpaid") // unpaid, paid, refund_requested, refunded
+
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -104,6 +107,11 @@ model Booking {
   review      Review?
   notifications Notification[]
   messages    Message[]
+  payments    Payment[]
+
+  @@index([providerId, date, startTime])
+  @@index([userId, status])
+  @@index([status, date])
 }
 
 // Notification Model - For provider booking requests
@@ -172,7 +180,7 @@ model SupportTicket {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   title       String
-  description String     @db.LongText
+  description String     @db.Text
   category    String     // "bug", "feedback", "payment", "other"
   priority    String     @default("medium") // "low", "medium", "high"
   status      String     @default("open") // "open", "in_progress", "resolved", "closed"
@@ -192,10 +200,109 @@ model TicketMessage {
   senderId    String
   sender      User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
   
-  message     String     @db.LongText
+  message     String     @db.Text
   attachment  String?    // URL or path to file if any
   
   createdAt   DateTime   @default(now())
+}
+
+// Payment ledger — one row per claim/verification attempt.
+// Lets customers, providers and admins see WHO claimed WHAT ref,
+// whether eSewa/Khalti verified it live, and how refunds resolve.
+model Payment {
+  id          String     @id @default(cuid())
+  bookingId   String
+  booking     Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId      String     // customer who paid / claimed
+  method      String     // cash, esewa, khalti, bank
+  amount      Float
+  reference   String?    // wallet txn id / bank ref (null for cash)
+  status      String     @default("claimed") // claimed, verified, failed, refund_requested, refunded
+  verifyMode  String     @default("format") // format, esewa_api, khalti_api, manual
+  verifyNote  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([bookingId])
+  @@index([userId, status])
+  @@index([reference])
+}
+
+// Provider time off — full days and/or named slots the provider blocks.
+// Checked on booking create + reschedule to prevent double-booking.
+model ProviderDayOff {
+  id          String     @id @default(cuid())
+  providerId  String
+  provider    Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  date        DateTime   // calendar day (time ignored, YYYY-MM-DD)
+  slots       String?    // JSON array of blocked startTime labels; null/empty = whole day
+  reason      String?
+  createdAt   DateTime   @default(now())
+
+  @@unique([providerId, date])
+  @@index([providerId, date])
+}
+
+// Refresh tokens — long-lived, rotatable, revocable.
+// Access tokens (JWT) stay short; clients swap a refresh token for a new
+// pair via POST /api/auth/refresh. Only sha256 hashes are stored.
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// SMS OTP codes for phone login (Sparrow SMS). Only sha256 hashes stored,
+// 5-minute TTL, 5 attempts max, then the code is dead.
+model OtpCode {
+  id        String    @id @default(cuid())
+  phone     String    @unique
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
+}
+
+// Saved providers — server-side favorites, synced with the app's
+// localStorage cache (offline-first, merged on login).
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  providerId String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, providerId])
+  @@index([userId])
+  @@index([providerId])
+}
+
+// Promo / coupon codes managed from the admin dashboard.
+// Static codes in utils/promos.js remain as built-in fallbacks.
+model PromoCode {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  label            String
+  type             String    // pct | flat
+  value            Float
+  maxOff           Float?
+  minTotal         Float     @default(0)
+  firstBookingOnly Boolean   @default(false)
+  active           Boolean   @default(true)
+  expiresAt        DateTime?
+  usageLimit       Int?
+  usedCount        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([active])
 }
 
 // Admin Model

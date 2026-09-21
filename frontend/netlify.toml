@@ -2,11 +2,8 @@
   command = "echo 'Frontend ready for deployment'"
   publish = "."
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-
+# NOTE: API calls go directly to the Render backend (see config.js),
+# so there is intentionally no /api -> functions rewrite here.
 [[redirects]]
   from = "/*"
   to = "/index.html"

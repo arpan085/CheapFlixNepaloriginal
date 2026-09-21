@@ -3,833 +3,459 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cheapflix Nepal — Find Trusted Professionals Near You</title>
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <title>Cheapflix Nepal — Trusted home services, booked in minutes</title>
+  <meta name="description" content="Book verified electricians, plumbers, tutors, cleaners and more across Nepal. Transparent pricing, real reviews, secure booking." />
+  <link rel="canonical" href="https://cheapflixnepal.live/index.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Cheapflix Nepal" />
+  <meta property="og:title" content="Cheapflix Nepal — Trusted home services, booked in minutes" />
+  <meta property="og:description" content="Verified local professionals with clear pricing and real reviews. Kathmandu Valley, Pokhara, Chitwan." />
+  <meta property="og:url" content="https://cheapflixnepal.live/" />
+  <meta property="og:image" content="https://cheapflixnepal.live/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Cheapflix Nepal — Trusted home services" />
+  <meta name="twitter:description" content="Book verified electricians, plumbers, tutors, cleaners across Nepal." />
+  <meta name="twitter:image" content="https://cheapflixnepal.live/icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Cheapflix Nepal","description":"Verified home-service marketplace across Nepal.","url":"https://cheapflixnepal.live/","areaServed":["Kathmandu","Lalitpur","Bhaktapur","Pokhara","Chitwan"],"priceRange":"Rs 500+","telephone":"+977-01-5900000"}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/design-system.css" />
   <script src="config.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      /* Deep plum dark base */
-      --dark:    #130C1E;
-      --dark-80: #1E1530;
-      --dark-60: #2D2245;
-      --dark-40: #3D3160;
-
-      /* Violet primary */
-      --violet:    #7C3AED;
-      --violet-lt: #A78BFA;
-      --violet-dk: #5B21B6;
-
-      /* Magenta accent */
-      --magenta:   #D946EF;
-      --magenta-lt:#F0ABFC;
-      --magenta-dk:#A21CAF;
-
-      /* Coral-orange CTA */
-      --coral:     #F97316;
-      --coral-lt:  #FB923C;
-      --coral-dk:  #C2410C;
-
-      /* Semantic */
-      --green:   #10B981;
-      --amber:   #F59E0B;
-      --red:     #EF4444;
-
-      /* Neutral light */
-      --bg:      #FAFAF9;
-      --white:   #FFFFFF;
-      --slate-1: #F5F3FF;
-      --slate-2: #EDE9FE;
-      --slate-3: #DDD6FE;
-      --text-1:  #130C1E;
-      --text-2:  #3D3160;
-      --text-3:  #6B5E8A;
-
-      --r-sm: 8px;
-      --r-md: 12px;
-      --r-lg: 16px;
-      --r-xl: 24px;
-    }
-
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-1); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-    h1,h2,h3,h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
-
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 0 5vw;
-      background: rgba(19,12,30,0.90);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    .nav-inner {
-      max-width: 1200px; margin: 0 auto;
-      height: 68px; display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .nav-logo-mark {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, var(--violet), var(--magenta));
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; color: white; font-size: 13px; letter-spacing: -0.5px;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .nav-logo-text { font-weight: 700; font-size: 17px; color: white; letter-spacing: -0.3px; font-family: 'Plus Jakarta Sans', sans-serif; }
-    .nav-logo-text span { color: var(--coral-lt); }
-    .nav-links { display: flex; align-items: center; gap: 28px; }
-    .nav-links a { color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
-    .nav-links a:hover { color: white; }
-    .nav-cta { display: flex; align-items: center; gap: 10px; }
-    .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: white; padding: 9px 18px; border-radius: var(--r-md); font-size: 14px; font-weight: 500; cursor: pointer; transition: all .2s; font-family: inherit; }
-    .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.35); }
-    .btn-primary { background: linear-gradient(135deg, var(--violet), var(--magenta)); border: none; color: white; padding: 9px 20px; border-radius: var(--r-md); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit; }
-    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
-
-    /* ── HERO ── */
-    #hero {
-      min-height: 100vh;
-      background: var(--dark);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 120px 5vw 80px;
-      position: relative; overflow: hidden;
-    }
-    .hero-grid {
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(124,58,237,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124,58,237,0.05) 1px, transparent 1px);
-      background-size: 52px 52px;
-    }
-    .hero-glow-1 {
-      position: absolute; width: 700px; height: 700px;
-      background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 65%);
-      top: -150px; left: -120px; pointer-events: none;
-    }
-    .hero-glow-2 {
-      position: absolute; width: 550px; height: 550px;
-      background: radial-gradient(circle, rgba(217,70,239,0.18) 0%, transparent 65%);
-      bottom: -80px; right: -60px; pointer-events: none;
-    }
-    .hero-glow-3 {
-      position: absolute; width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(249,115,22,0.10) 0%, transparent 65%);
-      top: 40%; left: 60%; pointer-events: none;
-    }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(124,58,237,0.14); border: 1px solid rgba(124,58,237,0.28);
-      color: var(--violet-lt); padding: 6px 16px; border-radius: 100px;
-      font-size: 13px; font-weight: 500; margin-bottom: 28px;
-      position: relative; z-index: 1;
-    }
-    .hero-eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coral-lt); animation: pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
-    .hero-title {
-      font-size: clamp(40px, 6vw, 72px);
-      font-weight: 800; color: white; line-height: 1.07;
-      letter-spacing: -2px; text-align: center; max-width: 840px;
-      position: relative; z-index: 1; margin-bottom: 22px;
-    }
-    .hero-title .accent {
-      color: transparent;
-      background: linear-gradient(90deg, var(--violet-lt), var(--magenta-lt), var(--coral-lt));
-      -webkit-background-clip: text; background-clip: text;
-    }
-    .hero-subtitle {
-      font-size: 18px; color: rgba(255,255,255,0.52); line-height: 1.65;
-      max-width: 520px; text-align: center; position: relative; z-index: 1;
-      margin-bottom: 44px;
-    }
-
-    /* Search */
-    .search-bar {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: var(--r-xl);
-      padding: 8px 8px 8px 20px;
-      display: flex; align-items: center; gap: 12px;
-      width: 100%; max-width: 700px;
-      position: relative; z-index: 1;
-      backdrop-filter: blur(12px);
-      transition: border-color .25s, box-shadow .25s;
-    }
-    .search-bar:focus-within { border-color: rgba(124,58,237,0.55); box-shadow: 0 0 0 4px rgba(124,58,237,0.10); }
-    .search-bar input { flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 16px; font-family: inherit; }
-    .search-bar input::placeholder { color: rgba(255,255,255,0.32); }
-    .search-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.10); flex-shrink: 0; }
-    .search-location { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.45); font-size: 14px; font-weight: 500; padding: 0 8px; cursor: pointer; flex-shrink: 0; }
-    .search-btn {
-      background: linear-gradient(135deg, var(--coral), var(--magenta));
-      border: none; color: white; padding: 12px 28px;
-      border-radius: var(--r-lg); font-size: 15px; font-weight: 600;
-      cursor: pointer; transition: opacity .2s, transform .2s; font-family: inherit; flex-shrink: 0;
-    }
-    .search-btn:hover { opacity: .88; transform: translateY(-1px); }
-    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; position: relative; z-index: 1; }
-    .hero-tag {
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
-      color: rgba(255,255,255,0.58); padding: 5px 14px; border-radius: 100px;
-      font-size: 13px; cursor: pointer; transition: all .2s;
-    }
-    .hero-tag:hover { background: rgba(124,58,237,0.18); border-color: rgba(124,58,237,0.35); color: var(--violet-lt); }
-    .hero-stats { display: flex; align-items: center; gap: 40px; margin-top: 56px; position: relative; z-index: 1; }
-    .hero-stat { text-align: center; }
-    .hero-stat-n { font-size: 28px; font-weight: 800; color: white; font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: -1px; }
-    .hero-stat-n span { color: var(--coral-lt); }
-    .hero-stat-l { font-size: 13px; color: rgba(255,255,255,0.42); margin-top: 2px; }
-    .hero-stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.09); }
-
-    /* ── SECTION ── */
-    section { padding: 96px 5vw; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .section-eyebrow { font-size: 13px; font-weight: 600; color: var(--violet); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
-    .section-title { font-size: clamp(28px, 3.5vw, 44px); font-weight: 800; color: var(--text-1); letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 14px; }
-    .section-sub { font-size: 17px; color: var(--text-3); line-height: 1.7; max-width: 520px; }
-    .section-header { margin-bottom: 56px; }
-    .section-header.center { text-align: center; }
-    .section-header.center .section-sub { margin: 0 auto; }
-
-    /* ── CATEGORIES ── */
-    #categories { background: white; }
-    .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
-    .cat-card {
-      background: var(--bg); border: 1px solid var(--slate-2);
-      border-radius: var(--r-lg); padding: 22px 16px;
-      display: flex; flex-direction: column; align-items: center; gap: 12px;
-      cursor: pointer; transition: all .22s; text-decoration: none;
-    }
-    .cat-card:hover { border-color: var(--violet); background: white; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(124,58,237,0.12); }
-    .cat-icon { width: 52px; height: 52px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
-    .cat-name { font-size: 13px; font-weight: 600; color: var(--text-1); text-align: center; }
-    .cat-count { font-size: 12px; color: var(--text-3); }
-    .ic-violet { background: #F5F3FF; }
-    .ic-magenta{ background: #FDF4FF; }
-    .ic-coral  { background: #FFF7ED; }
-    .ic-amber  { background: #FFFBEB; }
-    .ic-green  { background: #F0FDF4; }
-    .ic-rose   { background: #FFF1F2; }
-    .ic-teal   { background: #F0FDFA; }
-    .ic-indigo { background: #EEF2FF; }
-    .ic-sky    { background: #F0F9FF; }
-    .ic-plum   { background: #FAF5FF; }
-    .cat-more { background: linear-gradient(135deg, var(--dark), var(--dark-60)); border-color: transparent; }
-    .cat-more .cat-name { color: white; }
-    .cat-more .cat-count { color: rgba(255,255,255,.45); }
-
-    /* ── HOW IT WORKS ── */
-    #how { background: var(--bg); }
-    .steps-track { display: flex; align-items: flex-start; gap: 0; position: relative; }
-    .steps-track::before {
-      content: ''; position: absolute; top: 28px; left: 28px; right: 28px; height: 2px;
-      background: linear-gradient(90deg, var(--violet), var(--magenta), var(--coral));
-      z-index: 0;
-    }
-    .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 18px; position: relative; z-index: 1; }
-    .step-dot {
-      width: 56px; height: 56px; border-radius: 50%;
-      background: white; border: 2px solid var(--violet);
-      display: flex; align-items: center; justify-content: center; font-size: 22px;
-      box-shadow: 0 4px 16px rgba(124,58,237,0.15);
-      transition: all .25s;
-    }
-    .step-item:hover .step-dot { background: var(--violet); border-color: var(--violet); transform: scale(1.1); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
-    .step-label { font-size: 13px; font-weight: 600; color: var(--text-1); text-align: center; }
-    .step-desc { font-size: 13px; color: var(--text-3); text-align: center; line-height: 1.55; max-width: 120px; }
-
-    /* ── PROVIDERS ── */
-    #providers { background: white; }
-    .providers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-    .provider-card {
-      background: var(--bg); border: 1px solid var(--slate-2);
-      border-radius: var(--r-xl); padding: 24px;
-      transition: all .25s; cursor: pointer;
-    }
-    .provider-card:hover { border-color: var(--violet); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(124,58,237,0.12); }
-    .provider-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 16px; }
-    .provider-avatar-placeholder { width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: white; }
-    .provider-info { flex: 1; min-width: 0; }
-    .provider-name { font-size: 15px; font-weight: 700; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .provider-role { font-size: 13px; color: var(--text-3); margin-top: 2px; }
-    .provider-badge { font-size: 11px; font-weight: 600; color: var(--green); background: #F0FDF4; border: 1px solid #BBF7D0; padding: 2px 8px; border-radius: 100px; margin-top: 5px; display: inline-block; }
-    .provider-stars { display: flex; align-items: center; gap: 4px; margin-bottom: 12px; }
-    .star { color: var(--amber); font-size: 14px; }
-    .rating-text { font-size: 13px; font-weight: 600; color: var(--text-1); margin-left: 4px; }
-    .rating-count { font-size: 12px; color: var(--text-3); }
-    .provider-meta { display: flex; align-items: center; gap: 16px; }
-    .meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-3); }
-    .provider-footer { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--slate-2); display: flex; align-items: center; justify-content: space-between; }
-    .provider-price { font-size: 14px; font-weight: 700; color: var(--text-1); }
-    .provider-price span { color: var(--text-3); font-weight: 400; font-size: 12px; }
-    .btn-book { background: linear-gradient(135deg, var(--violet), var(--magenta)); color: white; border: none; padding: 8px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit; }
-    .btn-book:hover { opacity: .85; transform: translateY(-1px); }
-
-    /* ── TESTIMONIALS ── */
-    #testimonials { background: var(--dark); padding: 96px 5vw; }
-    #testimonials .section-title { color: white; }
-    #testimonials .section-eyebrow { color: var(--magenta-lt); }
-    .testi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-    .testi-card {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
-      border-radius: var(--r-xl); padding: 28px;
-      transition: border-color .2s;
-    }
-    .testi-card:hover { border-color: rgba(167,139,250,0.3); }
-    .testi-quote { font-size: 15px; color: rgba(255,255,255,0.72); line-height: 1.7; margin-bottom: 22px; position: relative; }
-    .testi-quote::before { content: '"'; font-size: 60px; color: var(--magenta); line-height: 0; vertical-align: -24px; margin-right: 4px; font-family: Georgia, serif; }
-    .testi-author { display: flex; align-items: center; gap: 12px; }
-    .testi-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: white; flex-shrink: 0; }
-    .testi-name { font-size: 14px; font-weight: 600; color: white; }
-    .testi-role { font-size: 12px; color: rgba(255,255,255,0.38); }
-
-    /* ── APP CTA ── */
-    #app-cta { background: var(--bg); }
-    .app-inner {
-      background: linear-gradient(135deg, var(--dark) 0%, var(--dark-60) 100%);
-      border-radius: 32px; padding: 64px; overflow: hidden;
-      display: flex; align-items: center; gap: 48px; position: relative;
-    }
-    .app-inner::before {
-      content: ''; position: absolute;
-      width: 420px; height: 420px;
-      background: radial-gradient(circle, rgba(217,70,239,0.18) 0%, transparent 70%);
-      top: -80px; right: 80px; pointer-events: none;
-    }
-    .app-inner::after {
-      content: ''; position: absolute;
-      width: 300px; height: 300px;
-      background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
-      bottom: -60px; left: 20%; pointer-events: none;
-    }
-    .app-text { flex: 1; position: relative; z-index: 1; }
-    .app-title { font-size: clamp(26px, 3vw, 38px); font-weight: 800; color: white; letter-spacing: -1.2px; line-height: 1.15; margin-bottom: 14px; }
-    .app-sub { font-size: 16px; color: rgba(255,255,255,0.52); line-height: 1.6; margin-bottom: 32px; max-width: 400px; }
-    .app-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-    .app-store-btn {
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.13);
-      border-radius: var(--r-lg); padding: 12px 20px; cursor: pointer; transition: all .2s; text-decoration: none;
-    }
-    .app-store-btn:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.25); }
-    .app-store-icon { font-size: 26px; }
-    .app-store-sub { font-size: 11px; color: rgba(255,255,255,0.45); }
-    .app-store-name { font-size: 15px; font-weight: 700; color: white; }
-    .app-phones { display: flex; gap: 12px; align-items: flex-end; position: relative; z-index: 1; flex-shrink: 0; }
-    .phone-mockup { width: 140px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 28px; padding: 12px; overflow: hidden; }
-    .phone-mockup.tall { height: 280px; }
-    .phone-mockup.short { height: 240px; align-self: flex-end; }
-    .phone-screen { background: var(--dark-80); border-radius: 20px; height: 100%; display: flex; flex-direction: column; gap: 8px; padding: 14px 12px; overflow: hidden; }
-    .phone-bar { height: 6px; border-radius: 3px; }
-
-    /* ── PROVIDER CTA ── */
-    #provider-cta { background: linear-gradient(135deg, var(--violet-dk), var(--magenta-dk)); padding: 80px 5vw; }
-    .provider-cta-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap; }
-    .provider-cta-text .section-title { color: white; margin-bottom: 12px; }
-    .provider-cta-text .section-eyebrow { color: rgba(255,255,255,0.65); }
-    .provider-cta-text p { color: rgba(255,255,255,0.72); font-size: 17px; max-width: 480px; line-height: 1.6; }
-    .btn-white { background: white; color: var(--violet-dk); border: none; padding: 14px 32px; border-radius: var(--r-md); font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; font-family: inherit; flex-shrink: 0; }
-    .btn-white:hover { background: var(--slate-1); transform: translateY(-2px); }
-
-    /* ── FOOTER ── */
-    footer { background: var(--dark); padding: 64px 5vw 32px; }
-    .footer-inner { max-width: 1200px; margin: 0 auto; }
-    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 56px; }
-    .footer-brand p { font-size: 14px; color: rgba(255,255,255,0.42); line-height: 1.7; max-width: 280px; margin-top: 14px; }
-    .footer-col h4 { font-size: 13px; font-weight: 700; color: white; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 18px; }
-    .footer-col a { display: block; font-size: 14px; color: rgba(255,255,255,0.42); text-decoration: none; margin-bottom: 10px; transition: color .2s; }
-    .footer-col a:hover { color: rgba(255,255,255,0.82); }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    .footer-copy { font-size: 13px; color: rgba(255,255,255,0.28); }
-    .footer-socials { display: flex; gap: 10px; }
-    .social-btn {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.45); font-size: 15px; cursor: pointer; transition: all .2s; text-decoration: none;
-    }
-    .social-btn:hover { background: rgba(124,58,237,0.25); color: var(--violet-lt); border-color: rgba(124,58,237,0.35); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      nav { padding: 0 4vw; }
-      .nav-links { display: none; }
-      section { padding: 64px 5vw; }
-      .steps-track { flex-direction: column; align-items: flex-start; gap: 24px; }
-      .steps-track::before { display: none; }
-      .step-item { flex-direction: row; align-items: flex-start; }
-      .step-label,.step-desc { text-align: left; }
-      .hero-stats { gap: 24px; flex-wrap: wrap; justify-content: center; }
-      .hero-stat-divider { display: none; }
-      .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
-      .app-inner { flex-direction: column; padding: 40px 28px; }
-      .app-phones { display: none; }
-      .provider-cta-inner { flex-direction: column; text-align: center; }
-      .provider-cta-text p { max-width: 100%; }
-    }
-  </style>
+  <script src="js/app.js" defer></script>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
+<!-- ============ NAV ============ -->
+<header class="site-nav">
   <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <div class="nav-logo-mark">CF</div>
-      <span class="nav-logo-text">Cheapflix <span>Nepal</span></span>
+    <a href="index.html" class="brand" aria-label="Cheapflix Nepal home">
+      <span class="brand-mark">Cf</span>
+      <span class="brand-name">Cheapflix<small>Nepal</small></span>
     </a>
-    <div class="nav-links">
-      <a href="#categories">Services</a>
-      <a href="#how">How it works</a>
-      <a href="#providers">Top providers</a>
-      <a href="#">For businesses</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#services" class="active" data-i18n="nav.services">Services</a>
+      <a href="#how" data-i18n="nav.how">How it works</a>
+      <a href="#providers" data-i18n="nav.providers">Providers</a>
+      <a href="#stories" data-i18n="nav.stories">Stories</a>
+      <a href="pages/support.html" data-i18n="nav.help">Help</a>
+    </nav>
+    <div class="nav-cta" data-nav-cta>
+      <a class="btn btn-line btn-sm" href="pages/login.html">Log in</a>
+      <a class="btn btn-pine btn-sm" href="pages/register.html">Get started</a>
     </div>
-    <div class="nav-cta">
-      <button class="btn-ghost" onclick="window.location.href='pages/login.html'">Log in</button>
-      <button class="btn-primary" onclick="window.location.href='pages/register.html'">Get started</button>
-    </div>
+    <button class="burger" id="navBurger" aria-label="Open menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </div>
-</nav>
+</header>
+<div class="mobile-menu" id="mobileMenu" hidden>
+  <a href="#services" data-i18n="nav.services">Services</a>
+  <a href="#how" data-i18n="nav.how">How it works</a>
+  <a href="#providers" data-i18n="nav.providers">Providers</a>
+  <a href="pages/support.html" data-i18n="nav.help">Help</a>
+  <a href="pages/login.html" data-i18n="nav.login">Log in</a>
+  <a href="pages/register.html" data-i18n="nav.start">Get started</a>
+</div>
 
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow-1"></div>
-  <div class="hero-glow-2"></div>
-  <div class="hero-glow-3"></div>
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Kathmandu Valley &middot; Pokhara &middot; Chitwan</span></span>
+        <h1>Good help,<br />right at your <span class="hand">doorstep.<svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M3 9 C 60 2, 140 2, 197 8" fill="none" stroke="#d97706" stroke-width="5" stroke-linecap="round"/></svg></span></h1>
+        <p class="hero-sub">From a leaking tap in Baneshwor to IELTS prep in Lazimpat — book verified local professionals with clear pricing and real reviews.</p>
 
-  <div class="hero-eyebrow">
-    <div class="hero-eyebrow-dot"></div>
-    Now serving Kathmandu, Pokhara &amp; Lalitpur
-  </div>
-
-  <h1 class="hero-title">
-    Find <span class="accent">trusted professionals</span><br />near you — instantly
-  </h1>
-  <p class="hero-subtitle">
-    Book electricians, tutors, cleaners, developers, and 50+ other services at the tap of a button. Real reviews. Transparent pricing.
-  </p>
-
-  <div class="search-bar">
-    <span style="font-size:20px;flex-shrink:0;">🔍</span>
-    <input type="text" placeholder="What service do you need? e.g. Electrician, Home Tutor…" />
-    <div class="search-divider"></div>
-    <div class="search-location">📍 Kathmandu</div>
-    <button class="search-btn" onclick="window.location.href='pages/booking-flow.html'">Search</button>
-  </div>
-
-  <div class="hero-tags">
-    <span class="hero-tag">⚡ Electrician</span>
-    <span class="hero-tag">🔧 Plumber</span>
-    <span class="hero-tag">📚 Home Tutor</span>
-    <span class="hero-tag">💻 Web Developer</span>
-    <span class="hero-tag">🚗 Driver</span>
-    <span class="hero-tag">✂️ Barber</span>
-    <span class="hero-tag">📷 Photographer</span>
-    <span class="hero-tag">🏥 Nurse</span>
-  </div>
-
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-n">2,400<span>+</span></div>
-      <div class="hero-stat-l">Verified providers</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="hero-stat-n">18,000<span>+</span></div>
-      <div class="hero-stat-l">Jobs completed</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="hero-stat-n">4.8<span>★</span></div>
-      <div class="hero-stat-l">Average rating</div>
-    </div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat">
-      <div class="hero-stat-n">50<span>+</span></div>
-      <div class="hero-stat-l">Service categories</div>
-    </div>
-  </div>
-</section>
-
-<!-- CATEGORIES -->
-<section id="categories">
-  <div class="container">
-    <div class="section-header center">
-      <div class="section-eyebrow">What can we help with?</div>
-      <h2 class="section-title">Browse every service category</h2>
-      <p class="section-sub">From emergency repairs to everyday errands — find a professional for every need.</p>
-    </div>
-    <div class="categories-grid">
-      <a href="#" class="cat-card"><div class="cat-icon ic-violet">⚡</div><span class="cat-name">Electrician</span><span class="cat-count">148 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-sky">🔧</div><span class="cat-name">Plumber</span><span class="cat-count">96 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-teal">🧹</div><span class="cat-name">Cleaner</span><span class="cat-count">203 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-amber">📚</div><span class="cat-name">Home Tutor</span><span class="cat-count">312 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-magenta">💻</div><span class="cat-name">Web Developer</span><span class="cat-count">87 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-rose">✂️</div><span class="cat-name">Barber</span><span class="cat-count">241 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-green">🚗</div><span class="cat-name">Driver</span><span class="cat-count">175 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-coral">📷</div><span class="cat-name">Photographer</span><span class="cat-count">64 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-plum">🎨</div><span class="cat-name">Graphic Designer</span><span class="cat-count">52 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-indigo">🔨</div><span class="cat-name">Carpenter</span><span class="cat-count">79 providers</span></a>
-      <a href="#" class="cat-card"><div class="cat-icon ic-magenta">💆</div><span class="cat-name">Massage</span><span class="cat-count">43 providers</span></a>
-      <a href="#" class="cat-card cat-more"><div class="cat-icon" style="background:rgba(255,255,255,.07);font-size:22px;">+42</div><span class="cat-name">More services</span><span class="cat-count">View all categories</span></a>
-    </div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div class="container">
-    <div class="section-header center">
-      <div class="section-eyebrow">Simple process</div>
-      <h2 class="section-title">Booked in under 2 minutes</h2>
-      <p class="section-sub">No calls, no waiting, no guesswork. Book a trusted professional as easily as ordering food online.</p>
-    </div>
-    <div class="steps-track">
-      <div class="step-item">
-        <div class="step-dot">🔍</div>
-        <div><div class="step-label">Search</div><div class="step-desc">Type your service or browse categories</div></div>
-      </div>
-      <div class="step-item">
-        <div class="step-dot">👤</div>
-        <div><div class="step-label">Choose</div><div class="step-desc">Compare profiles, ratings, and prices</div></div>
-      </div>
-      <div class="step-item">
-        <div class="step-dot">📅</div>
-        <div><div class="step-label">Book</div><div class="step-desc">Pick a time that works for you</div></div>
-      </div>
-      <div class="step-item">
-        <div class="step-dot">💬</div>
-        <div><div class="step-label">Connect</div><div class="step-desc">Chat and track your provider live</div></div>
-      </div>
-      <div class="step-item">
-        <div class="step-dot">✅</div>
-        <div><div class="step-label">Complete</div><div class="step-desc">Pay securely and leave a review</div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TOP PROVIDERS -->
-<section id="providers">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">Top rated</div>
-      <h2 class="section-title">Trusted Professionals in Nepal</h2>
-      <p class="section-sub">Verified, professional, and highly-rated service providers ready to help you.</p>
-    </div>
-    <div class="providers-grid" id="providersGrid">
-      <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">Loading verified professionals...</p>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section id="testimonials">
-  <div class="container">
-    <div class="section-header center">
-      <div class="section-eyebrow">What customers say</div>
-      <h2 class="section-title">Real people. Real results.</h2>
-      <p class="section-sub" style="color:rgba(255,255,255,.45);margin:0 auto;">Cheapflix Nepal users share their experiences with verified professionals.</p>
-    </div>
-    <div class="testi-grid">
-      <div class="testi-card">
-        <div class="testi-quote">My AC broke on the hottest day of the year. Got a repair technician at my door in under 45 minutes through Cheapflix. Unbelievable service.</div>
-        <div class="testi-author">
-          <div class="testi-avatar" style="background:linear-gradient(135deg,#7C3AED,#D946EF)">PK</div>
-          <div><div class="testi-name">Priya Karmacharya</div><div class="testi-role">Kathmandu · AC Repair</div></div>
-        </div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-quote">I hired Sunita for IELTS prep and scored 8.0. She was punctual, professional, and genuinely invested in my result. Highly recommend.</div>
-        <div class="testi-author">
-          <div class="testi-avatar" style="background:linear-gradient(135deg,#D946EF,#F97316)">NB</div>
-          <div><div class="testi-name">Nirajan Bhattarai</div><div class="testi-role">Lalitpur · IELTS Tutor</div></div>
-        </div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-quote">As a small business owner, I hired a web developer for my bakery site. It was done in 3 days and looks incredible. The whole booking process felt safe and transparent.</div>
-        <div class="testi-author">
-          <div class="testi-avatar" style="background:linear-gradient(135deg,#5B21B6,#D946EF)">SP</div>
-          <div><div class="testi-name">Saraswati Pradhan</div><div class="testi-role">Pokhara · Web Development</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- APP CTA -->
-<section id="app-cta">
-  <div class="container">
-    <div class="app-inner">
-      <div class="app-text">
-        <div class="section-eyebrow" style="color:var(--coral-lt);margin-bottom:14px;">Mobile app — coming soon</div>
-        <h2 class="app-title">Cheapflix Nepal<br />in your pocket</h2>
-        <p class="app-sub">Book services, track providers, chat in real time, and pay securely — all from our app. Launching on Android and iOS soon.</p>
-        <div class="app-btns">
-          <a href="#" class="app-store-btn">
-            <div class="app-store-icon">🤖</div>
-            <div><div class="app-store-sub">Coming soon on</div><div class="app-store-name">Google Play</div></div>
-          </a>
-          <a href="#" class="app-store-btn">
-            <div class="app-store-icon">🍎</div>
-            <div><div class="app-store-sub">Coming soon on</div><div class="app-store-name">App Store</div></div>
-          </a>
-        </div>
-      </div>
-      <div class="app-phones">
-        <div class="phone-mockup tall">
-          <div class="phone-screen">
-            <div class="phone-bar" style="background:#7C3AED;width:60%"></div>
-            <div class="phone-bar" style="background:rgba(255,255,255,.07);width:90%"></div>
-            <div class="phone-bar" style="background:rgba(255,255,255,.07);width:75%"></div>
-            <div style="height:12px;"></div>
-            <div class="phone-bar" style="background:linear-gradient(90deg,#7C3AED,#D946EF);width:100%;height:10px;border-radius:8px;"></div>
-            <div style="height:6px;"></div>
-            <div class="phone-bar" style="background:rgba(255,255,255,.05);width:100%;height:8px;border-radius:8px;"></div>
-            <div class="phone-bar" style="background:rgba(255,255,255,.05);width:100%;height:8px;border-radius:8px;"></div>
+        <div class="search-card">
+          <div class="search-row">
+            <label class="search-field">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <input id="heroSearch" type="text" data-i18n-ph="hero.search" placeholder="What do you need help with?" autocomplete="off" aria-label="What do you need help with?" />
+            </label>
+            <label class="search-field">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+              <select id="heroCity" aria-label="City">
+                <option>Kathmandu</option>
+                <option>Lalitpur</option>
+                <option>Bhaktapur</option>
+                <option>Pokhara</option>
+                <option>Chitwan</option>
+              </select>
+            </label>
+            <button class="btn btn-pine" id="heroGo" type="button" data-i18n="hero.cta.search">Search</button>
           </div>
         </div>
-        <div class="phone-mockup short">
-          <div class="phone-screen">
-            <div class="phone-bar" style="background:rgba(255,255,255,.07);width:80%"></div>
-            <div style="height:10px;"></div>
-            <div class="phone-bar" style="background:linear-gradient(90deg,#D946EF,#F97316);width:100%;height:10px;border-radius:8px;"></div>
-            <div style="height:6px;"></div>
-            <div class="phone-bar" style="background:rgba(255,255,255,.05);width:100%;height:8px;border-radius:8px;"></div>
+        <div class="quick-tags" id="quickTags">
+          <button class="quick-tag" type="button">Electrician</button>
+          <button class="quick-tag" type="button">Plumber</button>
+          <button class="quick-tag" type="button">Home tutor</button>
+          <button class="quick-tag" type="button">House cleaning</button>
+          <button class="quick-tag" type="button">Photographer</button>
+        </div>
+
+        <div class="trust-row">
+          <div class="trust-avatars" aria-hidden="true">
+            <span style="background:#1d4a38">RS</span>
+            <span style="background:#b45309">AK</span>
+            <span style="background:#0e7490">PM</span>
+            <span style="background:#6d28d9">SN</span>
+          </div>
+          <div class="trust-text">
+            <span class="stars" aria-label="4.8 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</span><br />
+            <strong>4.8 / 5</strong> from 6,200+ bookings across the valley
           </div>
         </div>
       </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="float-chip chip-a"><span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg></span><span>Booking confirmed<small>Today, 2:30 PM</small></span></div>
+        <div class="job-card">
+          <div class="job-card-head">
+            <span class="job-avatar" style="background:#1d4a38">RB</span>
+            <span><span class="job-name">Ramesh Bhandari</span><br /><span class="job-cat">Electrician &middot; Baneshwor</span></span>
+            <span class="job-status">Verified</span>
+          </div>
+          <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733; <span style="color:var(--muted);letter-spacing:0;font-size:12.5px;">4.9 &middot; 212 jobs</span></div>
+          <div class="job-lines"><i style="width:92%"></i><i style="width:78%"></i><i style="width:84%"></i></div>
+          <div class="job-foot">
+            <span class="job-price">Rs 800 <small>/ visit</small></span>
+            <span class="btn btn-pine btn-sm" style="pointer-events:none">Booked</span>
+          </div>
+        </div>
+        <div class="float-chip chip-b"><span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>On the way<small>Arriving in 20 min</small></span></div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hstat"><b>2,400<em>+</em></b><span>Verified providers</span></div>
+      <div class="hstat"><b>18,000<em>+</em></b><span>Jobs completed</span></div>
+      <div class="hstat"><b>4.8<em>&#9733;</em></b><span>Average rating</span></div>
+      <div class="hstat"><b>50<em>+</em></b><span>Service categories</span></div>
     </div>
   </div>
 </section>
 
-<!-- PROVIDER CTA -->
-<section id="provider-cta">
-  <div class="provider-cta-inner">
-    <div class="provider-cta-text">
-      <div class="section-eyebrow">For professionals</div>
-      <h2 class="section-title">Grow your business with Cheapflix</h2>
-      <p>Join 2,400+ verified providers earning more with zero marketing spend. Get found by customers ready to hire — right now.</p>
+<!-- ============ SERVICES ============ -->
+<section class="block" id="services" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-head split rv">
+      <div>
+        <div class="kicker" data-i18n="sec.services.k">What can we help with?</div>
+        <h2 class="sec-title" data-i18n="sec.services.t">Everyday jobs, covered</h2>
+        <p class="sec-sub">Fixed starting prices, background-checked professionals, and a receipt for every job.</p>
+      </div>
+      <a class="btn btn-line" href="pages/booking-flow.html">Browse all</a>
     </div>
-    <button class="btn-white" onclick="window.location.href='pages/register.html?type=provider'">Join as a provider →</button>
+    <div class="cat-grid rv" id="catGrid"></div>
   </div>
 </section>
 
-<!-- SUPPORT / GET HELP SECTION -->
-<section style="background: var(--bg); padding: 96px 5vw;">
-  <div class="container">
-    <div class="section-header center">
-      <div class="section-eyebrow">Need assistance?</div>
-      <h2 class="section-title">Get Help & Support</h2>
-      <p class="section-sub">Our support team is here to help. Create a ticket to report issues, ask questions, or provide feedback.</p>
+<!-- ============ HOW IT WORKS ============ -->
+<section class="block" id="how" style="background:var(--card);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)">
+  <div class="wrap">
+    <div class="sec-head center rv">
+      <div class="kicker" data-i18n="sec.how.k">How it works</div>
+      <h2 class="sec-title" data-i18n="sec.how.t">Booked before your chiya cools</h2>
+      <p class="sec-sub">No phone tag, no bargaining, no strangers at the door. Just a simple three-step booking.</p>
     </div>
-    <div style="max-width: 600px; margin: 0 auto; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-      <button class="btn-primary" onclick="window.location.href='pages/support.html'" style="padding: 14px 32px; font-size: 16px;">🎟️ Create Support Ticket</button>
-      <button class="btn-ghost" onclick="window.location.href='mailto:support@cheapflix.com'" style="padding: 14px 32px; font-size: 16px;">📧 Email Us</button>
+    <div class="steps rv">
+      <div class="step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="step-num">Step 1</span>
+        <h3>Tell us the job</h3>
+        <p>Search or pick a category, add your location and a time that suits you.</p>
+      </div>
+      <div class="step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+        <span class="step-num">Step 2</span>
+        <h3>Pick your person</h3>
+        <p>Compare verified profiles, honest reviews and upfront prices.</p>
+      </div>
+      <div class="step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+        <span class="step-num">Step 3</span>
+        <h3>Confirm a slot</h3>
+        <p>Choose today or schedule ahead. Instant confirmation on the spot.</p>
+      </div>
+      <div class="step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg>
+        <span class="step-num">Step 4</span>
+        <h3>Chat &amp; track</h3>
+        <p>Message your provider and follow arrival without endless calls.</p>
+      </div>
+      <div class="step">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg>
+        <span class="step-num">Step 5</span>
+        <h3>Pay &amp; review</h3>
+        <p>Pay after the work is done, then rate it to help neighbours decide.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <a href="#" class="nav-logo" style="display:inline-flex;margin-bottom:4px;">
-          <div class="nav-logo-mark">CF</div>
-          <span class="nav-logo-text">Cheapflix <span>Nepal</span></span>
-        </a>
+<!-- ============ PROVIDERS ============ -->
+<section class="block" id="providers">
+  <div class="wrap">
+    <div class="sec-head split rv">
+      <div>
+        <div class="kicker" data-i18n="sec.pro.k">Top rated this month</div>
+        <h2 class="sec-title" data-i18n="sec.pro.t">People your neighbours trust</h2>
+        <p class="sec-sub">Every badge means citizenship verified, skills checked, and trial jobs reviewed.</p>
+      </div>
+      <a class="btn btn-line" href="pages/booking-flow.html">Find my provider</a>
+    </div>
+    <div class="pro-grid rv" id="providersGrid">
+      <div class="panel empty" style="grid-column:1/-1">Loading verified professionals&hellip;</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STORIES ============ -->
+<section class="block" id="stories" style="padding-top:0">
+  <div class="wrap">
+    <div class="testi-band rv">
+      <div class="kicker" style="color:#e9b44c" data-i18n="sec.stories.k">Word on the street</div>
+      <h2 class="sec-title" data-i18n="sec.stories.t">Loved from Jhamsikhel to Lakeside</h2>
+      <p class="sec-sub">Unedited notes from last month&rsquo;s bookings.</p>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <p>&ldquo;Geyser died on a Monday morning. The plumber arrived by lunch, fixed it in an hour, and the price matched the quote exactly.&rdquo;</p>
+          <div class="testi-who"><i style="background:#b45309">PK</i><span><b>Prerana Karki</b><span>Jhamsikhel &middot; Plumbing</span></span></div>
+        </div>
+        <div class="testi-card">
+          <p>&ldquo;Found an IELTS tutor for my sister in two days. Punctual every single session, and she scored a 7.5. Worth every rupee.&rdquo;</p>
+          <div class="testi-who"><i style="background:#0e7490">NB</i><span><b>Niraj Basnet</b><span>Butwal &middot; Home tuition</span></span></div>
+        </div>
+        <div class="testi-card">
+          <p>&ldquo;I run a small momo pasal and needed menu photos. The photographer came with lights, finished in one evening, photos look amazing.&rdquo;</p>
+          <div class="testi-who"><i style="background:#1d4a38">ST</i><span><b>Sarita Tamang</b><span>Pokhara &middot; Photography</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOBILE APP — COMING SOON ============ -->
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="app-band rv">
+      <div class="app-copy">
+        <div class="kicker" style="color:#e9b44c" data-i18n="app.k">Mobile app — coming soon</div>
+        <h2 class="sec-title" style="color:#fff">Cheapflix Nepal<br />in your pocket</h2>
+        <p>Book services, track providers, chat in real time, and pay securely — all from our app. Launching on Android and iOS soon.</p>
+        <div class="store-row">
+          <span class="store-btn" aria-label="Coming soon on Google Play">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3.5v17c0 .4.43.65.78.45l8.5-5.03 2.35-2.35a1 1 0 0 0 0-1.41l-2.35-2.35L4.78 3.05A.5.5 0 0 0 4 3.5z"/><path d="M15.5 8.66l2.35 2.35a1 1 0 0 1 0 1.41l-2.35 2.35 2.9 1.72c.8.47 1.6-.1 1.6-.99V7c0-.89-.8-1.46-1.6-.99l-2.9 2.65z" opacity=".65"/></svg>
+            <span><small>Coming soon on</small><b>Google Play</b></span>
+          </span>
+          <span class="store-btn" aria-label="Coming soon on the App Store">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 12.54c-.03-2.89 2.36-4.27 2.47-4.34-1.35-1.97-3.44-2.24-4.18-2.27-1.78-.18-3.47 1.05-4.37 1.05-.9 0-2.29-1.02-3.77-1-1.94.03-3.72 1.13-4.72 2.86-2.01 3.49-.51 8.66 1.45 11.5.96 1.39 2.1 2.95 3.6 2.89 1.45-.06 2-.93 3.74-.93s2.24.93 3.77.9c1.56-.03 2.55-1.41 3.5-2.81 1.1-1.61 1.55-3.17 1.58-3.25-.04-.02-3.03-1.16-3.07-4.6zM14.16 4.06c.8-.97 1.34-2.32 1.19-3.66-1.15.05-2.55.77-3.38 1.74-.74.86-1.39 2.23-1.22 3.55 1.29.1 2.6-.65 3.41-1.63z"/></svg>
+            <span><small>Coming soon on</small><b>App Store</b></span>
+          </span>
+        </div>
+        <p class="app-note">Join the waitlist — <a href="pages/register.html" style="color:#e9b44c;font-weight:700">create a free account</a> and we'll notify you at launch.</p>
+      </div>
+      <div class="app-phone" aria-hidden="true">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <span class="brand-mark" style="width:44px;height:44px;font-size:20px">Cf</span>
+            <b>Namaste 🙏</b>
+            <span class="phone-line" style="width:82%"></span>
+            <span class="phone-line" style="width:64%"></span>
+            <span class="phone-card"><i>⚡</i> Electrician · 4.9 ★<em>Arriving in 20 min</em></span>
+            <span class="phone-card"><i>💬</i> Chat with provider<em>“On my way!”</em></span>
+            <span class="phone-btn">Track booking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="block" style="padding-top:0">
+  <div class="wrap">
+    <div class="cta-row">
+      <div class="cta-card dark rv">
+        <div class="kicker" style="color:#e9b44c">For professionals</div>
+        <h2 data-i18n="cta.pro.t">Grow your business with Cheapflix</h2>
+        <p>Join over 2,400 verified providers who get work without paying for ads. Get found by customers who are ready to hire — weekly payouts, zero marketing cost.</p>
+        <a class="btn" style="background:#fdf6e3;color:var(--pine-dark)" href="pages/register.html?type=provider">Join as a provider &rarr;</a>
+      </div>
+      <div class="cta-card cream rv">
+        <div class="kicker">Need assistance?</div>
+        <h2 data-i18n="cta.help.t">Get help &amp; support</h2>
+        <p>Our support team is here to help. Create a ticket to report issues, ask questions, or share feedback — reply within one working day.</p>
+        <a class="btn btn-pine" href="pages/support.html">Create support ticket</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="block" style="padding-top:0">
+  <div class="wrap" style="max-width:780px">
+    <div class="sec-head center rv">
+      <div class="kicker" data-i18n="sec.faq.k">Good to know</div>
+      <h2 class="sec-title" data-i18n="sec.faq.t">Questions, answered</h2>
+    </div>
+    <div class="rv">
+      <div class="faq"><button type="button">How do I pay? <span>+</span></button><div class="ans"><p>Cash after the job, or eSewa and bank transfer through your booking page. You only pay once the work is marked complete.</p></div></div>
+      <div class="faq"><button type="button">Are providers really verified? <span>+</span></button><div class="ans"><p>Yes. Citizenship documents, a skill check and two supervised trial jobs before anyone gets the Verified badge.</p></div></div>
+      <div class="faq"><button type="button">What if something goes wrong? <span>+</span></button><div class="ans"><p>Raise a support ticket within 48 hours. We mediate, arrange a free re-visit where fair, and refund eligible jobs.</p></div></div>
+      <div class="faq"><button type="button">Which cities do you serve? <span>+</span></button><div class="ans"><p>Kathmandu, Lalitpur, Bhaktapur, Pokhara and Chitwan today — with Butwal and Dharan opening soon.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid foot-grid-5">
+      <div class="foot-brand">
+        <a href="index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name" style="color:#fff">Cheapflix<small>Nepal</small></span></a>
         <p>Nepal's leading service marketplace. Find verified professionals for home, tech, education, beauty, and more — book in minutes.</p>
+        <div class="social-row">
+          <a href="mailto:namaste@cheapflixnepal.live" aria-label="Email us" title="Email"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></a>
+          <a href="tel:+977015900000" aria-label="Call us" title="Call"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg></a>
+          <a href="pages/support.html" aria-label="Help and support" title="Help"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 2-2.4 3.3M12 17h.01"/></svg></a>
+          <a href="index.html" aria-label="Cheapflix" title="Cheapflix"><span style="font-family:var(--font-display);font-weight:700;font-size:13px">CF</span></a>
+        </div>
       </div>
-      <div class="footer-col">
+      <div class="foot-col">
         <h4>Services</h4>
-        <a href="#">Home Services</a><a href="#">Education</a><a href="#">Technology</a>
-        <a href="#">Beauty</a><a href="#">Vehicle</a><a href="#">Events</a>
+        <a href="pages/booking-flow.html">Home services</a>
+        <a href="pages/booking-flow.html?q=Home+Tutor">Education</a>
+        <a href="pages/booking-flow.html?q=Web+Developer">Technology</a>
+        <a href="pages/booking-flow.html?q=Barber">Beauty</a>
+        <a href="pages/booking-flow.html?q=Driver">Vehicle</a>
+        <a href="pages/booking-flow.html?q=Photographer">Events</a>
       </div>
-      <div class="footer-col">
+      <div class="foot-col">
         <h4>Company</h4>
-        <a href="#">About us</a><a href="#">Careers</a><a href="#">Press</a>
-        <a href="#">Contact</a><a href="#">Blog</a>
+        <a href="pages/about.html">About us</a>
+        <a href="pages/about.html">Careers</a>
+        <a href="pages/about.html">Press</a>
+        <a href="pages/support.html">Contact</a>
+        <a href="pages/about.html">Blog</a>
       </div>
-      <div class="footer-col">
+      <div class="foot-col">
         <h4>Legal</h4>
-        <a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
-        <a href="#">Cookie Policy</a><a href="#">KYC Policy</a>
+        <a href="pages/privacy.html">Privacy policy</a>
+        <a href="pages/terms.html">Terms of service</a>
+        <a href="pages/privacy.html">Cookie policy</a>
+        <a href="pages/terms.html">KYC policy</a>
+      </div>
+      <div class="foot-col">
+        <h4>Contact</h4>
+        <a href="mailto:namaste@cheapflixnepal.live">namaste@cheapflixnepal.live</a>
+        <a href="tel:+977015900000">01-5900000 (9am&ndash;7pm)</a>
+        <a href="pages/support.html">Raise a ticket</a>
+        <a href="pages/login.html" data-i18n="nav.login">Log in</a>
       </div>
     </div>
-    <div class="footer-bottom">
-      <div class="footer-copy">© 2025 Cheapflix Nepal Pvt. Ltd. All rights reserved.</div>
-      <div class="footer-socials">
-        <a href="#" class="social-btn">f</a>
-        <a href="#" class="social-btn">in</a>
-        <a href="#" class="social-btn">𝕏</a>
-        <a href="#" class="social-btn">▶</a>
-      </div>
+    <div class="foot-bottom">
+      <span>&copy; 2025 Cheapflix Nepal Pvt. Ltd. All rights reserved.</span>
+      <span>eSewa &middot; Khalti &middot; Bank transfer &middot; Cash accepted</span>
     </div>
   </div>
 </footer>
 
 <script>
-  // Get API base URL — uses config.js (loaded in <head>) for correct localhost vs production URL
-  function getApiUrl(endpoint) {
-    if (window.CONFIG && window.CONFIG.getApiUrl) {
-      return window.CONFIG.getApiUrl(endpoint);
-    }
-    // Fallback: detect localhost
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const baseUrl = isLocalhost ? 'http://localhost:5000' : 'https://cheapflixnepal-backend.onrender.com';
-    return baseUrl + '/api' + endpoint;
-  }
-
-  // Generate random gradient colors for avatars
-  const gradients = [
-    'linear-gradient(135deg,#7C3AED,#D946EF)',
-    'linear-gradient(135deg,#D946EF,#F97316)',
-    'linear-gradient(135deg,#5B21B6,#7C3AED)',
-    'linear-gradient(135deg,#F97316,#D946EF)',
-    'linear-gradient(135deg,#A78BFA,#D946EF)',
-    'linear-gradient(135deg,#7C3AED,#F97316)',
+(function () {
+  var CATS = [
+    { name: 'Electrician', count: '140+ pros', bg: '#e3efe7', fg: '#1d4a38', icon: '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>' },
+    { name: 'Plumber', count: '95+ pros', bg: '#e0f0f5', fg: '#0e7490', icon: '<path d="M12 3v10M8 7l4-4 4 4M5 13a7 7 0 0 0 14 0v-2h-3v2a4 4 0 0 1-8 0v-2H5v2z"/>' },
+    { name: 'Cleaning', count: '200+ pros', bg: '#fdf0d5', fg: '#b45309', icon: '<path d="M4 16l8-8 4 4-8 8H4v-4zM13 5l3-3 5 5-3 3"/>' },
+    { name: 'Home tutor', count: '300+ pros', bg: '#efe7f7', fg: '#6d28d9', icon: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5zM19 15H6a2 2 0 0 0-2 2"/>' },
+    { name: 'Web developer', count: '85+ pros', bg: '#e3efe7', fg: '#1d4a38', icon: '<path d="M8 6l-5 6 5 6M16 6l5 6-5 6"/>' },
+    { name: 'Barber', count: '230+ pros', bg: '#fbe4e4', fg: '#be123c', icon: '<circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9 9l8 8"/>' },
+    { name: 'Driver', count: '170+ pros', bg: '#eef3df', fg: '#4d7c0f', icon: '<path d="M5 16l1.5-5A2 2 0 0 1 8.4 9.5h7.2a2 2 0 0 1 1.9 1.5L19 16M5 16h14M5 16v3M19 16v3M7.5 13h.01M16.5 13h.01"/>' },
+    { name: 'Photographer', count: '60+ pros', bg: '#fdf0d5', fg: '#b45309', icon: '<rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 7l1.5-3h5L16 7"/>' },
+    { name: 'Carpenter', count: '75+ pros', bg: '#efe7f7', fg: '#6d28d9', icon: '<path d="M3 17l9-9 4 4-9 9H3v-4zM14 5l3-2 4 4-2 3"/>' },
+    { name: 'Painter', count: '65+ pros', bg: '#e0f0f5', fg: '#0e7490', icon: '<path d="M4 20h6L20 10a2 2 0 0 0-3-3L7 17l-3 3zM14 6l3 3"/>' },
+    { name: 'Appliance repair', count: '110+ pros', bg: '#fbe4e4', fg: '#be123c', icon: '<path d="M12 8v5M12 16.5h.01M10 3h4l1 4H9l1-4zM6 7h12a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/>' },
+    { name: 'View all', count: '50 categories', bg: '#1d4a38', fg: '#fdf6e3', icon: '<path d="M5 12h14M13 6l6 6-6 6"/>', all: true }
   ];
 
-  // Generate initials from name
-  function getInitials(firstName, lastName) {
-    return (firstName[0] + (lastName ? lastName[0] : '')).toUpperCase();
+  var SAMPLE = [
+    { name: 'Ramesh Bhandari', cat: 'Electrician', area: 'Baneshwor', rating: 4.9, jobs: 212, exp: 8, price: 800 },
+    { name: 'Sunita Shrestha', cat: 'Home tutor', area: 'Lazimpat', rating: 4.8, jobs: 167, exp: 6, price: 650 },
+    { name: 'Bikash Tamang', cat: 'Plumber', area: 'Kalanki', rating: 4.9, jobs: 198, exp: 10, price: 750 },
+    { name: 'Anjali Gurung', cat: 'House cleaning', area: 'Jhamsikhel', rating: 4.7, jobs: 143, exp: 4, price: 550 }
+  ];
+
+  function svgIcon(paths, size) {
+    return '<svg width="' + (size || 24) + '" height="' + (size || 24) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
   }
 
-  // Format rating display
-  function formatRating(rating) {
-    return Math.round(rating * 10) / 10 || 0;
+  // categories
+  var grid = document.getElementById('catGrid');
+  grid.innerHTML = CATS.map(function (c) {
+    return '<a class="cat-card" href="pages/booking-flow.html?q=' + encodeURIComponent(c.all ? '' : c.name) + '">' +
+      '<span class="cat-ic" style="background:' + c.bg + ';color:' + c.fg + '">' + svgIcon(c.icon) + '</span>' +
+      '<b>' + c.name + '</b><span>' + c.count + '</span></a>';
+  }).join('');
+
+  // search
+  function go() {
+    var q = document.getElementById('heroSearch').value.trim();
+    var city = document.getElementById('heroCity').value;
+    window.location.href = 'pages/booking-flow.html?q=' + encodeURIComponent(q) + '&city=' + encodeURIComponent(city);
   }
-
-  // Load and display providers
-  async function loadProviders() {
-    try {
-      const response = await fetch(getApiUrl('/providers'), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const data = await response.json();
-      displayProviders(data.data || []);
-    } catch (error) {
-      console.error('Error loading providers:', error);
-      document.getElementById('providersGrid').innerHTML = 
-        '<p style="grid-column: 1/-1; text-align: center; color: #e74c3c; padding: 40px;">Unable to load providers at the moment. Please try again later.</p>';
-    }
-  }
-
-  // Display providers in grid
-  function displayProviders(providers) {
-    const grid = document.getElementById('providersGrid');
-    
-    if (!providers || providers.length === 0) {
-      grid.innerHTML = `
-        <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">
-          No providers available yet. Check back soon!
-        </p>
-      `;
-      return;
-    }
-
-    // Take top 8 providers
-    const topProviders = providers.slice(0, 8);
-    
-    grid.innerHTML = topProviders.map((provider, idx) => {
-      const name = provider.user.firstName + ' ' + (provider.user.lastName || '');
-      const initials = getInitials(provider.user.firstName, provider.user.lastName);
-      const gradient = gradients[idx % gradients.length];
-      const rating = formatRating(provider.rating);
-      const stars = Array(5).fill('★').map((s, i) => 
-        `<span class="star" style="${i >= Math.floor(rating) ? 'color:#DDD6FE' : ''}">${s}</span>`
-      ).join('');
-      
-      const service = provider.services && provider.services[0] 
-        ? provider.services[0] 
-        : { name: `${provider.category} Services`, price: 500 };
-
-      return `
-        <div class="provider-card">
-          <div class="provider-top">
-            <div class="provider-avatar-placeholder" style="background:${gradient}">${initials}</div>
-            <div class="provider-info">
-              <div class="provider-name">${name}</div>
-              <div class="provider-role">${provider.category}</div>
-              <span class="provider-badge">✓ Verified</span>
-            </div>
-          </div>
-          <div class="provider-stars">
-            ${stars}
-            <span class="rating-text">${rating}</span>
-            <span class="rating-count">(${Math.floor(Math.random() * 300 + 10)} reviews)</span>
-          </div>
-          <div class="provider-meta">
-            <span class="meta-item">📍 ${provider.user.phone ? 'Available' : 'Verified'}</span>
-            <span class="meta-item">🕐 ${provider.experience || '2'}+ yrs exp</span>
-            <span class="meta-item">⚡ Ready to work</span>
-          </div>
-          <div class="provider-footer">
-            <div class="provider-price">Rs ${service.price}<span> /hr</span></div>
-            <button class="btn-book" onclick="window.location.href='pages/booking-flow.html'">Book now</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // Hero tag functionality
-  document.querySelectorAll('.hero-tag').forEach(t => {
-    t.addEventListener('click', () => {
-      document.querySelectorAll('.hero-tag').forEach(x => x.style.cssText = '');
-      t.style.background = 'rgba(124,58,237,0.2)';
-      t.style.borderColor = 'rgba(124,58,237,0.45)';
-      t.style.color = '#A78BFA';
-      const input = document.querySelector('.search-bar input');
-      input.value = t.textContent.replace(/^[\S\s]{1,2}\s/, '');
-      input.focus();
+  document.getElementById('heroGo').addEventListener('click', go);
+  document.getElementById('heroSearch').addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+  document.querySelectorAll('#quickTags .quick-tag').forEach(function (t) {
+    t.addEventListener('click', function () {
+      document.getElementById('heroSearch').value = t.textContent;
+      go();
     });
   });
 
-  // Navigation scroll effect
-  const nav = document.querySelector('nav');
-  window.addEventListener('scroll', () => {
-    nav.style.background = window.scrollY > 40
-      ? 'rgba(19,12,30,0.98)'
-      : 'rgba(19,12,30,0.90)';
-  });
-
-  // Smart auth check and page setup
-  window.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('token');
-    let user = null;
-    try {
-      user = JSON.parse(localStorage.getItem('user'));
-    } catch (e) {
-      user = null;
-    }
-
-    if (token && user) {
-      // User is logged in — replace nav buttons
-      const navCta = document.querySelector('.nav-cta');
-      navCta.innerHTML = `
-        <span style="color: rgba(255,255,255,0.7); font-size: 14px;">Welcome, <strong>${user.firstName}</strong></span>
-        <button class="btn-primary" onclick="window.location.href='pages/dashboard.html'">Go to Dashboard →</button>
-        <button class="btn-ghost" onclick="logout()" style="cursor: pointer;">Logout</button>
-      `;
-    }
-
-    // Load providers from API
-    loadProviders();
-  });
-
-  // Safe logout function
-  function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'pages/login.html';
+  function cardHTML(p) {
+    var parts = String(p.name || 'Provider').split(' ');
+    var init = CF.initials(parts[0], parts[1]);
+    var color = CF.avatarColor(p.name);
+    var stars = '';
+    var r = Math.round(p.rating || 4.7);
+    for (var i = 0; i < 5; i++) stars += i < r ? '&#9733;' : '&#9734;';
+    return '<article class="pro-card">' +
+      '<div class="pro-top">' + CF.avatarImg(p.avatar || { firstName: parts[0], lastName: parts[1] }, 'pro-avatar') +
+      '<div><div class="pro-name">' + CF.esc(p.name) + '</div><div class="pro-cat">' + CF.esc(p.cat) + ' &middot; ' + CF.esc(p.area) + '</div>' +
+      '<span class="pro-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg>Verified</span></div></div>' +
+      '<div class="pro-rating"><span class="stars">' + stars + '</span><b>' + Number(p.rating).toFixed(1) + '</b><span>(' + p.jobs + ' jobs)</span></div>' +
+      '<div class="pro-meta"><span>' + (p.exp || 3) + '+ yrs experience</span><span>Speaks Nepali &amp; English</span></div>' +
+      '<div class="pro-foot"><span class="pro-price">' + CF.money(p.price) + ' <small>/ visit</small></span>' +
+      '<a class="btn btn-pine btn-sm" href="pages/booking-flow.html">Book</a></div></article>';
   }
+
+  function normalize(apiList) {
+    return apiList.slice(0, 8).map(function (pr) {
+      var u = pr.user || {};
+      var svc = (pr.services && pr.services[0]) || {};
+      var nm = ((u.firstName || '') + ' ' + (u.lastName || '')).trim() || 'Verified pro';
+      return { name: nm, cat: pr.category || 'General', area: u.city || 'Kathmandu', rating: pr.rating || 4.7, jobs: 40 + (nm.length * 13) % 220, exp: pr.experience || 3, price: svc.price || 600, avatar: u.avatar || null };
+    });
+  }
+
+  async function loadProviders() {
+    var box = document.getElementById('providersGrid');
+    try {
+      var data = await CF.api('/providers', 'GET', null, false);
+      var list = normalize(data.data || []);
+      if (!list.length) throw new Error('empty');
+      box.innerHTML = list.map(cardHTML).join('');
+    } catch (e) {
+      box.innerHTML = SAMPLE.map(cardHTML).join('');
+    }
+  }
+  document.addEventListener('DOMContentLoaded', loadProviders);
+})();
 </script>
 </body>
 </html>

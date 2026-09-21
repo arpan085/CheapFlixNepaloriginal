@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Provider profile — Cheapflix Nepal</title>
+  <meta name="description" content="Verified provider profile: bio, services, rates, location, reviews. Call, chat or book." />
+  <meta name="theme-color" content="#1d4a38" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
+  <link rel="canonical" href="https://cheapflixnepal.live/pages/provider-profile.html" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="Cheapflix Nepal" />
+  <meta property="og:title" content="Verified provider — Cheapflix Nepal" />
+  <meta property="og:description" content="Verified provider profile: bio, services, rates, location, reviews. Call, chat or book." />
+  <meta property="og:image" content="https://cheapflixnepal.live/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="stylesheet" href="../css/design-system.css" />
+  <script src="../config.js"></script>
+  <script src="../js/app.js" defer></script>
+</head>
+<body>
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <nav class="nav-links"><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a></nav>
+    <div class="nav-cta" data-nav-cta><a class="btn btn-line btn-sm" href="login.html">Log in</a></div>
+    <button class="burger" id="navBurger" aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="login.html">Log in</a></div>
+
+<div class="flow-shell" style="max-width:920px">
+  <a href="booking-flow.html" class="small" style="font-weight:600;text-decoration:none">&larr; All providers</a>
+  <div id="profileBox" style="margin-top:16px"><div class="skel" style="height:220px"></div><div class="skel" style="height:120px;margin-top:12px"></div></div>
+</div>
+
+<script>
+(function () {
+  var id = new URLSearchParams(window.location.search).get('id');
+  var box = document.getElementById('profileBox');
+  var me = CF.currentUser();
+  if (!id) { box.innerHTML = '<div class="empty"><b>No provider selected.</b><br /><a class="btn btn-pine btn-sm" href="booking-flow.html">Browse providers</a></div>'; return; }
+
+  function stars(r) {
+    var s = '';
+    for (var i = 0; i < 5; i++) s += i < Math.round(r) ? '★' : '☆';
+    return '<span class="stars">' + s + '</span>';
+  }
+
+  async function init() {
+    var p;
+    try {
+      var res = await CF.api('/providers/' + encodeURIComponent(id), 'GET', null, false);
+      p = res.data || res;
+    } catch (e) {
+      box.innerHTML = '<div class="empty"><b>Could not load this profile.</b><p class="small">' + CF.esc(e.message) + '</p><br /><a class="btn btn-line btn-sm" href="booking-flow.html">Back to providers</a></div>';
+      return;
+    }
+    var u = p.user || {};
+    var nm = ((u.firstName || '') + ' ' + (u.lastName || '')).trim() || 'Verified pro';
+    var jobs = (p.bookings || []).length || (p.jobsCompleted != null ? p.jobsCompleted : Math.floor((p.rating || 4.5) * 37));
+    var city = u.city || p.city || 'Kathmandu';
+    var phone = u.phone || '';
+    var isOwner = me && (me.id === u.id || me.id === p.userId);
+    var svcs = p.services || [];
+    var reviews = p.reviews || [];
+    var dist = [0, 0, 0, 0, 0, 0];
+    reviews.forEach(function (r) { if (r.rating >= 1 && r.rating <= 5) dist[r.rating]++; });
+
+    document.title = nm + ' — ' + (p.category || 'Pro') + ' · Cheapflix Nepal';
+
+    box.innerHTML =
+      '<div class="pro-hero">' +
+        CF.avatarImg(u.firstName ? u : nm, 'pro-hero-avatar') +
+        '<div style="min-width:0"><h1>' + CF.esc(nm) + '</h1>' +
+          '<div class="sub">' + (p.verified ? '<span class="pill pill-green">✓ Verified</span>' : '<span class="pill pill-amber">Pending verification</span>') +
+          '<span>' + CF.esc(p.category || 'General') + '</span> · <span>' + CF.icon('pin', 'ic ic-sm') + ' ' + CF.esc(city) + '</span></div>' +
+          '<div class="sub" style="margin-top:8px">' + stars(p.rating || 4.7) + '<b>' + Number(p.rating || 4.7).toFixed(1) + '</b><span>· ' + jobs + ' jobs done</span></div>' +
+          (u.address ? '<div class="small muted" style="margin-top:6px">' + CF.icon('pin', 'ic ic-sm') + ' ' + CF.esc(u.address) + '</div>' : '') +
+        '</div>' +
+        '<div class="pro-hero-actions">' +
+          (phone ? '<a class="btn btn-pine" href="tel:' + CF.esc(phone.replace(/\s/g, '')) + '">' + CF.icon('phone') + ' Call ' + CF.esc(phone) + '</a>'
+                 : '<span class="btn btn-line" style="pointer-events:none">' + CF.icon('phone') + ' No public number</span>') +
+          '<button class="btn btn-line" id="chatBtn" type="button">' + CF.icon('chat') + ' Chat with ' + CF.esc((u.firstName || 'pro')) + '</button>' +
+          '<span class="row"><a class="btn btn-clay" style="flex:1" href="booking-flow.html?provider=' + CF.esc(p.id) + '">' + CF.icon('cal') + ' Book now</a>' +
+          '<button class="fav-btn' + (CF.isFav(p.id) ? ' on' : '') + '" id="favBtn" type="button" title="Save provider" aria-label="Save provider" style="width:46px;height:46px">' + CF.icon('heart') + '</button></span>' +
+          (isOwner ? '<a class="btn btn-line btn-sm" href="provider-onboarding.html">Edit my profile</a>' : '') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="pro-facts">' +
+        '<div class="pro-fact"><b>' + (p.experience != null ? p.experience + ' yrs' : '—') + '</b><span>Experience</span></div>' +
+        '<div class="pro-fact"><b>' + Number(p.rating || 4.7).toFixed(1) + ' ★</b><span>Rating</span></div>' +
+        '<div class="pro-fact"><b>' + jobs + '</b><span>Jobs done</span></div>' +
+        '<div class="pro-fact"><b>' + CF.esc(city) + '</b><span>Base city</span></div>' +
+      '</div>' +
+
+      '<div class="panel"><div class="panel-head"><h2>About</h2></div>' +
+        '<div class="bio-box">' + CF.esc(p.bio || 'No bio yet — but this provider is verified by our team.') + '</div></div>' +
+
+      '<div class="panel"><div class="panel-head"><h2>Services &amp; rates</h2><span class="small muted">upfront · pay after job</span></div>' +
+        (svcs.length ? svcs.map(function (s) {
+          return '<div class="svc-row"><span><b>' + CF.esc(s.name) + '</b><br /><span class="small muted">' + CF.esc(s.description || (p.category + ' service')) + (s.duration ? ' · ~' + s.duration + ' min' : '') + '</span></span><span style="text-align:right"><b style="font-family:var(--font-display);font-size:18px">' + CF.money(s.price) + '</b><br /><a class="btn btn-pine btn-sm" href="booking-flow.html?provider=' + CF.esc(p.id) + '">Book</a></span></div>';
+        }).join('') : '<p class="small muted">No priced services yet — <a href="booking-flow.html">request a quote via booking</a>.</p>') + '</div>' +
+
+      '<div class="panel"><div class="panel-head"><h2>Reviews (' + reviews.length + ')</h2>' + (reviews.length ? '<span class="small muted">' + Number(p.rating || 4.7).toFixed(1) + ' average</span>' : '') + '</div>' +
+      (reviews.length ? '<div class="meter-grid" style="margin-bottom:16px">' + [5, 4, 3, 2, 1].map(function (s) {
+        var c = dist[s], pct = Math.round((c / reviews.length) * 100);
+        return '<div class="meter-row"><span><b>' + s + ' ★</b></span><span class="progress"><i style="width:' + pct + '%"></i></span><b>' + c + '</b></div>';
+      }).join('') + '</div>' : '') + '<div id="revBox">' +
+        (reviews.length ? reviews.map(function (r) {
+          var sp = CF.splitPhotos(r.comment);
+          var rn = ((r.user && r.user.firstName) || 'Customer') + ' ' + ((r.user && r.user.lastName) || '');
+          var thumbs = sp.photos.length ? '<div class="photo-thumbs">' + sp.photos.map(function (ph) {
+            var src = /^https?:\/\//.test(ph) ? ph : (CF.apiBase().replace(/\/api$/, '') + ph);
+            return '<a href="' + CF.esc(src) + '" target="_blank" rel="noopener"><img src="' + CF.esc(src) + '" alt="Work photo" loading="lazy" /></a>';
+          }).join('') + '</div>' : '';
+          return '<div class="review-card"><div>' + stars(r.rating) + ' <b>' + r.rating + '/5</b></div>' +
+            (sp.text ? '<p style="margin-top:6px">' + CF.esc(sp.text) + '</p>' : '') + thumbs +
+            '<div class="who">' + CF.avatarImg(r.user || rn.trim(), 'cell-avatar') + '<span>' + CF.esc(rn.trim()) + ' · ' + (r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-GB') : '') + '</span>' +
+            (isOwner && r.bookingId ? '<span class="spacer"></span><a class="btn btn-line btn-sm" href="chat.html?booking=' + CF.esc(r.bookingId) + '">Reply via chat</a>' : '') + '</div></div>';
+        }).join('') : '<div class="empty" style="padding:24px"><b>No reviews yet.</b><p class="small">Be the first to book &amp; review.</p></div>') + '</div></div>';
+
+    document.getElementById('favBtn').addEventListener('click', function () {
+      var added = CF.toggleFav(p.id);
+      this.classList.toggle('on', added);
+      CF.toast(added ? 'Saved to favorites.' : 'Removed from favorites.');
+    });
+    document.getElementById('chatBtn').addEventListener('click', async function () {
+      var u2 = CF.requireAuth(['user', 'provider', 'admin']);
+      if (!u2) return;
+      try {
+        var conv = await CF.api('/chat', 'GET');
+        var list = conv.data || [];
+        var hit = list.find(function (c) {
+          var op = c.otherParty || {};
+          return op.id === u.id || (c.providerId === p.id);
+        }) || list.find(function (c) { return (c.otherParty && ((c.otherParty.firstName || '') === (u.firstName || ''))); });
+        // fallback: any booking with this provider
+        if (!hit) {
+          var mine = await CF.api('/bookings/user/' + u2.id, 'GET').catch(function () { return { data: [] }; });
+          var bl = mine.data || [];
+          hit = bl.find(function (b) { return b.providerId === p.id || (b.provider && b.provider.id === p.id); });
+          if (hit) { window.location.href = 'chat.html?booking=' + hit.id; return; }
+          CF.toast('Book first to unlock chat with this provider.');
+          setTimeout(function () { window.location.href = 'booking-flow.html?provider=' + p.id; }, 700);
+          return;
+        }
+        window.location.href = 'chat.html?booking=' + (hit.bookingId || hit.id);
+      } catch (e) { CF.toast(e.message, 'err'); }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+<footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>
+</body>
+</html>

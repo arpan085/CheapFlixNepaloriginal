@@ -1,4 +1,34 @@
 const prisma = require('../config/database');
+const { storeFile } = require('../middleware/upload');
+
+// Photo tokens embedded in Review.comment (no migration needed until
+// the DB is reachable again — then move to a ReviewPhoto table).
+// Format: [photo:/uploads/reviews/file.jpg]
+const PHOTO_RE = /\[photo:([^\]]+)\]/g;
+function extractPhotos(comment) {
+  const photos = [];
+  String(comment || '').replace(PHOTO_RE, (_, url) => { photos.push(url); return ''; });
+  return photos;
+}
+function stripPhotos(comment) {
+  return String(comment || '').replace(PHOTO_RE, '').trim();
+}
+
+/* Keep Provider.rating truthful: recompute the average after every
+ * review write. Best-effort — never fails the review operation itself. */
+async function recalcRating(providerId) {
+  try {
+    const agg = await prisma.review.aggregate({
+      where: { providerId: String(providerId) },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+    const avg = agg._avg.rating ? Math.round(agg._avg.rating * 10) / 10 : 0;
+    await prisma.provider.update({ where: { id: String(providerId) }, data: { rating: avg } });
+  } catch (e) {
+    console.error('[reviews] rating recalc failed:', e.message);
+  }
+}
 
 // Create a review for a completed booking
 exports.createReview = async (req, res) => {
@@ -53,15 +83,51 @@ exports.createReview = async (req, res) => {
         comment: comment || null
       },
       include: {
-        user: { select: { firstName: true, lastName: true } },
+        user: { select: { firstName: true, lastName: true, avatar: true } },
         provider: { select: { id: true } }
       }
     });
 
+    await recalcRating(booking.providerId);
     return res.status(201).json({ success: true, data: review });
   } catch (error) {
     console.error('Create review error:', error);
     return res.status(500).json({ error: 'Failed to create review' });
+  }
+};
+
+// Attach up to 3 photos to your own review (images, max 2MB each).
+// Stored as [photo:url] tokens in the comment — the frontend renders
+// them as thumbnails and strips them from the text.
+exports.addPhotos = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    const { reviewId } = req.params;
+    const review = await prisma.review.findUnique({ where: { id: String(reviewId) } });
+    if (!review) return res.status(404).json({ error: 'Review not found' });
+    if (review.userId !== String(req.user.id)) {
+      return res.status(403).json({ error: 'Only the reviewer can add photos' });
+    }
+    if (!req.files || !req.files.length) {
+      return res.status(400).json({ error: 'Attach up to 3 images as "photos".' });
+    }
+    const existing = extractPhotos(review.comment);
+    if (existing.length + req.files.length > 3) {
+      return res.status(400).json({ error: 'A review can have at most 3 photos.' });
+    }
+    const urls = await Promise.all(req.files.map((f) => storeFile(req, 'reviews', f)));
+    const tokens = urls.map((u) => `[photo:${u}]`).join(' ');
+    const base = stripPhotos(review.comment);
+    const updated = await prisma.review.update({
+      where: { id: String(reviewId) },
+      data: { comment: (base ? base + ' ' : '') + tokens }
+    });
+    return res.json({ success: true, message: 'Photos added', data: updated });
+  } catch (error) {
+    console.error('Add review photos error:', error);
+    return res.status(500).json({ error: 'Failed to add photos' });
   }
 };
 
@@ -154,11 +220,12 @@ exports.updateReview = async (req, res) => {
         comment: comment !== undefined ? comment : undefined
       },
       include: {
-        user: { select: { firstName: true, lastName: true } },
+        user: { select: { firstName: true, lastName: true, avatar: true } },
         provider: { select: { id: true } }
       }
     });
 
+    await recalcRating(review.providerId);
     return res.json({ success: true, message: 'Review updated', data: updated });
   } catch (error) {
     console.error('Update review error:', error);
@@ -183,7 +250,7 @@ exports.deleteReview = async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
-    if (review.userId !== String(req.user.id)) {
+    if (review.userId !== String(req.user.id) && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Forbidden - you can only delete your own reviews' });
     }
 
@@ -191,6 +258,7 @@ exports.deleteReview = async (req, res) => {
       where: { id: String(reviewId) }
     });
 
+    await recalcRating(review.providerId);
     return res.json({ success: true, message: 'Review deleted' });
   } catch (error) {
     console.error('Delete review error:', error);

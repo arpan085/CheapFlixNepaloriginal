@@ -31,6 +31,65 @@ exports.getDashboardStats = async (req, res) => {
 };
 
 /* ======================
+   ANALYTICS (in-memory since restart + today's DB figures)
+====================== */
+exports.getAnalytics = async (req, res) => {
+  try {
+    const { analyticsHandler } = require('../middleware/analytics');
+    res.json({ success: true, data: await analyticsHandler(prisma) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* ======================
+   CATEGORIES (free-text trades, managed by rename/merge)
+====================== */
+exports.getCategories = async (req, res) => {
+  try {
+    const groups = await prisma.provider.groupBy({
+      by: ['category'],
+      _count: { id: true },
+      _avg: { rating: true },
+      orderBy: { _count: { id: 'desc' } }
+    });
+    res.json({
+      success: true,
+      count: groups.length,
+      data: groups.map((g) => ({
+        name: g.category,
+        providers: g._count.id,
+        avgRating: g._avg.rating ? Number(g._avg.rating.toFixed(2)) : 0
+      }))
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Rename (or merge, if `to` exists) a category across all providers.
+exports.renameCategory = async (req, res) => {
+  try {
+    const { from, to } = req.body;
+    if (!from || !to || !String(from).trim() || !String(to).trim()) {
+      return res.status(400).json({ error: 'Both "from" and "to" category names are required.' });
+    }
+    if (String(from).length > 60 || String(to).length > 60) {
+      return res.status(400).json({ error: 'Category names are too long (max 60).' });
+    }
+    const result = await prisma.provider.updateMany({
+      where: { category: String(from) },
+      data: { category: String(to).trim() }
+    });
+    res.json({ success: true, message: `Renamed "${from}" to "${to}".`, updated: result.count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* ======================
    USERS
 ====================== */
 exports.getUsers = async (req, res) => {
@@ -80,7 +139,18 @@ exports.getProviders = async (req, res) => {
   try {
     const providers = await prisma.provider.findMany({
       include: {
-        user: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            status: true,
+            role: true,
+            createdAt: true
+          }
+        },
         services: true
       }
     });
@@ -100,17 +170,18 @@ exports.verifyProvider = async (req, res) => {
   try {
     const { verified } = req.body;
 
+    const isVerified = verified === true || verified === 'true';
     const provider = await prisma.provider.update({
       where: { id: req.params.id },
       data: {
-        verified: verified === true || verified === 'true'
+        verified: isVerified
       },
-      include: { user: true }
+      include: { user: { select: { id: true, email: true, firstName: true, lastName: true, phone: true, status: true, role: true } } }
     });
 
     res.json({
       success: true,
-      message: verified ? 'Provider approved' : 'Provider rejected',
+      message: isVerified ? 'Provider approved' : 'Provider rejected',
       data: provider
     });
   } catch (err) {

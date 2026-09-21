@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /pages/dashboard.html
+Disallow: /pages/provider-dashboard.html
+Disallow: /pages/admin-dashboard.html
+Disallow: /pages/chat.html
+
+Sitemap: https://cheapflixnepal.live/sitemap.xml
