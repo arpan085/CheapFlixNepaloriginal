@@ -14,6 +14,10 @@ router.post('/', writeLimiter, validateTicket, supportController.createTicket);
 // Get user's tickets
 router.get('/', supportController.getUserTickets);
 
+// Get all tickets (admin only). Keep this before /:ticketId so "admin"
+// is not interpreted as a ticket id.
+router.get('/admin/all', supportController.getAllTickets);
+
 // Get single ticket
 router.get('/:ticketId', supportController.getTicket);
 
@@ -22,8 +26,5 @@ router.post('/:ticketId/messages', supportController.addMessage);
 
 // Update ticket status (admin only)
 router.patch('/:ticketId/status', supportController.updateTicketStatus);
-
-// Get all tickets (admin only)
-router.get('/admin/all', supportController.getAllTickets);
 
 module.exports = router;

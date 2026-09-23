@@ -8,9 +8,9 @@
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
   <title>My bookings — Cheapflix Nepal</title>
   <meta name="description" content="Track, review and manage your home service bookings." />
-  <link rel="stylesheet" href="../css/design-system.css" />
+  <link rel="stylesheet" href="../css/design-system.css?v=5" />
   <script src="../config.js"></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/app.js?v=5"></script>
 </head>
 <body>
 <div class="dash">
@@ -29,6 +29,7 @@
     <a class="dash-link on" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span data-i18n="nav.bookings">My bookings</span> <span class="count" id="navCount" hidden>0</span></a>
     <a class="dash-link" href="booking-flow.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="nav.book">Book a service</span></a>
     <a class="dash-link" href="chat.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg><span data-i18n="nav.messages">Messages</span> <span class="count" id="navMsg" hidden>0</span></a>
+    <button class="dash-link" id="profileLink" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/></svg><span>My profile</span></button>
     <a class="dash-link" href="support.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.7c0 1.6-2.4 2-2.4 3.3M12 17h.01"/></svg><span data-i18n="nav.support">Help &amp; support</span></a>
     <a class="dash-link" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg><span data-i18n="nav.home">Home</span></a>
     <div class="dash-side-foot">
@@ -43,6 +44,14 @@
       <span class="spacer"></span>
       <label class="top-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="tableSearch" type="search" placeholder="Search bookings, providers…" aria-label="Search bookings" /></label>
       <a class="btn btn-pine" href="booking-flow.html" data-i18n="dash.new">+ New booking</a>
+    </div>
+
+    <div class="dash-hero">
+      <div style="flex:1;min-width:220px">
+        <h2>Namaste<span id="heroName"></span> 🙏</h2>
+        <p>Verified pros · upfront prices · pay only after the job. Your next booking takes two minutes.</p>
+      </div>
+      <a class="btn" style="background:#e9b44c;color:#1c1917" href="booking-flow.html">Book a service →</a>
     </div>
 
     <div class="stat-grid">
@@ -87,6 +96,32 @@
   </main>
 </div>
 
+<div class="modal-veil" id="profileVeil" role="dialog" aria-modal="true"><div class="modal">
+  <h2>My profile</h2><p class="muted small" style="margin-bottom:14px">Providers see your name, phone and address on confirmed bookings.</p>
+  <div class="field"><label>Profile photo</label>
+    <div class="row" style="gap:12px;align-items:center;flex-wrap:wrap">
+      <span id="pfAvatarWrap2" style="display:inline-flex"><span class="pro-avatar" style="background:#1d4a38">–</span></span>
+      <span class="row" style="gap:8px;flex-wrap:wrap">
+        <label class="btn btn-line btn-sm" style="cursor:pointer">Change photo<input type="file" id="pfAvatarFile" accept="image/jpeg,image/png,image/webp" hidden /></label>
+        <button class="btn btn-line btn-sm" id="pfAvatarRemove" type="button">Remove</button>
+      </span>
+    </div>
+    <div class="hint">Your photo stays on your account until you change or remove it.</div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label for="pfFirst">First name</label><input id="pfFirst" type="text" autocomplete="given-name" /></div>
+    <div class="field"><label for="pfLast">Last name</label><input id="pfLast" type="text" autocomplete="family-name" /></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label for="pfPhone">Phone</label><input id="pfPhone" type="tel" placeholder="98XXXXXXXX" autocomplete="tel" /></div>
+    <div class="field"><label for="pfCity">City</label><select id="pfCity"><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option><option>Pokhara</option><option>Chitwan</option><option value="">Other</option></select></div>
+  </div>
+  <div class="field"><label for="pfAddr">Address / landmark</label><input id="pfAddr" type="text" placeholder="e.g. Baneshwor, near Big Mart" autocomplete="street-address" /></div>
+  <div class="field"><label for="pfBio">About you</label><textarea id="pfBio" rows="3" maxlength="1000" placeholder="Tell providers a little about yourself (optional)"></textarea></div>
+  <div class="alert alert-err" id="pfErr"></div>
+  <div style="display:flex;gap:10px"><button class="btn btn-line" id="pfClose" type="button">Cancel</button><button class="btn btn-pine" id="pfSave" type="button" style="flex:1">Save changes</button></div>
+</div></div>
+
 <div class="modal-veil" id="detailVeil" role="dialog" aria-modal="true"><div class="modal"><h2>Booking <span id="dRef"></span></h2><p id="dMeta" class="muted small" style="margin-bottom:14px"></p><div id="dBody"></div>
   <div style="display:flex;gap:10px;margin-top:18px"><button class="btn btn-line" id="dClose" type="button">Close</button><button class="btn btn-pine" id="dReview" type="button" style="flex:1">Leave a review</button></div></div></div>
 
@@ -107,6 +142,7 @@
   var user = CF.requireAuth(['user', 'provider', 'admin']);
   if (!user) return;
   if (user.role !== 'user') { window.location.href = CF.dashboardFor(user.role, true); return; }
+  window.scrollTo(0, 0);
 
   var bookings = [], filter = 'all', reviewFor = null, stars = 5, query = '', dateFilter = null;
   var calCursor = new Date(); calCursor.setDate(1);
@@ -118,9 +154,26 @@
       document.getElementById('paMail').textContent = u.email || u.phone || 'Customer';
       document.getElementById('paAvatarWrap').innerHTML = CF.avatarImg(u, 'pa');
       document.getElementById('helloSub').textContent = 'Namaste, ' + u.firstName + ' — here is everything you have booked.';
+      var hn = document.getElementById('heroName');
+      if (hn) hn.textContent = ', ' + u.firstName;
     } catch (e) {}
   }
   paintMe(user);
+  // Self-heal stale login cache: the stored user may predate the avatar
+  // upload (or a name/phone edit from another device). One fetch on load
+  // makes the sidebar photo + name correct immediately — no re-login needed.
+  CF.api('/users/profile', 'GET').then(function (res) {
+    var p = (res && res.data) || null;
+    if (!p) return;
+    var changed = false;
+    ['firstName', 'lastName', 'phone', 'bio', 'address', 'city', 'avatar'].forEach(function (k) {
+      if (p[k] !== undefined && p[k] !== user[k]) { user[k] = p[k]; changed = true; }
+    });
+    if (changed) {
+      try { localStorage.setItem('user', JSON.stringify(user)); } catch (se) {}
+      paintMe(user);
+    }
+  }).catch(function () {});
   document.getElementById('avatarInput').addEventListener('change', async function (e) {
     var f = e.target.files[0];
     if (!f) return;
@@ -204,7 +257,7 @@
       var canReview = String(b.status).toLowerCase() === 'completed' && !b.review;
       var nm = proName(b);
       var init = nm.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || '–';
-      var canChat = ['pending', 'confirmed', 'in_progress', 'completed'].indexOf(String(b.status).toLowerCase()) !== -1;
+      var canChat = ['confirmed', 'in_progress', 'completed'].indexOf(String(b.status).toLowerCase()) !== -1;
       var pid = (b.provider && b.provider.id) || b.providerId;
       var pav = (b.provider && b.provider.user) || nm;
       return '<tr><td><b>' + CF.esc(b.bookingRef || String(b.id).slice(0, 8)) + '</b></td>' +
@@ -286,7 +339,7 @@
       box.innerHTML = list.map(function (p) {
         var u = p.user || {};
         var nm = ((u.firstName || '') + ' ' + (u.lastName || '')).trim() || 'Verified pro';
-        return '<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials(u.firstName, u.lastName)) + '</span><span><b>' + CF.esc(nm) + '</b><br /><span class="small muted">' + CF.esc(p.category || '') + ' · ' + Number(p.rating || 4.7).toFixed(1) + ' ★</span></span></span><span class="row"><a class="btn btn-pine btn-sm" href="booking-flow.html?provider=' + CF.esc(p.id) + '">Book</a><button class="btn btn-line btn-sm" data-unfav="' + CF.esc(p.id) + '" type="button">Remove</button></span></div>';
+        return '<div class="row" style="justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line-soft)"><span class="cell-main">' + CF.avatarImg(u.firstName ? u : nm, 'cell-avatar') + '<span><b>' + CF.esc(nm) + '</b><br /><span class="small muted">' + CF.esc(p.category || '') + ' · ' + Number(p.rating || 4.7).toFixed(1) + ' ★</span></span></span><span class="row"><a class="btn btn-pine btn-sm" href="booking-flow.html?provider=' + CF.esc(p.id) + '">Book</a><button class="btn btn-line btn-sm" data-unfav="' + CF.esc(p.id) + '" type="button">Remove</button></span></div>';
       }).join('');
     } catch (e) {
       box.innerHTML = '<p class="small muted">Could not load saved providers.</p>';
@@ -319,6 +372,7 @@
     document.getElementById('detailVeil').classList.remove('show');
     document.getElementById('reviewVeil').classList.remove('show');
     document.getElementById('receiptVeil').classList.remove('show');
+    document.getElementById('profileVeil').classList.remove('show');
   }
   document.querySelectorAll('.modal-veil').forEach(function (v) {
     v.addEventListener('click', function (e) { if (e.target === v) closeVeils(); });
@@ -469,6 +523,95 @@
   }
   document.getElementById('dClose').addEventListener('click', closeVeils);
 
+  /* ---- my profile (edit name, phone, city, address) ---- */
+  function paintPfAvatar(p) {
+    try {
+      var src = p || user;
+      document.getElementById('pfAvatarWrap2').innerHTML = CF.avatarImg(src, 'pro-avatar');
+    } catch (e) {}
+  }
+  function openProfile() {
+    var err = document.getElementById('pfErr');
+    err.classList.remove('show');
+    CF.api('/users/profile', 'GET').then(function (res) {
+      var p = (res && res.data) || user;
+      document.getElementById('pfFirst').value = p.firstName || '';
+      document.getElementById('pfLast').value = p.lastName || '';
+      document.getElementById('pfPhone').value = p.phone || '';
+      document.getElementById('pfAddr').value = p.address || '';
+      document.getElementById('pfBio').value = p.bio || '';
+      var city = document.getElementById('pfCity');
+      var known = ['Kathmandu', 'Lalitpur', 'Bhaktapur', 'Pokhara', 'Chitwan'];
+      city.value = known.indexOf(p.city) !== -1 ? p.city : '';
+      paintPfAvatar(p);
+    }).catch(function () {
+      document.getElementById('pfFirst').value = user.firstName || '';
+      document.getElementById('pfLast').value = user.lastName || '';
+      paintPfAvatar(user);
+    });
+    document.getElementById('profileVeil').classList.add('show');
+  }
+  document.getElementById('pfAvatarFile').addEventListener('change', async function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    if (f.size > 2 * 1024 * 1024) { CF.toast('Photo must be under 2MB.', 'err'); return; }
+    var fd = new FormData();
+    fd.append('avatar', f);
+    try {
+      CF.toast('Uploading photo…');
+      var res = await CF.apiFile('/users/avatar', fd);
+      user.avatar = res.data.avatar;
+      try { localStorage.setItem('user', JSON.stringify(user)); } catch (se) {}
+      paintMe(user);
+      paintPfAvatar(user);
+      CF.toast('Profile photo updated.');
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+    e.target.value = '';
+  });
+  document.getElementById('pfAvatarRemove').addEventListener('click', async function () {
+    if (!user.avatar) { CF.toast('You are already using the default profile.'); return; }
+    if (!confirm('Remove your profile photo and go back to the default?')) return;
+    try {
+      var res = await CF.api('/users/avatar', 'DELETE', {});
+      user.avatar = (res.data && res.data.avatar) || null;
+      try { localStorage.setItem('user', JSON.stringify(user)); } catch (se) {}
+      paintMe(user);
+      paintPfAvatar(user);
+      CF.toast('Profile photo removed.');
+    } catch (ex) { CF.toast(ex.message, 'err'); }
+  });
+  document.getElementById('profileLink').addEventListener('click', openProfile);
+  document.getElementById('pfClose').addEventListener('click', closeVeils);
+  document.getElementById('pfSave').addEventListener('click', async function () {
+    var err = document.getElementById('pfErr');
+    err.classList.remove('show');
+    var btn = this;
+    var payload = {
+      firstName: document.getElementById('pfFirst').value.trim(),
+      lastName: document.getElementById('pfLast').value.trim(),
+      phone: document.getElementById('pfPhone').value.trim(),
+      city: document.getElementById('pfCity').value,
+      address: document.getElementById('pfAddr').value.trim(),
+      bio: document.getElementById('pfBio').value.trim()
+    };
+    if (!payload.firstName || !payload.lastName) { err.textContent = 'Please enter your full name.'; err.classList.add('show'); return; }
+    if (payload.phone && !/^9[678]\d{8}$/.test(payload.phone.replace(/[\s-]/g, ''))) { err.textContent = 'Phone must be a Nepali mobile (98XXXXXXXX) — or leave it blank.'; err.classList.add('show'); return; }
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      var res = await CF.api('/users/profile', 'PUT', payload);
+      var p = res.data || res;
+      user.firstName = p.firstName || user.firstName;
+      user.lastName = p.lastName || user.lastName;
+      if (p.avatar !== undefined) user.avatar = p.avatar;
+      if (p.phone !== undefined) user.phone = p.phone;
+      try { localStorage.setItem('user', JSON.stringify(user)); } catch (se) {}
+      paintMe(user);
+      closeVeils();
+      CF.toast('Profile updated.');
+    } catch (ex) { err.textContent = ex.message; err.classList.add('show'); }
+    btn.disabled = false; btn.classList.remove('loading'); btn.textContent = 'Save changes';
+  });
+
   document.getElementById('rCloseBtn').addEventListener('click', closeVeils);
   document.getElementById('rPrint').addEventListener('click', function () { window.print(); });
   document.getElementById('receiptVeil').addEventListener('click', function (e) { if (e.target === this) closeVeils(); });
@@ -563,6 +706,12 @@
       var n = u.unreadCount || 0;
       var badge = document.getElementById('navMsg');
       badge.hidden = !n; badge.textContent = n;
+    } catch (e) {}
+    // A customer/provider changed their profile (name, bio, phone) somewhere
+    // else: reload bookings so provider names/phones update immediately.
+    try {
+      CF.onLive('profile_updated', function () { load(); });
+      window.addEventListener('cf:profile-updated', function () { load(); });
     } catch (e) {}
   });
 })();

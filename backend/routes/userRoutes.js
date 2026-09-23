@@ -15,6 +15,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
         firstName: true,
         lastName: true,
         phone: true,
+        bio: true,
         address: true,
         city: true,
         avatar: true,
@@ -29,17 +30,25 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-// Update user profile
+// Update user profile — writes an audit row, clears the public provider
+// cache, and broadcasts `profile_updated` so every open browser (public
+// cards, provider pages, admin tables) refreshes instantly.
 router.put('/profile', authMiddleware, async (req, res) => {
   try {
-    const { firstName, lastName, phone, address, city, avatar } = req.body;
-    
+    const { firstName, lastName, phone, bio, address, city, avatar } = req.body;
+
+    const before = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { firstName: true, lastName: true, phone: true, bio: true, address: true, city: true, avatar: true },
+    });
+
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: {
         firstName: firstName || undefined,
         lastName: lastName || undefined,
         phone: phone || undefined,
+        bio: bio === undefined ? undefined : String(bio).slice(0, 1000),
         address: address || undefined,
         city: city || undefined,
         avatar: avatar || undefined
@@ -50,11 +59,29 @@ router.put('/profile', authMiddleware, async (req, res) => {
         firstName: true,
         lastName: true,
         phone: true,
+        bio: true,
         address: true,
         city: true,
         avatar: true
       }
     });
+
+    // Audit + realtime fan-out (never fail the save if these fail).
+    try {
+      const { diffFields, writeAudit } = require('../utils/audit');
+      const { broadcast, emitTo } = require('../utils/events');
+      const changes = diffFields(before || {}, user, ['firstName', 'lastName', 'phone', 'bio', 'address', 'city', 'avatar']);
+      const actorName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+      await writeAudit({
+        actorId: user.id, actorName, actorRole: req.user.role || 'user',
+        targetUserId: user.id, targetName: actorName,
+        action: 'profile_updated', changes,
+      });
+      try { require('./providerRoutes').clearCache(); } catch (e) {}
+      const payload = { userId: user.id, changes: Object.keys(changes), user };
+      broadcast('profile_updated', payload);
+      emitTo(user.id, 'profile_updated', payload);
+    } catch (e) { /* realtime is best-effort */ }
 
     res.json({ success: true, message: 'Profile updated', data: user });
   } catch (err) {
@@ -70,9 +97,48 @@ router.post('/avatar', authMiddleware, avatarUpload, async (req, res) => {
     const user = await prisma.user.update({
       where: { id: String(req.user.id) },
       data: { avatar: url },
-      select: { id: true, avatar: true }
+      select: { id: true, avatar: true, firstName: true, lastName: true, email: true }
     });
+    try {
+      const { writeAudit } = require('../utils/audit');
+      const { broadcast } = require('../utils/events');
+      const actorName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+      await writeAudit({
+        actorId: user.id, actorName, actorRole: req.user.role || 'user',
+        targetUserId: user.id, targetName: actorName,
+        action: 'avatar_updated', changes: { avatar: { from: '', to: url } },
+      });
+      try { require('./providerRoutes').clearCache(); } catch (e) {}
+      broadcast('profile_updated', { userId: user.id, changes: ['avatar'], user });
+    } catch (e) {}
     res.json({ success: true, message: 'Avatar updated', data: user });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove profile avatar (back to initials). Called by the dashboard,
+// provider dashboard and onboarding "Remove photo" buttons.
+router.delete('/avatar', authMiddleware, async (req, res) => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: String(req.user.id) },
+      data: { avatar: null },
+      select: { id: true, avatar: true, firstName: true, lastName: true, email: true }
+    });
+    try {
+      const { writeAudit } = require('../utils/audit');
+      const { broadcast } = require('../utils/events');
+      const actorName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+      await writeAudit({
+        actorId: user.id, actorName, actorRole: req.user.role || 'user',
+        targetUserId: user.id, targetName: actorName,
+        action: 'avatar_updated', changes: { avatar: { from: 'photo', to: '' } },
+      });
+      try { require('./providerRoutes').clearCache(); } catch (e) {}
+      broadcast('profile_updated', { userId: user.id, changes: ['avatar'], user });
+    } catch (e) {}
+    res.json({ success: true, message: 'Avatar removed', data: user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -3,21 +3,44 @@ services:
     name: cheapflix-nepal-backend
     runtime: node
     region: oregon
-    buildCommand: npm install && npx prisma migrate deploy && npx prisma generate
+    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5000
+      # PostgreSQL connection. Default: the managed Render database below.
+      # To use Neon Postgres instead, delete the fromDatabase block and set
+      # DATABASE_URL as a secret in the Render dashboard (sync: false) with
+      # the pooled Neon connection string. Migration history is a PostgreSQL
+      # baseline (prisma/migrations/20250922000000_baseline), so
+      # `migrate deploy` is safe against either database.
       - key: DATABASE_URL
         fromDatabase:
           name: cheapflix-db
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      - key: JWT_EXPIRE
+        value: 12h
+      - key: FRONTEND_URL
+        value: https://cheapflixnepal.live
+      # Production CORS allow-list (comma-separated). Never "*".
       - key: CORS_ORIGIN
-        value: "*"
+        value: https://cheapflixnepal.live,https://cheapflixnepal.netlify.app
+      # Set these from Neon Object Storage credentials in the Render dashboard.
+      # Without them uploads use ephemeral local disk and disappear on deploy.
+      - key: AWS_ENDPOINT_URL_S3
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: STORAGE_BUCKET
+        value: assets
 
 databases:
   - name: cheapflix-db

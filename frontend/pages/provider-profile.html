@@ -15,20 +15,23 @@
   <meta property="og:description" content="Verified provider profile: bio, services, rates, location, reviews. Call, chat or book." />
   <meta property="og:image" content="https://cheapflixnepal.live/icons/icon-512.png" />
   <meta name="twitter:card" content="summary" />
-  <link rel="stylesheet" href="../css/design-system.css" />
+  <link rel="stylesheet" href="../css/design-system.css?v=5" />
   <script src="../config.js"></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/app.js?v=5"></script>
 </head>
 <body>
 <header class="site-nav">
   <div class="nav-inner">
-    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
-    <nav class="nav-links"><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a></nav>
-    <div class="nav-cta" data-nav-cta><a class="btn btn-line btn-sm" href="login.html">Log in</a></div>
-    <button class="burger" id="navBurger" aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <a href="../index.html" class="brand" aria-label="Cheapflix Nepal home"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <nav class="nav-links" aria-label="Primary"><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="support.html">Help</a></nav>
+    <div class="nav-cta" data-nav-cta>
+      <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+      <a class="btn btn-pine btn-sm" href="register.html">Get started</a>
+    </div>
+    <button class="burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </header>
-<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="login.html">Log in</a></div>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a><a href="login.html">Log in</a><a href="register.html">Get started</a></div>
 
 <div class="flow-shell" style="max-width:920px">
   <a href="booking-flow.html" class="small" style="font-weight:600;text-decoration:none">&larr; All providers</a>
@@ -40,7 +43,6 @@
   var id = new URLSearchParams(window.location.search).get('id');
   var box = document.getElementById('profileBox');
   var me = CF.currentUser();
-  if (!id) { box.innerHTML = '<div class="empty"><b>No provider selected.</b><br /><a class="btn btn-pine btn-sm" href="booking-flow.html">Browse providers</a></div>'; return; }
 
   function stars(r) {
     var s = '';
@@ -51,7 +53,10 @@
   async function init() {
     var p;
     try {
-      var res = await CF.api('/providers/' + encodeURIComponent(id), 'GET', null, false);
+      var res;
+      if (id) res = await CF.api('/providers/' + encodeURIComponent(id), 'GET', null, false);
+      else if (me && me.role === 'provider') res = await CF.api('/providers/me', 'GET');
+      else throw new Error('No provider selected.');
       p = res.data || res;
     } catch (e) {
       box.innerHTML = '<div class="empty"><b>Could not load this profile.</b><p class="small">' + CF.esc(e.message) + '</p><br /><a class="btn btn-line btn-sm" href="booking-flow.html">Back to providers</a></div>';
@@ -83,7 +88,7 @@
           (phone ? '<a class="btn btn-pine" href="tel:' + CF.esc(phone.replace(/\s/g, '')) + '">' + CF.icon('phone') + ' Call ' + CF.esc(phone) + '</a>'
                  : '<span class="btn btn-line" style="pointer-events:none">' + CF.icon('phone') + ' No public number</span>') +
           '<button class="btn btn-line" id="chatBtn" type="button">' + CF.icon('chat') + ' Chat with ' + CF.esc((u.firstName || 'pro')) + '</button>' +
-          '<span class="row"><a class="btn btn-clay" style="flex:1" href="booking-flow.html?provider=' + CF.esc(p.id) + '">' + CF.icon('cal') + ' Book now</a>' +
+          '<span class="row"><a class="btn btn-clay" style="flex:1" href="booking-flow.html?provider=' + CF.esc(p.id) + (svcs[0] && svcs[0].id ? '&service=' + CF.esc(svcs[0].id) : '') + '">' + CF.icon('cal') + ' Book now</a>' +
           '<button class="fav-btn' + (CF.isFav(p.id) ? ' on' : '') + '" id="favBtn" type="button" title="Save provider" aria-label="Save provider" style="width:46px;height:46px">' + CF.icon('heart') + '</button></span>' +
           (isOwner ? '<a class="btn btn-line btn-sm" href="provider-onboarding.html">Edit my profile</a>' : '') +
         '</div>' +
@@ -101,7 +106,7 @@
 
       '<div class="panel"><div class="panel-head"><h2>Services &amp; rates</h2><span class="small muted">upfront · pay after job</span></div>' +
         (svcs.length ? svcs.map(function (s) {
-          return '<div class="svc-row"><span><b>' + CF.esc(s.name) + '</b><br /><span class="small muted">' + CF.esc(s.description || (p.category + ' service')) + (s.duration ? ' · ~' + s.duration + ' min' : '') + '</span></span><span style="text-align:right"><b style="font-family:var(--font-display);font-size:18px">' + CF.money(s.price) + '</b><br /><a class="btn btn-pine btn-sm" href="booking-flow.html?provider=' + CF.esc(p.id) + '">Book</a></span></div>';
+          return '<div class="svc-row"><span><b>' + CF.esc(s.name) + '</b><br /><span class="small muted">' + CF.esc(s.description || (p.category + ' service')) + (s.duration ? ' · ~' + s.duration + ' min' : '') + '</span></span><span style="text-align:right"><b style="font-family:var(--font-display);font-size:18px">' + CF.money(s.price) + '</b><br /><a class="btn btn-pine btn-sm" href="booking-flow.html?provider=' + CF.esc(p.id) + '&service=' + CF.esc(s.id) + '">Book</a></span></div>';
         }).join('') : '<p class="small muted">No priced services yet — <a href="booking-flow.html">request a quote via booking</a>.</p>') + '</div>' +
 
       '<div class="panel"><div class="panel-head"><h2>Reviews (' + reviews.length + ')</h2>' + (reviews.length ? '<span class="small muted">' + Number(p.rating || 4.7).toFixed(1) + ' average</span>' : '') + '</div>' +
@@ -152,6 +157,18 @@
     });
   }
   document.addEventListener('DOMContentLoaded', init);
+  // Live: if this pro (or an admin) edits bio/phone/name elsewhere,
+  // re-render this page instantly instead of showing a stale profile.
+  try {
+    CF.onLive('profile_updated', function (d) {
+      if (!d) return;
+      if ((id && (String(d.providerId) === String(id))) || (d.userId && me && String(d.userId) === String(me.id))) init();
+    });
+    window.addEventListener('cf:profile-updated', function (e) {
+      var d = (e && e.detail) || {};
+      if ((id && d.providerId && String(d.providerId) === String(id)) || (d.userId && me && String(d.userId) === String(me.id))) init();
+    });
+  } catch (e) {}
 })();
 </script>
 <footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>

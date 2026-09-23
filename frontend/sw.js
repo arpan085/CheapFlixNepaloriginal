@@ -1,8 +1,8 @@
 /* Cheapflix Nepal service worker — offline-first for static assets.
    API calls always go to network (never cached). Navigations fall back
    to offline.html when the network is unavailable. */
-const VERSION = 'cf-v3';
-const CORE = ['./offline.html', './css/design-system.css', './config.js', './js/app.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
+const VERSION = 'cf-v5';
+const CORE = ['./offline.html', './index.html', './css/design-system.css', './config.js', './js/app.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(

@@ -26,8 +26,8 @@
         <div class="auth-step"><i>✓</i><div><b>Help when it matters</b><span>Kathmandu team replies in a day</span></div></div>
       </div>
       <div class="auth-proof">
-        <div><b>2,400+</b><span>verified pros</span></div>
-        <div><b>50+</b><span>categories</span></div>
+        <div><b>Local</b><span>Kathmandu Valley</span></div>
+        <div><b>Clear</b><span>pricing &amp; reviews</span></div>
         <div><b>Free</b><span>to join</span></div>
       </div>
     </div>
@@ -58,15 +58,41 @@
           </div>
           <div class="field-err">Enter a valid email address.</div>
         </div>
-        <div class="field"><label for="phone">Phone <span class="muted" style="font-weight:500">(optional — for job-day calls)</span></label><input id="phone" type="tel" placeholder="98XXXXXXXX" autocomplete="tel" inputmode="tel" /><div class="hint">Nepali mobile, 10 digits starting with 98.</div></div>
+        <div class="field"><label for="phone">Phone <span class="muted" style="font-weight:500" id="phoneHint">(optional — for job-day calls)</span></label><input id="phone" type="tel" placeholder="98XXXXXXXX" autocomplete="tel" inputmode="tel" /><div class="hint">Nepali mobile, 10 digits starting with 98.</div></div>
+        <div class="field-row">
+          <div class="field"><label for="placeCity">Your place (city)</label>
+            <select id="placeCity"><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option><option value="">Other</option></select>
+          </div>
+          <div class="field"><label for="placeAddress">Address / area</label><input id="placeAddress" type="text" placeholder="e.g. Baneshwor, near Big Mart" autocomplete="street-address" maxlength="500" /></div>
+        </div>
+        <div class="field" id="fAvatar">
+          <label>Profile photo <span class="muted" style="font-weight:500">(shown on your bookings &amp; provider cards)</span></label>
+          <div class="row" style="gap:14px;align-items:flex-start;flex-wrap:wrap">
+            <span id="avatarPreview" class="pro-avatar" style="background:#1d4a38;width:64px;height:64px;font-size:22px;flex:none">–</span>
+            <div style="flex:1;min-width:220px">
+              <div class="chip-row" role="radiogroup" aria-label="Profile photo choice" style="margin-bottom:10px">
+                <button type="button" class="chip on" id="avModeDefault" aria-pressed="true">✦ Use default profile</button>
+                <button type="button" class="chip" id="avModeUpload" aria-pressed="false">⬆ Upload my photo</button>
+              </div>
+              <div id="avatarDefaults">
+                <div class="hint" style="margin-bottom:8px">Pick a default look — it stays on your account until you change it.</div>
+                <div class="chip-row" id="presetRow" role="radiogroup" aria-label="Default profile colour"></div>
+              </div>
+              <div id="avatarUploadBox" hidden>
+                <label class="upload-zone" id="avatarZone">Tap to choose a clear photo of you (JPG/PNG/WebP, max 2MB)<input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp" /></label>
+                <div class="hint" id="avatarFileHint">Square photo works best. You can change or remove it later.</div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="field" id="fPass"><label for="password">Password</label>
           <div class="input-wrap">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-            <input id="password" type="password" placeholder="At least 6 characters" autocomplete="new-password" />
+            <input id="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
             <button type="button" class="pw-toggle" data-toggle="password">Show</button>
           </div>
           <div class="pw-meter" id="pwMeter" data-s="0"><i></i><i></i><i></i><i></i></div>
-          <div class="field-err">Password needs at least 6 characters.</div>
+          <div class="field-err">Password needs at least 8 characters.</div>
         </div>
         <div id="providerFields" hidden>
           <div class="field-row">
@@ -81,17 +107,16 @@
             </div>
             <div class="field"><label for="experience">Experience (years)</label><input id="experience" type="number" min="0" max="50" value="2" /></div>
           </div>
-          <div class="field-row">
-            <div class="field"><label for="price">Starting price (Rs)</label><input id="price" type="number" min="0" value="500" /></div>
-            <div class="field"><label for="city">Base city</label>
-              <select id="city"><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option><option>Pokhara</option><option>Chitwan</option></select>
-            </div>
-          </div>
+          <div class="field"><label for="price">Starting price (Rs)</label><input id="price" type="number" min="0" value="500" /><div class="hint">Your base city above is used as your work location.</div></div>
           <div class="field"><label for="bio">Short intro</label><textarea id="bio" rows="2" placeholder="e.g. Licensed electrician, 8 yrs in Baneshwor. Wiring, inverters, safety checks."></textarea></div>
         </div>
         <label class="row small" style="gap:8px;margin-bottom:16px;cursor:pointer;align-items:flex-start"><input type="checkbox" id="terms" checked style="accent-color:var(--pine);width:16px;height:16px;margin-top:3px" /><span class="muted">I agree to the Terms &amp; Privacy Policy, and to be contacted about my bookings.</span></label>
         <button class="btn btn-pine btn-block btn-lg" type="submit" id="regBtn">Create account</button>
       </form>
+      <div id="googleWrap" hidden>
+        <div class="or-row"><span>or</span></div>
+        <div id="googleBtn" style="display:flex;justify-content:center"></div>
+      </div>
       <p class="form-note">Already have an account? <a href="login.html" style="font-weight:700">Log in</a></p>
     </div>
   </main>
@@ -104,6 +129,81 @@
   var tabProvider = document.getElementById('tabProvider');
   var pFields = document.getElementById('providerFields');
 
+  // ---- Profile photo: default preset (persists forever) or your own upload ----
+  var PRESETS = ['#1d4a38', '#b45309', '#0e7490', '#6d28d9', '#be123c', '#4d7c0f'];
+  var avMode = 'default'; // 'default' | 'upload'
+  var presetIdx = 0;
+  var avatarFile = null;
+  var avatarPreview = document.getElementById('avatarPreview');
+  var presetRow = document.getElementById('presetRow');
+  var firstNameEl = document.getElementById('firstName');
+  var lastNameEl = document.getElementById('lastName');
+
+  function previewInitials() {
+    var f = (firstNameEl.value.trim()[0] || '?').toUpperCase();
+    var l = (lastNameEl.value.trim()[0] || '').toUpperCase();
+    return (f + l).trim() || '?';
+  }
+  // Local esc (this inline script runs before the deferred js/app.js, so CF
+  // may not exist yet at init time — never rely on CF at the top level here).
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function paintAvatarPreview(imgSrc) {
+    if (imgSrc) {
+      avatarPreview.outerHTML = '<img id="avatarPreview" class="pro-avatar av-img" style="width:64px;height:64px;flex:none" src="' + imgSrc + '" alt="Profile preview" />';
+      avatarPreview = document.getElementById('avatarPreview');
+    } else {
+      var col = PRESETS[presetIdx % PRESETS.length];
+      avatarPreview.outerHTML = '<span id="avatarPreview" class="pro-avatar" style="background:' + col + ';width:64px;height:64px;font-size:22px;flex:none">' + escHtml(previewInitials()) + '</span>';
+      avatarPreview = document.getElementById('avatarPreview');
+    }
+  }
+  presetRow.innerHTML = PRESETS.map(function (c, i) {
+    return '<button type="button" class="chip' + (i === 0 ? ' on' : '') + '" data-preset="' + i + '" aria-label="Default colour ' + (i + 1) + '"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:' + c + ';vertical-align:-2px;margin-right:6px"></span>Style ' + (i + 1) + '</button>';
+  }).join('');
+  presetRow.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-preset]'); if (!b) return;
+    presetIdx = +b.dataset.preset;
+    presetRow.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+    if (avMode === 'default') paintAvatarPreview(null);
+  });
+  function setAvMode(m) {
+    avMode = m;
+    var d = m === 'default';
+    document.getElementById('avModeDefault').classList.toggle('on', d);
+    document.getElementById('avModeUpload').classList.toggle('on', !d);
+    document.getElementById('avModeDefault').setAttribute('aria-pressed', String(d));
+    document.getElementById('avModeUpload').setAttribute('aria-pressed', String(!d));
+    document.getElementById('avatarDefaults').hidden = !d;
+    document.getElementById('avatarUploadBox').hidden = d;
+    if (d) {
+      avatarFile = null;
+      try { document.getElementById('avatarFile').value = ''; } catch (e) {}
+      document.getElementById('avatarFileHint').textContent = 'Square photo works best. You can change or remove it later.';
+      paintAvatarPreview(null);
+    }
+  }
+  document.getElementById('avModeDefault').addEventListener('click', function () { setAvMode('default'); });
+  document.getElementById('avModeUpload').addEventListener('click', function () { setAvMode('upload'); });
+  document.getElementById('avatarFile').addEventListener('change', function (e) {
+    var f = e.target.files[0];
+    if (!f) return;
+    if (!/image\/(jpeg|png|webp)/.test(f.type)) { CF.toast('Use a JPG, PNG or WebP photo.', 'err'); e.target.value = ''; return; }
+    if (f.size > 2 * 1024 * 1024) { CF.toast('Photo must be under 2MB.', 'err'); e.target.value = ''; return; }
+    avatarFile = f;
+    document.getElementById('avatarFileHint').textContent = '✓ ' + f.name.slice(0, 32) + ' — will be saved to your profile.';
+    var rd = new FileReader();
+    rd.onload = function () { paintAvatarPreview(rd.result); };
+    rd.readAsDataURL(f);
+  });
+  [firstNameEl, lastNameEl].forEach(function (el) {
+    el.addEventListener('input', function () { if (avMode === 'default' && !avatarFile) paintAvatarPreview(null); });
+  });
+  paintAvatarPreview(null);
+
   function setMode(p) {
     isProvider = p;
     tabUser.classList.toggle('on', !p);
@@ -111,6 +211,7 @@
     tabUser.setAttribute('aria-selected', String(!p));
     tabProvider.setAttribute('aria-selected', String(p));
     pFields.hidden = !p;
+    document.getElementById('phoneHint').textContent = p ? '(required — customers call this number)' : '(optional — for job-day calls)';
     document.getElementById('formTitle').textContent = p ? 'Join as a professional' : 'Create your account';
     document.getElementById('sideTitle').innerHTML = p ? 'Your skills.<br />Steady work.' : 'One account.<br />Every service.';
     document.getElementById('sideSub').textContent = p
@@ -135,12 +236,12 @@
   pw.addEventListener('input', function () {
     var v = pw.value;
     var s = 0;
-    if (v.length >= 6) s = 1;
+    if (v.length >= 8) s = 1;
     if (v.length >= 8 && /[A-Z]/.test(v)) s = 2;
     if (v.length >= 8 && /[A-Z]/.test(v) && /\d/.test(v)) s = 3;
     if (v.length >= 10 && /[^A-Za-z0-9]/.test(v)) s = 4;
     meter.dataset.s = String(s);
-    document.getElementById('fPass').classList.toggle('invalid', v.length > 0 && v.length < 6);
+    document.getElementById('fPass').classList.toggle('invalid', v.length > 0 && v.length < 8);
   });
 
   ['firstName', 'lastName', 'email'].forEach(function (id) {
@@ -159,6 +260,9 @@
       lastName: document.getElementById('lastName').value.trim(),
       email: document.getElementById('email').value.trim(),
       phone: document.getElementById('phone').value.trim() || undefined,
+      city: document.getElementById('placeCity').value || undefined,
+      address: document.getElementById('placeAddress').value.trim() || undefined,
+      avatar: 'preset:' + PRESETS[presetIdx % PRESETS.length],
       password: pw.value,
       userType: isProvider ? 'provider' : 'user'
     };
@@ -170,14 +274,14 @@
     if (!payload.firstName || !payload.lastName) return fail('Please enter your full name.', !payload.firstName ? 'fFirst' : 'fLast');
     if (!/.+@.+\..+/.test(payload.email)) return fail('Enter a valid email address.', 'fEmail');
     if (payload.phone && !/^9[678]\d{8}$/.test(payload.phone.replace(/[\s-]/g, ''))) return fail('That phone number does not look like a Nepali mobile (e.g. 98XXXXXXXX). You can leave it blank.');
-    if (!payload.password || payload.password.length < 6) return fail('Password needs at least 6 characters.', 'fPass');
+    if (!payload.password || payload.password.length < 8) return fail('Password needs at least 8 characters.', 'fPass');
     if (!document.getElementById('terms').checked) return fail('Please accept the Terms to continue.');
     if (isProvider) {
       payload.category = document.getElementById('category').value;
       payload.experience = parseInt(document.getElementById('experience').value, 10) || 0;
       payload.price = parseFloat(document.getElementById('price').value) || 500;
       payload.bio = document.getElementById('bio').value.trim();
-      payload.city = document.getElementById('city').value;
+      if (!payload.phone) return fail('Providers need a phone number so customers can reach you.');
     }
     var btn = document.getElementById('regBtn');
     var label = btn.textContent;
@@ -187,6 +291,23 @@
       localStorage.setItem('token', res.token);
       localStorage.setItem('user', JSON.stringify(res.user));
       if (res.refreshToken) { try { localStorage.setItem('cf_refresh', res.refreshToken); } catch (e2) {} }
+      // If they uploaded a photo, save it now so it becomes the permanent
+      // profile (same storage as dashboard uploads — survives refresh).
+      if (avMode === 'upload' && avatarFile) {
+        try {
+          CF.toast('Saving your profile photo…');
+          var fd = new FormData();
+          fd.append('avatar', avatarFile);
+          var up = await CF.apiFile('/users/avatar', fd);
+          try {
+            var u = JSON.parse(localStorage.getItem('user') || '{}');
+            u.avatar = up.data.avatar;
+            localStorage.setItem('user', JSON.stringify(u));
+          } catch (se) {}
+        } catch (ue) {
+          CF.toast('Account created, but the photo failed: ' + ue.message, 'err');
+        }
+      }
       CF.toast('Account created. Welcome!');
       setTimeout(function () {
         if (res.user.role === 'provider') window.location.href = 'provider-onboarding.html';
@@ -198,6 +319,37 @@
       btn.disabled = false; btn.classList.remove('loading'); btn.textContent = label;
     }
   });
+  // ---- Google Sign-Up (shows only when GOOGLE_CLIENT_ID is set in ../config.js) ----
+  (function () {
+    var gid = window.CONFIG && window.CONFIG.GOOGLE_CLIENT_ID;
+    if (!gid) return;
+    document.getElementById('googleWrap').hidden = false;
+    var s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true; s.defer = true;
+    s.onload = function () {
+      google.accounts.id.initialize({
+        client_id: gid,
+        callback: async function (resp) {
+          var err = document.getElementById('errBox');
+          err.classList.remove('show');
+          try {
+            var res = await CF.api('/auth/google', 'POST', { token: resp.credential }, false);
+            localStorage.setItem('token', res.token);
+            localStorage.setItem('user', JSON.stringify(res.user));
+            if (res.refreshToken) { try { localStorage.setItem('cf_refresh', res.refreshToken); } catch (e2) {} }
+            CF.toast('Account created. Welcome!');
+            setTimeout(function () { window.location.href = CF.dashboardFor(res.user.role, true); }, 450);
+          } catch (ex) {
+            err.textContent = ex.message || 'Google sign-up failed. Try again.';
+            err.classList.add('show');
+          }
+        }
+      });
+      google.accounts.id.renderButton(document.getElementById('googleBtn'), { theme: 'outline', size: 'large', width: 320, text: 'signup_with' });
+    };
+    document.head.appendChild(s);
+  })();
 })();
 </script>
 <footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>

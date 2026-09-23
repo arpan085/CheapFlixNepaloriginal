@@ -105,10 +105,13 @@ async function pushToCloudinary(sub, file) {
 /* Resolve the durable URL for a multer-saved file.
  * Order: Neon Object Storage -> Cloudinary -> local /uploads/...
  * Neon files come back as /api/files/<key> (served via presigned redirect).
- * Never throws — falls back down the chain on errors. */
+ * Local disk is a DEVELOPMENT fallback only: in production a failed or
+ * missing durable backend throws instead of silently pretending the
+ * upload succeeded (ephemeral disks lose files on every redeploy). */
 async function storeFile(req, sub, file) {
   const local = publicUrl(req, sub, file.filename);
   const { neonEnabled, putFile } = require('../utils/storage');
+  const prod = process.env.NODE_ENV === 'production';
   if (neonEnabled()) {
     try {
       const key = await putFile(sub, file);
@@ -116,15 +119,29 @@ async function storeFile(req, sub, file) {
       return `/api/files/${key}`;
     } catch (e) {
       console.error('[upload] neon storage failed, trying next:', e.message);
+      if (prod && !cloudEnabled()) {
+        try { fs.unlink(file.path, () => {}); } catch (e2) {}
+        throw new Error('File storage is unavailable. Try again in a minute.');
+      }
     }
   }
-  if (!cloudEnabled()) return local;
+  if (!cloudEnabled()) {
+    if (prod) {
+      try { fs.unlink(file.path, () => {}); } catch (e2) {}
+      throw new Error('File storage is not configured.');
+    }
+    return local;
+  }
   try {
     const url = await pushToCloudinary(sub, file);
     fs.unlink(file.path, () => {});
     return url;
   } catch (e) {
     console.error('[upload] cloud failed, keeping local:', e.message);
+    if (prod) {
+      try { fs.unlink(file.path, () => {}); } catch (e2) {}
+      throw new Error('File storage is unavailable. Try again in a minute.');
+    }
     return local;
   }
 }

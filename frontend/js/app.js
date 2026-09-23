@@ -99,7 +99,12 @@
     var here = window.location.pathname.split('/').pop() || 'index.html';
     var inPages = window.location.pathname.indexOf('/pages/') !== -1;
     var login = inPages ? 'login.html' : 'pages/login.html';
-    if (!token || !user) { window.location.href = login; return null; }
+    if (!token || !user) {
+      // Remember where to come back after login (e.g. half-filled booking flow).
+      var back = here + (window.location.search || '');
+      window.location.href = login + '?next=' + encodeURIComponent(back);
+      return null;
+    }
     if (roles && roles.length && roles.indexOf(user.role) === -1) {
       window.location.href = dashboardFor(user.role, inPages);
       return null;
@@ -149,22 +154,32 @@
     return ((first || '?')[0] + ((last || '')[0] || '')).toUpperCase();
   }
 
-  /* Avatar: real uploaded photo when present, initials fallback.
+  /* Avatar: real uploaded photo when present, "preset:#hex" default choice
+     picked at signup, initials fallback. The value lives on User.avatar so
+     it persists across sessions until changed/removed in profile settings.
      `u` may be a user object, a name string, or {firstName,lastName,avatar}. */
+  function avatarBg(u) {
+    var av = u && u.avatar;
+    if (typeof av === 'string' && /^preset:(#[0-9a-fA-F]{3,8})/.test(av)) return av.slice(7);
+    var name = typeof u === 'string' ? u : ((u && (u.firstName || '') + ' ' + (u && u.lastName || '')).trim() || '?');
+    return avatarColor(name);
+  }
   function avatarImg(u, cls) {
     var name = typeof u === 'string' ? u : ((u && (u.firstName || '') + ' ' + (u && u.lastName || '')).trim() || '?');
     var url = u && u.avatar;
+    if (typeof url === 'string' && /^preset:#[0-9a-fA-F]{3,8}$/.test(url)) {
+      return avatarFallback(name, cls, url.slice(7));
+    }
     if (url) {
       var src = /^https?:\/\//.test(url) ? url : apiBase().replace(/\/api$/, '') + url;
       return '<img class="' + (cls || 'cell-avatar') + ' av-img" src="' + esc(src) + '" alt="Avatar for ' + esc(name) + '" loading="lazy" decoding="async" onerror="this.outerHTML=CF.avatarFallback(' + esc(JSON.stringify(name)) + ',\'' + (cls || 'cell-avatar') + '\')" />';
     }
     return avatarFallback(name, cls);
   }
-  function avatarFallback(name, cls) {
+  function avatarFallback(name, cls, bg) {
     var parts = String(name || '?').split(' ');
-    return '<span class="' + (cls || 'cell-avatar') + '" style="background:' + avatarColor(name) + '">' + esc(initials(parts[0], parts[1])) + '</span>';
+    return '<span class="' + (cls || 'cell-avatar') + '" style="background:' + (bg || avatarColor(name)) + '">' + esc(initials(parts[0], parts[1])) + '</span>';
   }
-
   /* Review photo tokens: [photo:url] embedded in comment text. */
   function splitPhotos(comment) {
     var photos = [];
@@ -361,28 +376,107 @@
     applyLang();
   }
   function injectLangToggle() {
-    var slots = document.querySelectorAll('[data-nav-cta]');
-    slots.forEach(function (slot) {
-      if (slot.querySelector('[data-lang-toggle]')) return;
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'btn btn-line btn-sm';
-      b.setAttribute('data-lang-toggle', '');
-      b.addEventListener('click', toggleLang);
-      slot.insertBefore(b, slot.firstChild);
-    });
-    // pages without a site nav (auth) get a small floating switch
-    if (!document.querySelector('.site-nav') && !document.querySelector('[data-lang-toggle]')) {
-      var f = document.createElement('button');
-      f.type = 'button';
-      f.className = 'btn btn-line btn-sm';
-      f.setAttribute('data-lang-toggle', '');
-      f.style.cssText = 'position:fixed;bottom:18px;left:18px;z-index:60;box-shadow:var(--shadow-md)';
-      f.addEventListener('click', toggleLang);
-      document.body.appendChild(f);
-    }
-    applyLang();
+    // Language toggle removed — English only. Clean up any stale buttons.
+    document.querySelectorAll('[data-lang-toggle]').forEach(function (b) { b.remove(); });
+    try { localStorage.setItem('cf_lang', 'en'); } catch (e) {}
+    try { document.documentElement.lang = 'en'; } catch (e) {}
   }
+  /* Canonical site header. Desktop links, active states, auth actions and
+     the mobile menu are all rendered from one table so every page stays
+     consistent. The static markup in each page remains as the no-JS fallback.
+     Slots with data-keep are left untouched (e.g. onboarding flows). */
+  var NAV_LINKS = [
+    { id: 'services', label: 'Services', frag: '#services' },
+    { id: 'how', label: 'How it works', frag: '#how' },
+    { id: 'providers', label: 'Providers', frag: '#providers' },
+    { id: 'book', label: 'Book', page: 'booking-flow.html' },
+    { id: 'messages', label: 'Messages', page: 'chat.html', auth: true },
+    { id: 'help', label: 'Help', page: 'support.html' },
+  ];
+  function navPrefix() {
+    return window.location.pathname.indexOf('/pages/') !== -1 ? '../' : '';
+  }
+  function navHref(link, prefix) {
+    if (link.frag) return prefix ? prefix + 'index.html' + link.frag : link.frag;
+    return prefix ? link.page : 'pages/' + link.page;
+  }
+  function navPage() {
+    var p = window.location.pathname.split('/').pop() || 'index.html';
+    return (p.split('?')[0].split('#')[0] || 'index.html');
+  }
+  // Fixed active link for app pages. index.html uses scroll-spy; content
+  // pages (about/terms/privacy/...) highlight nothing rather than lie.
+  function navActiveId(page) {
+    if (page === 'booking-flow.html') return 'book';
+    if (page === 'chat.html') return 'messages';
+    if (page === 'support.html') return 'help';
+    return null;
+  }
+  function navLinkHTML(link, prefix, activeId, loggedIn) {
+    if (link.auth && !loggedIn) return '';
+    var active = activeId === link.id;
+    return '<a href="' + esc(navHref(link, prefix)) + '" data-navid="' + link.id + '"' +
+      (active ? ' class="active" aria-current="page"' : '') + '>' + esc(link.label) + '</a>';
+  }
+  function renderDesktopNav(loggedIn, prefix, activeId) {
+    var box = document.querySelector('.site-nav .nav-links');
+    if (!box || box.hasAttribute('data-keep')) return;
+    var html = '';
+    NAV_LINKS.forEach(function (l) { html += navLinkHTML(l, prefix, activeId, loggedIn); });
+    box.innerHTML = html;
+  }
+  function renderNavAuth(loggedIn, user, prefix) {
+    document.querySelectorAll('[data-nav-cta]').forEach(function (slot) {
+      if (slot.hasAttribute('data-keep')) return;
+      if (loggedIn && user) {
+        var inPages = prefix !== '';
+        var dash = dashboardFor(user.role, inPages);
+        slot.innerHTML = '<span class="nav-user">' + avatarImg(user, 'nav-avatar') + '<span><span class="nav-hello">Namaste, </span><strong>' + esc(user.firstName) +
+          '</strong></span></span><a class="btn btn-pine btn-sm" href="' + esc(dash) + '">My dashboard</a>' +
+          '<button class="btn btn-line btn-sm" data-logout type="button">Log out</button>';
+      } else {
+        var loginHref = prefix ? 'login.html' : 'pages/login.html';
+        var regHref = prefix ? 'register.html' : 'pages/register.html';
+        slot.innerHTML = '<a class="btn btn-line btn-sm" href="' + loginHref + '">Log in</a>' +
+          '<a class="btn btn-pine btn-sm" href="' + regHref + '">Get started</a>';
+      }
+    });
+  }
+  function renderMobileMenu(loggedIn, user, prefix, activeId) {
+    var menu = document.getElementById('mobileMenu');
+    if (!menu) return null;
+    var html = '<div class="menu-sec">Menu</div>';
+    NAV_LINKS.forEach(function (l) {
+      html += navLinkHTML(l, prefix, activeId, true);
+    });
+    html += '<div class="menu-divider"></div><div class="menu-sec">Account</div>';
+    if (loggedIn && user) {
+      var inPages = prefix !== '';
+      var dash = dashboardFor(user.role, inPages);
+      html += '<div class="menu-user">' + avatarImg(user, 'nav-avatar') + '<span>' + esc(user.firstName || 'Account') + '</span></div>';
+      html += '<a href="' + esc(dash) + '">My dashboard</a>';
+      html += '<button class="menu-link" data-logout type="button">Log out</button>';
+    } else {
+      var loginHref = prefix ? 'login.html' : 'pages/login.html';
+      var regHref = prefix ? 'register.html' : 'pages/register.html';
+      html += '<a href="' + loginHref + '">Log in</a>';
+      html += '<a href="' + regHref + '">Get started</a>';
+    }
+    menu.innerHTML = html;
+    return menu;
+  }
+  function setMenuOpen(menu, burger, open) {
+    if (!menu) return;
+    if (open) {
+      menu.removeAttribute('hidden');
+      document.body.classList.add('nav-open');
+    } else {
+      menu.setAttribute('hidden', '');
+      document.body.classList.remove('nav-open');
+    }
+    if (burger) burger.setAttribute('aria-expanded', String(open));
+  }
+  function menuIsOpen(menu) { return !!menu && !menu.hasAttribute('hidden'); }
   function initNav() {
     var nav = document.querySelector('.site-nav');
     if (nav) {
@@ -390,43 +484,95 @@
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
     }
+    var prefix = navPrefix();
+    var page = navPage();
+    var activeId = navActiveId(page);
+    var user = currentUser();
+    var loggedIn = !!(localStorage.getItem('token') && user);
+
+    renderDesktopNav(loggedIn, prefix, activeId);
+    renderNavAuth(loggedIn, user, prefix);
+    var menu = renderMobileMenu(loggedIn, user, prefix, activeId);
     var burger = document.getElementById('navBurger');
-    var menu = document.getElementById('mobileMenu');
     if (burger && menu) {
       if (!menu.id) menu.id = 'mobileMenu';
       burger.setAttribute('aria-controls', menu.id);
-      burger.setAttribute('aria-expanded', String(!menu.hasAttribute('hidden')));
+      burger.setAttribute('aria-expanded', 'false');
       burger.addEventListener('click', function () {
-        var open = menu.hasAttribute('hidden');
-        if (open) menu.removeAttribute('hidden'); else menu.setAttribute('hidden', '');
-        burger.setAttribute('aria-expanded', String(open));
+        setMenuOpen(menu, burger, !menuIsOpen(menu));
+      });
+      // Close on link click.
+      menu.addEventListener('click', function (e) {
+        if (e.target.closest('a')) setMenuOpen(menu, burger, false);
+      });
+      // Close on outside click.
+      document.addEventListener('click', function (e) {
+        if (!menuIsOpen(menu)) return;
+        if (menu.contains(e.target) || burger.contains(e.target)) return;
+        if (nav && nav.contains(e.target)) return;
+        setMenuOpen(menu, burger, false);
+      });
+      // Close on Escape and hand focus back to the hamburger.
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && menuIsOpen(menu)) {
+          setMenuOpen(menu, burger, false);
+          burger.focus();
+        }
       });
     }
-    // swap nav cta when logged in
-    var user = currentUser();
-    var token = localStorage.getItem('token');
-    document.querySelectorAll('[data-nav-cta]').forEach(function (slot) {
-      if (token && user) {
-        var inPages = window.location.pathname.indexOf('/pages/') !== -1;
-        var dash = dashboardFor(user.role, inPages);
-        var init = initials(user.firstName, user.lastName);
-        var col = avatarColor((user.firstName || '') + (user.lastName || ''));
-        slot.innerHTML = '<span class="nav-user"><span class="nav-avatar" style="background:' + col + '">' + esc(init) + '</span>Namaste, <strong>' + esc(user.firstName) +
-          '</strong></span><a class="btn btn-pine btn-sm" href="' + dash + '">My dashboard</a>' +
-          '<button class="btn btn-line btn-sm" data-logout>Log out</button>';
+    // Scroll-spy on the home page: highlight the section in view.
+    if ((page === 'index.html' || page === '') && 'IntersectionObserver' in window) {
+      var spyIds = ['services', 'how', 'providers'];
+      var spyMap = {};
+      spyIds.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) spyMap[id] = el;
+      });
+      var spyKeys = Object.keys(spyMap);
+      if (spyKeys.length) {
+        var markSpy = function (id) {
+          document.querySelectorAll('[data-navid]').forEach(function (a) {
+            var on = a.dataset.navid === id;
+            a.classList.toggle('active', on);
+            if (on) a.setAttribute('aria-current', 'true');
+            else a.removeAttribute('aria-current');
+          });
+        };
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) markSpy(en.target.id);
+          });
+        }, { rootMargin: '-40% 0px -55% 0px' });
+        spyKeys.forEach(function (id) { io.observe(spyMap[id]); });
       }
-    });
-    // close mobile menu on link click + Escape
-    if (menu) {
-      menu.addEventListener('click', function (e) {
-        if (e.target.closest('a')) menu.setAttribute('hidden', '');
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !menu.hasAttribute('hidden')) menu.setAttribute('hidden', '');
-      });
     }
     document.addEventListener('click', function (e) {
       if (e.target && e.target.closest && e.target.closest('[data-logout]')) logout();
+    });
+  }
+
+  function initDashboardDrawer() {
+    var side = document.getElementById('dashSide');
+    var scrim = document.getElementById('dashScrim');
+    if (!side || !scrim) return;
+    function close() {
+      side.classList.remove('open');
+      scrim.classList.remove('show');
+      document.body.classList.remove('dash-nav-open');
+    }
+    side.addEventListener('click', function (e) {
+      if (window.innerWidth <= 1020 && e.target.closest('.dash-link')) close();
+    });
+    scrim.addEventListener('click', close);
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 1020) close();
+    });
+    document.querySelectorAll('[id="menuBtn"]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        side.classList.add('open');
+        scrim.classList.add('show');
+        document.body.classList.add('dash-nav-open');
+      });
     });
   }
 
@@ -459,6 +605,24 @@
   function onLive(event, fn) {
     (liveHandlers[event] = liveHandlers[event] || []).push(fn);
   }
+  /* A profile/bio/phone change by anyone. Keeps the local user cache true,
+     re-renders the nav, and fires `cf:profile-updated` so open pages
+     (provider cards, detail, admin tables) can refresh instantly. */
+  function handleProfileUpdated(d) {
+    try {
+      var me = currentUser();
+      if (me && d && (String(d.userId) === String(me.id))) {
+        if (d.user) {
+          Object.keys(d.user).forEach(function (k) {
+            if (d.user[k] !== undefined) me[k] = d.user[k];
+          });
+          try { localStorage.setItem('user', JSON.stringify(me)); } catch (e) {}
+          try { renderNavAuth(true, me, navPrefix()); } catch (e) {}
+        }
+      }
+      try { window.dispatchEvent(new CustomEvent('cf:profile-updated', { detail: d || {} })); } catch (e) {}
+    } catch (e) {}
+  }
   function startLive() {
     try {
       if (liveStarted) return;
@@ -467,10 +631,15 @@
       if (!t || !('EventSource' in window)) return;
       liveStarted = true;
       var es = new EventSource(apiBase() + '/stream?token=' + encodeURIComponent(t));
-      ['chat', 'booking', 'payment', 'reminder'].forEach(function (ev) {
+      ['chat', 'booking', 'payment', 'reminder', 'profile_updated'].forEach(function (ev) {
         es.addEventListener(ev, function (msg) {
           var d = {};
           try { d = JSON.parse(msg.data || '{}'); } catch (e) {}
+          if (ev === 'profile_updated') {
+            handleProfileUpdated(d);
+            (liveHandlers[ev] || []).forEach(function (fn) { try { fn(d); } catch (e) {} });
+            return;
+          }
           ping();
           (liveHandlers[ev] || []).forEach(function (fn) { try { fn(d); } catch (e) {} });
           // default toasts so every page benefits with zero wiring
@@ -487,7 +656,7 @@
     api: api, apiBase: apiBase, esc: esc, toast: toast, notify: notify,
     currentUser: currentUser, requireAuth: requireAuth,
     dashboardFor: dashboardFor, logout: logout,
-    money: money, avatarColor: avatarColor, initials: initials, pillFor: pillFor,
+    money: money, avatarColor: avatarColor, avatarBg: avatarBg, initials: initials, pillFor: pillFor,
     icon: icon, notifPrefs: notifPrefs, saveNotifPrefs: saveNotifPrefs, ping: ping,
     getFavs: getFavs, isFav: isFav, toggleFav: toggleFav, syncFavs: syncFavs,
     onLive: onLive, startLive: startLive,
@@ -496,7 +665,17 @@
   };
 
   document.addEventListener('DOMContentLoaded', function () {
+    // Opening the file by double-click breaks all API calls (browser blocks
+    // them). Tell the user instead of showing a mysteriously empty site.
+    try {
+      if (window.location.protocol === 'file:') {
+        setTimeout(function () {
+          toast('Open this site at http://localhost:5500 — double-clicking the file disables login, booking and profiles.', 'err');
+        }, 600);
+      }
+    } catch (e) {}
     initNav();
+    initDashboardDrawer();
     initReveal();
     initFaq();
     injectLangToggle();

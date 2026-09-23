@@ -13,6 +13,9 @@ exports.register = async (req, res) => {
       firstName,
       lastName,
       phone,
+      city,
+      address,
+      avatar,
       userType,
       category,
       experience,
@@ -39,13 +42,25 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Avatar at signup is either a "preset:#hex" default choice (persists as
+    // the permanent profile until changed) or null = initials fallback.
+    // Uploaded photos are saved right after signup via POST /users/avatar.
+    let signupAvatar = null;
+    if (typeof avatar === 'string') {
+      const a = avatar.trim().slice(0, 500);
+      if (/^preset:#[0-9a-fA-F]{3,8}$/.test(a)) signupAvatar = a;
+    }
+
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         firstName,
         lastName,
-        phone,
+        phone: phone || null,
+        city: (typeof city === 'string' && city.trim()) ? city.trim().slice(0, 80) : null,
+        address: (typeof address === 'string' && address.trim()) ? address.trim().slice(0, 500) : null,
+        avatar: signupAvatar,
         role: userType === 'provider' ? 'provider' : 'user',
         status: 'active'
       }
@@ -83,6 +98,26 @@ exports.register = async (req, res) => {
           duration: 60
         }
       });
+
+      // Put provider applications in the admin notification stream.
+      const admins = await prisma.user.findMany({
+        where: { role: 'admin', status: 'active' },
+        select: { id: true }
+      });
+      if (admins.length) {
+        await prisma.notification.createMany({
+          data: admins.map((admin) => ({
+            bookingId: null,
+            providerId: provider.id,
+            userId: admin.id,
+            type: 'provider_application',
+            title: 'New provider application',
+            message: `${user.firstName} ${user.lastName} applied as a ${provider.category}. Review their profile and documents.`,
+            status: 'unread',
+            action: 'review_provider'
+          }))
+        });
+      }
     }
 
     const { issuePair } = require('../utils/tokens');
@@ -97,6 +132,10 @@ exports.register = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        phone: user.phone,
+        city: user.city,
+        address: user.address,
+        avatar: user.avatar,
         role: user.role,
         providerId
       }
@@ -145,7 +184,12 @@ exports.login = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        phone: user.phone,
+        city: user.city,
+        address: user.address,
+        avatar: user.avatar,
+        role: user.role,
+        providerId: user.role === 'provider' ? (await prisma.provider.findUnique({ where: { userId: user.id }, select: { id: true } }))?.id : null
       }
     });
 

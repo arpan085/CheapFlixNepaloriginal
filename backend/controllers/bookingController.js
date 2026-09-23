@@ -201,16 +201,23 @@ exports.getUserBookings = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    const bookings = await prisma.booking.findMany({
-      where: { userId },
-      include: {
-        provider: { include: { user: { select: { id: true, firstName: true, lastName: true, avatar: true, phone: true } } } },
-        service: { select: { name: true, price: true } }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const [total, bookings] = await Promise.all([
+      prisma.booking.count({ where: { userId } }),
+      prisma.booking.findMany({
+        where: { userId },
+        include: {
+          provider: { include: { user: { select: { id: true, firstName: true, lastName: true, avatar: true, phone: true } } } },
+          service: { select: { name: true, price: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
 
-    return res.json({ success: true, count: bookings.length, data: bookings });
+    return res.json({ success: true, count: bookings.length, total, page, totalPages: Math.ceil(total / limit), data: bookings });
   } catch (error) {
     console.error('Get user bookings error:', error);
     return res.status(500).json({ error: 'Failed to fetch bookings' });
@@ -229,16 +236,23 @@ exports.getProviderBookings = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    const bookings = await prisma.booking.findMany({
-      where: { providerId: String(providerId) },
-      include: {
-        user: { select: { id: true, firstName: true, lastName: true, avatar: true, phone: true, email: true } },
-        service: { select: { name: true, price: true } }
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
+    const [total, bookings] = await Promise.all([
+      prisma.booking.count({ where: { providerId: String(providerId) } }),
+      prisma.booking.findMany({
+        where: { providerId: String(providerId) },
+        include: {
+          user: { select: { id: true, firstName: true, lastName: true, avatar: true, phone: true, email: true } },
+          service: { select: { name: true, price: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
 
-    return res.json({ success: true, count: bookings.length, data: bookings });
+    return res.json({ success: true, count: bookings.length, total, page, totalPages: Math.ceil(total / limit), data: bookings });
   } catch (error) {
     console.error('Get provider bookings error:', error);
     return res.status(500).json({ error: 'Failed to fetch bookings' });

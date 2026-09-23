@@ -1,0 +1,2 @@
+ALTER TABLE "User" ADD COLUMN "bio" TEXT;
+ALTER TABLE "Notification" ALTER COLUMN "bookingId" DROP NOT NULL;

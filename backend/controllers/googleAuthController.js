@@ -51,10 +51,19 @@ exports.googleAuth = async (req, res) => {
           firstName,
           lastName,
           password: '', // No password for OAuth users
+          avatar: typeof payload.picture === 'string' ? String(payload.picture).slice(0, 500) : null,
           role: 'user',
           status: 'active'
         }
       });
+    } else if (!user.avatar && typeof payload.picture === 'string' && payload.picture) {
+      // Keep the Google profile photo as the permanent avatar until changed.
+      try {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { avatar: String(payload.picture).slice(0, 500) },
+        });
+      } catch (e) { /* keep existing user on update failure */ }
     }
 
     // Generate access + refresh pair

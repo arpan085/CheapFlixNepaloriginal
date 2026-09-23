@@ -4,10 +4,9 @@
  * Keys are random and unguessable — same exposure model as the old
  * public /uploads/... folder, but files now survive redeploys.
  *
- * Env (pulled automatically by `neon link` into root .env.local —
- * copy these four into backend/.env for local dev):
+ * Env (copy these into backend/.env for local dev, set as Render secrets in prod):
  *   AWS_ENDPOINT_URL_S3, AWS_REGION, AWS_ACCESS_KEY_ID,
- *   AWS_SECRET_ACCESS_KEY, STORAGE_BUCKET (default "cheapflixnepal")
+ *   AWS_SECRET_ACCESS_KEY, STORAGE_BUCKET (default "assets", must stay private)
  */
 const fs = require('fs');
 const crypto = require('crypto');
@@ -15,7 +14,7 @@ const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/clien
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 function bucket() {
-  return process.env.STORAGE_BUCKET || 'cheapflixnepal';
+  return process.env.STORAGE_BUCKET || 'assets';
 }
 
 function neonEnabled() {

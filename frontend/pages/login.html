@@ -87,6 +87,10 @@
         </div>
         <button class="btn btn-pine btn-block btn-lg" type="submit" id="loginBtn">Log in</button>
       </form>
+      <div id="googleWrap" hidden>
+        <div class="or-row"><span>or</span></div>
+        <div id="googleBtn" style="display:flex;justify-content:center"></div>
+      </div>
       <p class="form-note">New to Cheapflix? <a href="register.html" style="font-weight:700">Create an account</a></p>
       <p class="form-note muted" style="margin-top:10px;font-size:12.5px">Are you a professional? <a href="register.html?type=provider">Join as a provider</a></p>
     </div>
@@ -145,6 +149,14 @@
   tabPass.addEventListener('click', function () { showTab('pass'); });
   tabOtp.addEventListener('click', function () { showTab('otp'); });
 
+  // After login: return to ?next= when it is a safe same-folder page, else dashboard.
+  function afterLogin(u) {
+    var nx = null;
+    try { nx = new URLSearchParams(window.location.search).get('next'); } catch (e) {}
+    if (nx && /^[A-Za-z0-9_-]+\.html(\?[^<>"\\]*)?$/.test(nx)) { window.location.href = nx; return; }
+    window.location.href = CF.dashboardFor(u.role, true);
+  }
+
   function saveSession(res, remember) {
     try {
       (remember ? localStorage : sessionStorage).setItem('token', res.token);
@@ -184,7 +196,7 @@
         saveSession(res, remember);
         try { await CF.syncFavs(); } catch (se2) {}
         CF.toast('Welcome back, ' + res.user.firstName + '!');
-        setTimeout(function () { window.location.href = CF.dashboardFor(res.user.role, true); }, 450);
+        setTimeout(function () { afterLogin(res.user); }, 450);
         return;
       }
     } catch (ex) {
@@ -209,13 +221,43 @@
       saveSession(res, remember);
       try { await CF.syncFavs(); } catch (se2) {}
       CF.toast('Welcome back, ' + res.user.firstName + '!');
-      setTimeout(function () { window.location.href = CF.dashboardFor(res.user.role, true); }, 450);
+      setTimeout(function () { afterLogin(res.user); }, 450);
     } catch (ex) {
       err.textContent = ex.message || 'Could not log you in. Check your details and try again.';
       err.classList.add('show');
       btn.disabled = false; btn.classList.remove('loading'); btn.textContent = label;
     }
   });
+  // ---- Google Sign-In (shows only when GOOGLE_CLIENT_ID is set in ../config.js) ----
+  (function () {
+    var gid = window.CONFIG && window.CONFIG.GOOGLE_CLIENT_ID;
+    if (!gid) return;
+    document.getElementById('googleWrap').hidden = false;
+    var s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true; s.defer = true;
+    s.onload = function () {
+      google.accounts.id.initialize({
+        client_id: gid,
+        callback: async function (resp) {
+          var err = document.getElementById('errBox');
+          err.classList.remove('show');
+          try {
+            var res = await CF.api('/auth/google', 'POST', { token: resp.credential }, false);
+            var remember = document.getElementById('remember').checked;
+            saveSession(res, remember);
+            CF.toast('Welcome, ' + res.user.firstName + '!');
+            setTimeout(function () { afterLogin(res.user); }, 450);
+          } catch (ex) {
+            err.textContent = ex.message || 'Google sign-in failed. Try again.';
+            err.classList.add('show');
+          }
+        }
+      });
+      google.accounts.id.renderButton(document.getElementById('googleBtn'), { theme: 'outline', size: 'large', width: 320 });
+    };
+    document.head.appendChild(s);
+  })();
 })();
 </script>
 <footer class="site-foot"><div class="wrap"><div class="foot-bottom"><span>&copy; 2025 Cheapflix Nepal Pvt. Ltd.</span><span><a href="terms.html" style="color:inherit">Terms</a> · <a href="privacy.html" style="color:inherit">Privacy</a></span></div></div></footer>

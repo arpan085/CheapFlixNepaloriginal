@@ -18,25 +18,22 @@
   <meta name="twitter:card" content="summary" />
   <link rel="stylesheet" href="../css/design-system.css" />
   <script src="../config.js"></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/app.js"></script>
 </head>
 <body>
 
 <header class="site-nav">
   <div class="nav-inner">
-    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
-    <nav class="nav-links"><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="support.html">Help</a></nav>
+    <a href="../index.html" class="brand" aria-label="Cheapflix Nepal home"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <nav class="nav-links" aria-label="Primary"><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="support.html">Help</a></nav>
     <div class="nav-cta" data-nav-cta>
       <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+      <a class="btn btn-pine btn-sm" href="register.html">Get started</a>
     </div>
-    <button class="burger" id="navBurger" aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </header>
-<div class="mobile-menu" id="mobileMenu" hidden>
-  <a href="../index.html#services">Services</a>
-  <a href="support.html">Help</a>
-  <a href="login.html">Log in</a>
-</div>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a><a href="login.html">Log in</a><a href="register.html">Get started</a></div>
 
 <div class="flow-shell">
   <a href="../index.html" class="small" style="font-weight:600;text-decoration:none">&larr; Home</a>
@@ -54,11 +51,11 @@
       <!-- STEP 1 -->
       <div class="panel" data-pane="1">
         <div class="panel-head"><h2>Who should come?</h2><span class="small muted" id="proCount"></span></div>
-        <div class="search-bar" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="e.g. electrician, deep cleaning, IELTS" aria-label="Search services" /></div>
+          <div class="search-bar" style="margin-bottom:14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="e.g. electrician, cleaning, home tutor" aria-label="Search services" /></div>
         <div class="field"><label>Category</label><div class="chip-row" id="catChips"></div></div>
         <div class="filter-bar" aria-label="Filter providers">
           <label class="filter-item"><span>City</span>
-            <select id="fCity"><option>All</option><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option><option>Pokhara</option><option>Chitwan</option></select>
+            <select id="fCity"><option>All</option><option>Kathmandu</option><option>Lalitpur</option><option>Bhaktapur</option></select>
           </label>
           <label class="filter-item"><span>Min rating</span>
             <select id="fRating"><option value="0">Any</option><option value="4.5">4.5 ★+</option><option value="4.7">4.7 ★+</option><option value="4.9">4.9 ★</option></select>
@@ -148,12 +145,18 @@
     { id: 'khalti', name: 'Khalti', sub: 'Wallet / QR' },
     { id: 'bank', name: 'Bank', sub: 'Transfer' }
   ];
-  var state = { providers: [], byId: {}, providerId: null, cat: 'All', dur: DURS[0], date: '', slot: '09:00 AM', slotIdx: 1, pay: 'cash', feeRate: 0.05,
+  var state = { providers: [], byId: {}, providerId: null, svcByPid: {}, cat: 'All', dur: DURS[0], date: '', slot: '09:00 AM', slotIdx: 1, pay: 'cash', feeRate: 0.05,
     fCity: 'All', fRating: 0, fPrice: 0, fSort: 'rating', fFav: false, promo: null };
 
   var params = new URLSearchParams(window.location.search);
   var qInit = params.get('q') || '';
+  var cityInit = params.get('city') || 'All';
+  var serviceInit = params.get('service') || '';
   document.getElementById('q').value = qInit;
+  if ([].some.call(document.getElementById('fCity').options, function (o) { return o.value === cityInit; })) {
+    state.fCity = cityInit;
+    document.getElementById('fCity').value = cityInit;
+  }
   var dateEl = document.getElementById('date');
   dateEl.min = new Date().toISOString().slice(0, 10);
   dateEl.value = dateEl.min;
@@ -250,7 +253,13 @@
   document.getElementById('notes').addEventListener('input', function () {});
   state.date = dateEl.value;
 
-  function priceOf(p) { var s = (p.services && p.services[0]) || {}; return Number(s.price) || 600; }
+  function serviceOf(p) {
+    // Exact service: per-card picker choice first, then ?service= deep link, then first service.
+    var services = (p && p.services) || [];
+    var want = (state.svcByPid && p && state.svcByPid[p.id]) || serviceInit;
+    return services.find(function (s) { return s.id === want; }) || services[0] || {};
+  }
+  function priceOf(p) { return Number(serviceOf(p).price) || 600; }
   function filtered() {
     var q = document.getElementById('q').value.trim().toLowerCase();
     var list = state.providers.filter(function (p) {
@@ -299,25 +308,40 @@
     var list = filtered();
     document.getElementById('proCount').textContent = list.length ? list.length + ' available' : '';
     if (!list.length) {
-      box.innerHTML = '<div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div><b>No providers match that search yet.</b><p class="small">Try “Electrician” or clear the category filter.</p></div>';
+      box.innerHTML = '<div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div><b>No providers match that search yet.</b><p class="small">Try “Electrician” or clear the category filter.<br />Only verified providers are listed — new providers appear after admin approval.</p></div>';
       return;
     }
     box.innerHTML = list.map(function (p) {
       var u = p.user || {};
-      var svc = (p.services && p.services[0]) || {};
+      var svc = serviceOf(p);
       var nm = ((u.firstName || '') + ' ' + (u.lastName || '')).trim() || 'Verified pro';
       var sel = state.providerId === p.id;
       var fav = CF.isFav(p.id);
+      var svcList = (p.services && p.services.length > 1)
+        ? '<label class="field" style="margin:12px 0 0"><span class="small muted">Choose exact service</span>' +
+          '<select data-svc="' + CF.esc(p.id) + '" aria-label="Choose service">' +
+          p.services.map(function (s) {
+            return '<option value="' + CF.esc(s.id) + '"' + (svc.id === s.id ? ' selected' : '') + '>' + CF.esc(s.name || 'Service') + ' · ' + CF.money(s.price) + '/hr</option>';
+          }).join('') + '</select></label>'
+        : '';
       return '<div class="pro-card' + (sel ? ' selected' : '') + '" data-pid="' + CF.esc(p.id) + '">' +
         '<div class="pro-top"><a href="provider-profile.html?id=' + CF.esc(p.id) + '" style="text-decoration:none;line-height:0">' + CF.avatarImg(u.firstName ? u : nm, 'pro-avatar') + '</a>' +
         '<div style="min-width:0;flex:1"><div class="pro-name"><a href="provider-profile.html?id=' + CF.esc(p.id) + '" style="color:inherit;text-decoration:none">' + CF.esc(nm) + '</a></div><div class="pro-cat">' + CF.esc(p.category || 'General') + ' · ' + CF.esc(u.city || 'Kathmandu') + '</div>' +
         '<span class="pro-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 13l4 4L19 7"/></svg>Verified · ' + (p.experience || 3) + '+ yrs · <a href="provider-profile.html?id=' + CF.esc(p.id) + '">View profile</a></span></div></div>' +
         '<div class="pro-rating"><span class="stars">' + '&#9733;'.repeat(Math.max(1, Math.round(p.rating || 4.7))) + '</span><b>' + Number(p.rating || 4.7).toFixed(1) + '</b></div>' +
+        svcList +
         '<div class="pro-foot"><span class="pro-price">' + CF.money(svc.price || 600) + ' <small>/ hr</small></span>' +
         '<span style="display:inline-flex;gap:8px;align-items:center"><button type="button" class="fav-btn' + (fav ? ' on' : '') + '" data-fav="' + CF.esc(p.id) + '" title="Save provider" aria-label="Save provider" aria-pressed="' + fav + '">' + CF.icon('heart') + '</button>' +
         '<button type="button" class="btn ' + (sel ? 'btn-line' : 'btn-pine') + ' btn-sm" data-pick="' + CF.esc(p.id) + '">' + (sel ? '✓ Selected' : 'Select →') + '</button></span></div></div>';
     }).join('');
   }
+
+  document.getElementById('proList').addEventListener('change', function (e) {
+    var s = e.target.closest('[data-svc]'); if (!s) return;
+    state.svcByPid[s.dataset.svc] = s.value;
+    if (state.providerId === s.dataset.svc) { saveDraft(); renderSummary(); }
+    renderProviders();
+  });
 
   document.getElementById('proList').addEventListener('click', function (e) {
     var f = e.target.closest('[data-fav]');
@@ -342,7 +366,7 @@
   function estimate() {
     var p = selected();
     if (!p) return null;
-    var svc = (p.services && p.services[0]) || {};
+    var svc = serviceOf(p);
     var hourly = Number(svc.price) || 600;
     var base = hourly * state.dur.hrs;
     var fee = Math.round(base * state.feeRate);
@@ -383,7 +407,7 @@
     var loc = document.getElementById('loc').value.trim() || '—';
     var pretty = state.date ? new Date(state.date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '—';
     box.innerHTML =
-      '<div class="pro-top"><span class="pro-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials(u.firstName, u.lastName)) + '</span>' +
+      '<div class="pro-top">' + CF.avatarImg(u.firstName ? u : nm, 'pro-avatar') +
       '<div><div class="pro-name">' + CF.esc(nm) + '</div><div class="pro-cat">' + CF.esc(p.category || '') + ' · ' + Number(p.rating || 4.7).toFixed(1) + ' ★</div></div></div>' +
       '<div class="sum-row"><span>Date</span><span><b>' + CF.esc(pretty) + '</b></span></div>' +
       '<div class="sum-row"><span>Time</span><span>' + CF.esc(state.slot) + '</span></div>' +
@@ -428,7 +452,7 @@
   function renderReview() {
     var p = selected(); if (!p) return;
     var u = p.user || {};
-    var svc = (p.services && p.services[0]) || {};
+    var svc = serviceOf(p);
     var est = estimate();
     document.getElementById('reviewBox').innerHTML =
       '<div class="sum-row"><span>Provider</span><span><b>' + CF.esc(((u.firstName || '') + ' ' + (u.lastName || '')).trim()) + '</b> · ' + CF.esc(p.category || '') + '</span></div>' +
@@ -441,11 +465,12 @@
       '<div class="sum-row total"><span>Total to pay</span><span>' + CF.money(est.total) + '</span></div>';
   }
 
-  // offline draft: never lose a half-filled booking to a dead network
+  // offline draft: never lose a half-filled booking to a dead network (no secrets stored)
   function saveDraft() {
     try {
       localStorage.setItem('cf_draft', JSON.stringify({
-        providerId: state.providerId, date: document.getElementById('date').value,
+        providerId: state.providerId, serviceId: state.providerId ? (serviceOf(state.byId[state.providerId]).id || null) : null,
+        date: document.getElementById('date').value,
         slotIdx: state.slotIdx, loc: document.getElementById('loc').value,
         notes: document.getElementById('notes').value, pay: state.pay
       }));
@@ -458,6 +483,7 @@
       if (d.loc) document.getElementById('loc').value = d.loc;
       if (d.notes) document.getElementById('notes').value = d.notes;
       if (d.pay) { state.pay = d.pay; paintPay(); }
+      if (d.providerId && d.serviceId) state.svcByPid[d.providerId] = d.serviceId;
     } catch (e) {}
   }
   ['loc', 'notes'].forEach(function (id) {
@@ -476,10 +502,15 @@
       return;
     }
     var p = selected(); if (!p) return;
-    var svc = (p.services && p.services[0]) || {};
+    var svc = serviceOf(p);
     var est = estimate();
     var err = document.getElementById('bookErr');
     err.classList.remove('show');
+    if (!svc.id) {
+      err.textContent = 'This provider has no bookable services yet — please pick another pro.';
+      err.classList.add('show');
+      return;
+    }
     var btn = this;
     btn.disabled = true; btn.classList.add('loading');
     try {
@@ -491,7 +522,7 @@
       iso.setHours(hh, mm, 0, 0);
       var res = await CF.api('/bookings', 'POST', {
         providerId: p.id,
-        serviceId: svc.id || undefined,
+        serviceId: svc.id,
         date: iso.toISOString(),
         startTime: state.slot,
         duration: state.dur.label,
@@ -503,10 +534,18 @@
       });
       var ref = (res.data && res.data.bookingRef) || (res.bookingRef) || 'CF-' + Date.now().toString().slice(-6);
       document.getElementById('doneRef').innerHTML = 'Reference <b>' + CF.esc(ref) + '</b> · ' + CF.money(est.total) + ' · ' + CF.esc(state.pay.toUpperCase()) + '<br /><span class="small">The provider has 24h to accept. Chat unlocks on confirmation.</span>';
-      document.getElementById('doneGo').href = 'chat.html?booking=' + ((res.data && res.data.id) || '');
+      document.getElementById('doneGo').href = 'dashboard.html';
       try { localStorage.removeItem('cf_draft'); } catch (e2) {}
       document.getElementById('doneVeil').classList.add('show');
     } catch (ex) {
+      if (/authenticat|session|log ?in|401/i.test(ex.message || '')) {
+        saveDraft();
+        CF.toast('Please log in to finish your booking — your details are saved.');
+        setTimeout(function () {
+          window.location.href = 'login.html?next=' + encodeURIComponent('booking-flow.html' + window.location.search);
+        }, 800);
+        return;
+      }
       err.textContent = ex.message || 'Could not place the booking. Try again.';
       err.classList.add('show');
       btn.disabled = false; btn.classList.remove('loading'); btn.textContent = 'Confirm booking';
@@ -516,14 +555,20 @@
   async function init() {
     var box = document.getElementById('proList');
     box.innerHTML = '<div class="skel" style="height:120px"></div><div class="skel" style="height:120px;margin-top:10px"></div>';
+    var loadErr = null;
     try {
       var data = await CF.api('/providers', 'GET', null, false);
       state.providers = data.data || [];
     } catch (e) {
+      loadErr = e;
       state.providers = [];
     }
     if (!state.providers.length) {
-      box.innerHTML = '<div class="empty"><b>Could not load providers.</b><p class="small">Check your connection and refresh.</p><br /><button class="btn btn-line btn-sm" onclick="location.reload()">Retry</button></div>';
+      var apiUrl = (window.CONFIG && window.CONFIG.API_BASE_URL) || 'http://localhost:5000/api';
+      box.innerHTML = '<div class="empty"><b>Could not load providers.</b>' +
+        '<p class="small">' + CF.esc(loadErr && loadErr.message ? loadErr.message : 'No verified providers yet — ask an admin to approve them.') + '</p>' +
+        '<p class="small muted">Talking to: ' + CF.esc(apiUrl) + '<br />Start the backend (<span style="font-family:monospace">node server.js</span> in the backend folder), then hard-refresh with Ctrl+F5.</p>' +
+        '<br /><button class="btn btn-line btn-sm" onclick="location.reload()">Retry</button></div>';
       document.getElementById('sumBody').innerHTML = '<p class="small muted">Offline — estimates paused.</p>';
       return;
     }
@@ -537,6 +582,10 @@
       if (pre.category) {
         state.cat = pre.category;
         catBox.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x.dataset.cat === state.cat); });
+      }
+      if (serviceInit && pre.services && pre.services.some(function (s) { return s.id === serviceInit; })) {
+        // Keep the service selected from a provider profile deep link.
+        serviceInit = serviceInit;
       }
     }
     var qi = qInit.toLowerCase();

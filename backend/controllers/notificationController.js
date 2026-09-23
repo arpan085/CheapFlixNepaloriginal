@@ -15,15 +15,14 @@ exports.getNotifications = async (req, res) => {
       select: { id: true }
     });
 
-    if (!providers.length) {
-      return res.json({ success: true, count: 0, data: [] });
-    }
-
     const providerIds = providers.map(p => p.id);
 
     const notifications = await prisma.notification.findMany({
       where: {
-        providerId: { in: providerIds }
+        OR: [
+          { userId: String(userId) },
+          { providerId: { in: providerIds } }
+        ]
       },
       include: {
         booking: {
@@ -70,6 +69,18 @@ exports.getNotification = async (req, res) => {
     if (!notification) {
       return res.status(404).json({ error: 'Notification not found' });
     }
+    const ownsAsCustomer = notification.userId === String(req.user.id);
+    let ownsAsProvider = false;
+    if (!ownsAsCustomer && req.user.role !== 'admin') {
+      const provider = await prisma.provider.findUnique({
+        where: { id: notification.providerId },
+        select: { userId: true }
+      });
+      ownsAsProvider = provider && provider.userId === String(req.user.id);
+    }
+    if (req.user.role !== 'admin' && !ownsAsCustomer && !ownsAsProvider) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
 
     // Mark as read
     if (notification.status === 'unread') {
@@ -99,6 +110,9 @@ exports.acceptBooking = async (req, res) => {
 
     if (!notification) {
       return res.status(404).json({ error: 'Notification not found' });
+    }
+    if (!notification.bookingId || notification.type !== 'booking_request') {
+      return res.status(400).json({ error: 'This notification has no booking action.' });
     }
 
     // Verify authorization
@@ -233,12 +247,27 @@ exports.markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
 
-    const notification = await prisma.notification.update({
+    const notification = await prisma.notification.findUnique({
+      where: { id: String(notificationId) },
+      select: { userId: true, providerId: true }
+    });
+    if (!notification) return res.status(404).json({ error: 'Notification not found' });
+    if (req.user.role !== 'admin' && notification.userId !== String(req.user.id)) {
+      const provider = await prisma.provider.findUnique({
+        where: { id: notification.providerId },
+        select: { userId: true }
+      });
+      if (!provider || provider.userId !== String(req.user.id)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+    }
+
+    const updated = await prisma.notification.update({
       where: { id: String(notificationId) },
       data: { status: 'read' }
     });
 
-    res.json({ success: true, data: notification });
+    res.json({ success: true, data: updated });
   } catch (error) {
     console.error('Error marking notification as read:', error);
     res.status(500).json({ error: 'Failed to mark notification as read' });
@@ -260,16 +289,13 @@ exports.getUnreadCount = async (req, res) => {
       select: { id: true }
     });
 
-    if (!providers.length) {
-      return res.json({ success: true, unreadCount: 0 });
-    }
-
     const providerIds = providers.map(p => p.id);
 
     const unreadCount = await prisma.notification.count({
       where: {
-        AND: [
-          { status: 'unread' },
+        status: 'unread',
+        OR: [
+          { userId: String(userId) },
           { providerId: { in: providerIds } }
         ]
       }

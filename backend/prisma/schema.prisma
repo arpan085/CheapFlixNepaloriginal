@@ -19,6 +19,7 @@ model User {
   lastName  String
   phone     String?
   avatar    String?
+  bio       String?    @db.Text
   address   String?
   city      String?
   role      String     @default("user") // user, provider, admin
@@ -117,8 +118,8 @@ model Booking {
 // Notification Model - For provider booking requests
 model Notification {
   id          String     @id @default(cuid())
-  bookingId   String
-  booking     Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId   String?
+  booking     Booking?   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
   providerId  String
   provider    Provider   @relation(fields: [providerId], references: [id], onDelete: Cascade)
   userId      String
@@ -133,6 +134,10 @@ model Notification {
   
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  @@index([userId, status])
+  @@index([providerId, status])
+  @@index([bookingId])
 }
 
 // Review Model
@@ -171,6 +176,8 @@ model Message {
   @@index([bookingId])
   @@index([senderId])
   @@index([receiverId])
+  @@index([bookingId, createdAt])
+  @@index([receiverId, isRead])
 }
 
 // Support Ticket Model - For users/providers to contact admin
@@ -314,4 +321,23 @@ model Admin {
   permissions String?    // JSON array of permissions
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+}
+
+// Profile audit log — every customer/provider/admin profile edit lands here
+// so the admin dashboard can show WHO changed WHAT and WHEN.
+// `changes` is a JSON object: { field: { from, to } } for the edited fields.
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String   // user who made the change (or admin id)
+  actorName    String?  // denormalized "First Last" at write time
+  actorRole    String   @default("user") // user, provider, admin
+  targetUserId String   // user whose profile changed
+  targetName   String?
+  action       String   // profile_updated, provider_profile_updated, avatar_updated, admin_user_updated, admin_provider_updated
+  changes      String?  // JSON string of { field: { from, to } }
+  createdAt    DateTime @default(now())
+
+  @@index([targetUserId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
 }

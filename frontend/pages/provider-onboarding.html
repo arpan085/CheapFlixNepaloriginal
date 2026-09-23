@@ -8,17 +8,19 @@
   <meta name="theme-color" content="#1d4a38" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
-  <link rel="stylesheet" href="../css/design-system.css" />
+  <link rel="stylesheet" href="../css/design-system.css?v=5" />
   <script src="../config.js"></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/app.js?v=5"></script>
 </head>
 <body>
 <header class="site-nav">
   <div class="nav-inner">
-    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
-    <div class="nav-cta" data-nav-cta><a class="btn btn-line btn-sm" href="provider-dashboard.html">Skip for now</a></div>
+    <a href="../index.html" class="brand" aria-label="Cheapflix Nepal home"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <div class="nav-cta" data-nav-cta data-keep><a class="btn btn-line btn-sm" href="provider-dashboard.html">Skip for now</a></div>
+    <button class="burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </header>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a><a href="provider-dashboard.html">Skip for now</a></div>
 
 <div class="flow-shell" style="max-width:720px">
   <a href="../index.html" class="small" style="font-weight:600;text-decoration:none">&larr; Home</a>
@@ -38,10 +40,16 @@
       <span class="small muted"><span id="bioCount">0</span>/280</span>
     </div>
     <div class="alert alert-err" id="oErr" role="alert"></div>
+    <div class="panel" style="background:var(--pine-soft);border-color:var(--pine-line);padding:16px;margin-bottom:18px">
+      <div class="row" style="justify-content:space-between;gap:12px"><b>Verification readiness</b><span class="pill pill-amber" id="readinessStatus">In progress</span></div>
+      <div class="progress" style="margin-top:10px"><i id="readinessBar" style="width:0%"></i></div>
+      <p class="small muted" id="readinessHint" style="margin-top:8px">Complete the essentials below before submitting.</p>
+    </div>
     <div class="field-row">
       <div class="field"><label>Profile photo</label>
         <label class="upload-zone" id="avatarZone">Tap to upload a clear photo of you (max 2MB)<input type="file" id="oAvatar" accept="image/jpeg,image/png,image/webp" /></label>
-        <div class="hint" id="avatarHint">Customers book faces they can see 2× more.</div>
+        <div class="hint" id="avatarHint">Customers book faces they can see 2× more. Your photo stays on search &amp; your public profile until you change or remove it.</div>
+        <button class="btn btn-line btn-sm" id="oAvatarRemove" type="button" style="margin-top:8px">Remove photo (use default)</button>
       </div>
       <div class="field"><label>KYC documents</label>
         <label class="upload-zone" id="kycZone">Citizenship / license — up to 3 files<input type="file" id="oDocs" accept="image/jpeg,image/png,image/webp,application/pdf" multiple /></label>
@@ -60,10 +68,14 @@
         <div class="field"><label for="oPrice">Starting price (Rs / hour)</label><input id="oPrice" type="number" min="0" value="500" /><div class="hint" id="priceHint">Customers see this first.</div></div>
         <div class="field"><label for="oArea">Work areas</label><input id="oArea" type="text" placeholder="e.g. Baneshwor, Tinkune, Sinamangal" /></div>
       </div>
+      <div class="field-row">
+        <div class="field"><label for="oService">Primary service</label><input id="oService" type="text" maxlength="80" placeholder="e.g. Home wiring &amp; repairs" /></div>
+        <div class="field"><label for="oDuration">Typical duration (minutes)</label><input id="oDuration" type="number" min="15" max="1440" value="60" /></div>
+      </div>
       <div class="field"><label for="oPhone">Work phone</label><input id="oPhone" type="tel" placeholder="98XXXXXXXX" inputmode="tel" /><div class="hint">For job-day coordination only.</div></div>
 
       <div class="panel" style="background:var(--paper);margin:18px 0">
-        <b style="font-size:14px">Live preview</b>
+        <b style="font-size:14px">Live preview</b> <span class="small muted">updates as you type — this is what customers will see</span>
         <div class="pro-top" style="margin-top:12px"><span class="pro-avatar" id="pvAvatar" style="background:#1d4a38">–</span><div><div class="pro-name" id="pvName">Your name</div><div class="pro-cat" id="pvCat">Electrician · Kathmandu</div><span class="pro-verified">✓ Pending verification</span></div></div>
         <p class="small muted" id="pvBio">Your intro will appear here…</p>
         <div class="pro-foot"><span class="pro-price" id="pvPrice">Rs 500 <small>/ hr</small></span><span class="btn btn-pine btn-sm" style="pointer-events:none">Book</span></div>
@@ -93,13 +105,63 @@
   var user = CF.requireAuth(['provider', 'admin']);
   if (!user) return;
 
-  try {
-    var nm = ((user.firstName || '') + ' ' + (user.lastName || '')).trim() || 'Your name';
+  function paintName(first, last, avatar) {
+    var nm = ((first || '') + ' ' + (last || '')).trim() || 'Your name';
     document.getElementById('pvName').textContent = nm;
     var av = document.getElementById('pvAvatar');
-    av.textContent = CF.initials(user.firstName, user.lastName);
-    av.style.background = CF.avatarColor(nm);
-  } catch (e) {}
+    if (av && avatar) {
+      var src = /^https?:\/\//.test(avatar) ? avatar : window.CONFIG.API_BASE_URL.replace(/\/api$/, '') + avatar;
+      av.outerHTML = '<img id="pvAvatar" class="pro-avatar av-img" src="' + CF.esc(src) + '" alt="Profile photo" />';
+    } else if (av) {
+      av.textContent = CF.initials(first, last);
+      av.style.background = CF.avatarColor(nm);
+    }
+  }
+  paintName(user.firstName, user.lastName, user.avatar);
+
+  // Refresh from the server so the preview never shows stale data,
+  // and preload anything already saved on a previous visit.
+  (function hydrate() {
+    CF.api('/auth/me', 'GET').then(function (me) {
+      if (!me) return;
+      paintName(me.firstName, me.lastName, me.avatar);
+      try {
+        var u = CF.currentUser() || {};
+        u.firstName = me.firstName || u.firstName;
+        u.lastName = me.lastName || u.lastName;
+        u.avatar = me.avatar || u.avatar;
+        if (me.providerId) u.providerId = me.providerId;
+        localStorage.setItem('user', JSON.stringify(u));
+      } catch (se) {}
+      var pid = me.providerId || (me.provider && me.provider.id);
+      if (!pid) return null;
+      return CF.api('/providers/' + pid, 'GET', null, false);
+    }).then(function (res) {
+      var p = (res && (res.data || res)) || null;
+      if (!p || p.id === undefined) return;
+      var u2 = (p && p.user) || {};
+      if (p.bio && !document.getElementById('oBio').value) document.getElementById('oBio').value = String(p.bio).split(' | Areas:')[0];
+      if (p.category) document.getElementById('oCat').value = p.category;
+      if (p.experience !== undefined && p.experience !== null) document.getElementById('oExp').value = p.experience;
+      if (p.services && p.services[0] && p.services[0].price !== undefined) document.getElementById('oPrice').value = p.services[0].price;
+      if (p.services && p.services[0]) {
+        document.getElementById('oService').value = p.services[0].name || '';
+        document.getElementById('oDuration').value = p.services[0].duration || 60;
+      }
+      if (p.documents) {
+        try {
+          var savedDocs = JSON.parse(p.documents);
+          document.getElementById('docChips').innerHTML = savedDocs.slice(-3).map(function (d) {
+            return '<span class="doc-chip">✓ ' + CF.esc(String(d).split('/').pop().slice(-18)) + '</span>';
+          }).join('');
+        } catch (docErr) {}
+      }
+      if (u2.city && !document.getElementById('oArea').value) document.getElementById('oArea').value = u2.city;
+      if (u2.phone && !document.getElementById('oPhone').value) document.getElementById('oPhone').value = u2.phone;
+      if (u2.avatar) paintName(u2.firstName, u2.lastName, u2.avatar);
+      preview();
+    }).catch(function () { /* offline: keep local values */ });
+  })();
 
   var bio = document.getElementById('oBio'), cat = document.getElementById('oCat'),
       price = document.getElementById('oPrice'), area = document.getElementById('oArea');
@@ -111,8 +173,14 @@
     var p = Number(price.value) || 0;
     document.getElementById('pvPrice').innerHTML = CF.money(p) + ' <small>/ hr</small>';
     document.getElementById('priceHint').textContent = p < 300 ? 'That is quite low — most pros start at Rs 400–800.' : p > 5000 ? 'Premium pricing — make sure your bio justifies it.' : 'Customers see this first.';
+    var checks = [bio.value.trim().length >= 20, !!cat.value, Number(document.getElementById('oExp').value) >= 0, p > 0, !!area.value.trim(), !!document.getElementById('oService').value.trim()];
+    var complete = checks.filter(Boolean).length, pct = Math.round((complete / checks.length) * 100);
+    document.getElementById('readinessBar').style.width = pct + '%';
+    document.getElementById('readinessStatus').textContent = pct === 100 ? 'Ready to submit' : pct + '% ready';
+    document.getElementById('readinessStatus').className = 'pill ' + (pct === 100 ? 'pill-green' : 'pill-amber');
+    document.getElementById('readinessHint').textContent = pct === 100 ? 'Your profile has the essentials customers and reviewers need.' : (checks.length - complete) + ' essentials still need attention.';
   }
-  [bio, cat, price, area].forEach(function (el) { el.addEventListener('input', preview); el.addEventListener('change', preview); });
+  [bio, cat, price, area, document.getElementById('oExp'), document.getElementById('oService')].forEach(function (el) { el.addEventListener('input', preview); el.addEventListener('change', preview); });
   preview();
 
   document.getElementById('oAvatar').addEventListener('change', async function (e) {
@@ -131,9 +199,25 @@
         localStorage.setItem('user', JSON.stringify(u));
       } catch (se) {}
       var nm = ((user.firstName || '') + ' ' + (user.lastName || '')).trim();
-      document.getElementById('pvAvatar').outerHTML = CF.avatarImg({ firstName: user.firstName, lastName: user.lastName, avatar: res.data.avatar }, 'pro-avatar').replace('class="pro-avatar"', 'id="pvAvatar" class="pro-avatar"');
+      var src = /^https?:\/\//.test(res.data.avatar) ? res.data.avatar : window.CONFIG.API_BASE_URL.replace(/\/api$/, '') + res.data.avatar;
+      document.getElementById('pvAvatar').outerHTML = '<img id="pvAvatar" class="pro-avatar av-img" src="' + CF.esc(src) + '" alt="Profile photo" />';
     } catch (ex) { CF.toast(ex.message, 'err'); }
     e.target.value = '';
+  });
+
+  document.getElementById('oAvatarRemove').addEventListener('click', async function () {
+    try {
+      await CF.api('/users/avatar', 'DELETE', {});
+      try {
+        var u = CF.currentUser() || {};
+        u.avatar = null;
+        localStorage.setItem('user', JSON.stringify(u));
+        user.avatar = null;
+      } catch (se) {}
+      paintName(user.firstName, user.lastName, null);
+      document.getElementById('avatarHint').textContent = 'Photo removed — using the default profile.';
+      CF.toast('Profile photo removed.');
+    } catch (ex) { CF.toast(ex.message, 'err'); }
   });
 
   document.getElementById('oDocs').addEventListener('change', async function (e) {
@@ -171,6 +255,8 @@
         city: (area.value.trim().split(',')[0] || '').trim() || undefined,
         phone: phone || undefined,
         address: area.value.trim() || undefined
+        ,serviceName: document.getElementById('oService').value.trim() || undefined,
+        duration: parseInt(document.getElementById('oDuration').value, 10) || 60
       });
       document.getElementById('doneVeil').classList.add('show');
     } catch (ex) {

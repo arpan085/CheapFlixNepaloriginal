@@ -34,10 +34,16 @@
     return API_BASE_URL + endpoint;
   };
   
+  // Google Sign-In client ID (get one at https://console.cloud.google.com/apis/credentials
+  // -> Create Credentials -> OAuth client ID -> Web application).
+  // Paste it between the quotes. Until then the Google button stays hidden.
+  var GOOGLE_CLIENT_ID = '853879806498-tq527v089a46p1l6bmhg4iov1ufoeeaf.apps.googleusercontent.com';
+
   // Export for use in files that may need it
   window.CONFIG = {
     API_BASE_URL: API_BASE_URL,
-    getApiUrl: window.getApiUrl
+    getApiUrl: window.getApiUrl,
+    GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
   };
   
   console.log('🔧 API Configuration loaded:', API_BASE_URL);

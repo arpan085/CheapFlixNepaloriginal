@@ -6,8 +6,7 @@ export default defineConfig({
     // Upgrade to a paid plan to enable AI Gateway for your project.
     // aiGateway: true,
     buckets: {
-      cheapflixnepal: { access: "private" },
-      back: { access: "private" },
+      assets: { access: "private" },
     },
     functions: {
       api: { name: "api", source: "./hello.ts" },

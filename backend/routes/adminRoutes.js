@@ -15,7 +15,13 @@ router.get('/analytics', adminController.getAnalytics);
 
 // users
 router.get('/users', adminController.getUsers);
+router.patch('/users/:id', adminController.updateUser);
+router.patch('/users/:id/status', adminController.setUserStatus);
+router.post('/users/:id/reset-password', adminController.resetUserPassword);
 router.delete('/users/:id', adminController.deleteUser);
+
+// profile audit log — every customer/provider profile, bio & number change
+router.get('/audit-log', adminController.getAuditLog);
 
 // providers
 router.get('/providers', adminController.getProviders);
@@ -155,6 +161,20 @@ router.get('/services', async (req, res) => {
       count: services.length,
       data: services 
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove a service (only when no bookings reference it — cancel those first).
+router.delete('/services/:id', async (req, res) => {
+  try {
+    const svc = await prisma.service.findUnique({ where: { id: String(req.params.id) }, select: { id: true } });
+    if (!svc) return res.status(404).json({ error: 'Service not found' });
+    const n = await prisma.booking.count({ where: { serviceId: String(req.params.id) } });
+    if (n > 0) return res.status(409).json({ error: 'This service has bookings — cancel them first.' });
+    await prisma.service.delete({ where: { id: String(req.params.id) } });
+    res.json({ success: true, message: 'Service removed.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

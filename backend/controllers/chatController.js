@@ -29,6 +29,12 @@ exports.sendMessage = async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
 
+    // Chat unlocks only after the provider accepts the request —
+    // customers apply first, the two sides connect on confirmation.
+    if (String(booking.status).toLowerCase() === 'pending') {
+      return res.status(403).json({ error: 'Chat unlocks after the provider accepts your request.' });
+    }
+
     // Get provider's user ID
     const provider = await prisma.provider.findUnique({
       where: { id: booking.providerId },
@@ -130,15 +136,33 @@ exports.getMessages = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden - not involved in this booking' });
     }
 
-    // Get all messages for this booking
+    // Paginated: ?limit= (default 50, max 100) + ?before= (message id cursor).
+    // Returns the latest N messages in chronological order + hasMore flag.
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+    const beforeId = req.query.before ? String(req.query.before) : null;
+    let cursorFilter = {};
+    if (beforeId) {
+      const anchor = await prisma.message.findUnique({
+        where: { id: beforeId },
+        select: { createdAt: true, bookingId: true },
+      });
+      if (anchor && anchor.bookingId === safeBookingId) {
+        cursorFilter = { createdAt: { lt: anchor.createdAt } };
+      }
+    }
+
+    // Newest-first, then reverse so the client still gets chronological order.
     const messages = await prisma.message.findMany({
-      where: { bookingId: safeBookingId },
+      where: { bookingId: safeBookingId, ...cursorFilter },
       include: {
         sender: { select: { id: true, firstName: true, lastName: true, avatar: true } },
         receiver: { select: { id: true, firstName: true, lastName: true } }
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
     });
+    const hasMore = messages.length > limit;
+    const page = messages.slice(0, limit).reverse();
 
     // Mark unread messages as read for the current user
     await prisma.message.updateMany({
@@ -150,7 +174,7 @@ exports.getMessages = async (req, res) => {
       data: { isRead: true }
     });
 
-    return res.json({ success: true, count: messages.length, data: messages });
+    return res.json({ success: true, count: page.length, hasMore, data: page });
   } catch (error) {
     console.error('Get messages error:', error);
     return res.status(500).json({ error: 'Failed to fetch messages' });
@@ -196,10 +220,15 @@ exports.getConversations = async (req, res) => {
     });
     const myProviderIds = myProviders.map((p) => p.id);
 
+    // Paginated: ?page=1&limit=20 (max 50) — keeps polling cheap.
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 20));
     // Get all bookings involved (as customer OR as provider)
     const or = [{ userId }];
     if (myProviderIds.length) or.push({ providerId: { in: myProviderIds } });
-    const bookings = await prisma.booking.findMany({
+    const [total, bookings] = await Promise.all([
+      prisma.booking.count({ where: { OR: or } }),
+      prisma.booking.findMany({
       where: { OR: or },
       include: {
         user: { select: { id: true, firstName: true, lastName: true, avatar: true } },
@@ -213,8 +242,11 @@ exports.getConversations = async (req, res) => {
           }
         }
       },
-      orderBy: { updatedAt: 'desc' }
-    });
+      orderBy: { updatedAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+      }),
+    ]);
 
     const conversations = bookings.map(booking => {
       const lastMessage = booking.messages[0] || null;
@@ -230,7 +262,7 @@ exports.getConversations = async (req, res) => {
       };
     });
 
-    return res.json({ success: true, count: conversations.length, data: conversations });
+    return res.json({ success: true, count: conversations.length, total, page, totalPages: Math.ceil(total / limit), data: conversations });
   } catch (error) {
     console.error('Get conversations error:', error);
     return res.status(500).json({ error: 'Failed to fetch conversations' });

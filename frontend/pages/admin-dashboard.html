@@ -9,9 +9,9 @@
   <meta name="theme-color" content="#1d4a38" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
-  <link rel="stylesheet" href="../css/design-system.css" />
+  <link rel="stylesheet" href="../css/design-system.css?v=5" />
   <script src="../config.js"></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/app.js?v=5"></script>
 </head>
 <body>
 <div class="dash">
@@ -26,6 +26,7 @@
     <button class="dash-link" data-tab="bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span data-i18n="nav.bookings">Bookings</span></button>
     <button class="dash-link" data-tab="support"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg><span data-i18n="nav.support">Support</span> <span class="count" id="navTick" hidden>0</span></button>
     <button class="dash-link" data-tab="promos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2.5 2.5 0 0 0 0 5v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2.5 2.5 0 0 0 0-5z"/><path d="M13 5v16"/></svg><span>Promos</span></button>
+    <button class="dash-link" data-tab="audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Audit log</span> <span class="count" id="navAudit" hidden>0</span></button>
     <button class="dash-link" data-tab="content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5zM19 15H6a2 2 0 0 0-2 2"/></svg><span data-i18n="nav.content">Content &amp; payouts</span></button>
     <a class="dash-link" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg><span data-i18n="nav.viewsite">View site</span></a>
     <div class="dash-side-foot"><button class="dash-link" data-logout><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span data-i18n="nav.logout">Log out</span></button></div>
@@ -38,6 +39,14 @@
       <span class="spacer"></span>
       <label class="top-search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="globalSearch" type="search" placeholder="Search name, email, ref…" aria-label="Search" /></label>
       <button class="btn btn-line btn-sm" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+
+    <div class="dash-hero">
+      <div style="flex:1;min-width:220px">
+        <h2>Control room 🛡️</h2>
+        <p>Verify providers, watch bookings and revenue, answer support tickets — everything live below.</p>
+      </div>
+      <button class="btn" style="background:#e9b44c;color:#1c1917" data-tab="providers" type="button">Review providers →</button>
     </div>
 
     <div data-pane="overview">
@@ -127,22 +136,56 @@
       </div>
       <div class="panel"><div class="panel-head"><h2>Review moderation</h2><span class="small muted">latest 100</span></div>
         <div class="table-wrap"><table class="tbl"><thead><tr><th>Booking</th><th>Customer</th><th>Provider</th><th>Rating</th><th>Comment</th><th></th></tr></thead><tbody id="revRows"><tr><td colspan="6"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
+      <div class="panel"><div class="panel-head"><h2>Services</h2><span class="small muted" id="svcCount"></span></div>
+        <div class="table-wrap"><table class="tbl"><thead><tr><th>Service</th><th>Provider</th><th>Price</th><th>Bookings</th><th></th></tr></thead><tbody id="svcRows"><tr><td colspan="5"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div></div>
+    </div>
+
+    <div data-pane="audit" hidden>
+      <div class="panel"><div class="panel-head"><h2>Profile audit log</h2><span class="small muted" id="auditCount">every bio · phone · name change</span></div>
+        <div class="chip-row" id="auditFilter" style="margin-bottom:12px">
+          <button class="chip on" data-af="all" type="button">All</button><button class="chip" data-af="profile_updated" type="button">Customers</button><button class="chip" data-af="provider_profile_updated" type="button">Providers</button><button class="chip" data-af="avatar_updated" type="button">Avatars</button><button class="chip" data-af="admin_user_updated" type="button">By admin</button>
+        </div>
+        <div class="table-wrap"><table class="tbl"><thead><tr><th>When</th><th>Who changed</th><th>Profile</th><th>Action</th><th>Changes</th></tr></thead><tbody id="auditRows"><tr><td colspan="5"><div class="skel" style="height:48px"></div></td></tr></tbody></table></div>
+        <div class="row" style="margin-top:12px;justify-content:space-between"><button class="btn btn-line btn-sm" id="auditPrev" type="button">← Newer</button><span class="small muted" id="auditPage"></span><button class="btn btn-line btn-sm" id="auditNext" type="button">Older →</button></div>
+      </div>
     </div>
   </main>
 </div>
+
+<div class="modal-veil" id="userVeil" role="dialog" aria-modal="true"><div class="modal">
+  <h2>Edit user</h2><p class="muted small" id="euMail" style="margin-bottom:14px"></p>
+  <div class="field-row">
+    <div class="field"><label for="euFirst">First name</label><input id="euFirst" type="text" /></div>
+    <div class="field"><label for="euLast">Last name</label><input id="euLast" type="text" /></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label for="euPhone">Phone</label><input id="euPhone" type="tel" /></div>
+    <div class="field"><label for="euCity">City</label><input id="euCity" type="text" /></div>
+  </div>
+  <div class="field"><label for="euAddr">Address</label><input id="euAddr" type="text" /></div>
+  <div class="field-row"><div class="field"><label for="euStatus">Status</label><select id="euStatus"><option value="active">active</option><option value="inactive">inactive</option><option value="suspended">suspended</option></select></div><div class="field"><label for="euRole">Role</label><select id="euRole"><option value="user">Customer</option><option value="provider">Provider</option></select></div></div>
+  <div class="alert alert-err" id="euErr"></div>
+  <div style="display:flex;gap:10px"><button class="btn btn-line" id="euClose" type="button">Cancel</button><button class="btn btn-pine" id="euSave" type="button" style="flex:1">Save changes</button></div>
+</div></div>
 
 <script>
 (function () {
   var user = CF.requireAuth(['admin']);
   if (!user) return;
+  window.scrollTo(0, 0);
 
   var providers = [], users = [], bookings = [], provFilter = 'all', bookFilter = 'all', q = '';
-  var tickets = [], tickFilter = 'open', openTick = null, cats = [], reviews = [], promos = [];
+  var tickets = [], tickFilter = 'open', openTick = null, cats = [], reviews = [], promos = [], services = [], editId = null;
+  var auditRows = [], auditPage = 1, auditTotalPages = 1, auditFilter = 'all', auditTotal = 0;
   try {
     document.getElementById('paName').textContent = (user.firstName || 'Admin') + ' ' + (user.lastName || '');
     var av = document.getElementById('paAvatar');
-    av.textContent = CF.initials(user.firstName, user.lastName);
-    av.style.background = CF.avatarColor(user.firstName + user.lastName);
+    if (user.avatar) {
+      av.outerHTML = CF.avatarImg(user, 'pa').replace('class="pa', 'id="paAvatar" class="pa');
+    } else {
+      av.textContent = CF.initials(user.firstName, user.lastName);
+      av.style.background = CF.avatarColor(user.firstName + user.lastName);
+    }
   } catch (e) {}
 
   if (window.innerWidth <= 1020) document.getElementById('menuBtn').style.display = '';
@@ -154,7 +197,7 @@
     document.getElementById('dashSide').classList.remove('open');
     this.classList.remove('show');
   });
-  document.getElementById('globalSearch').addEventListener('input', function (e) { q = e.target.value.toLowerCase(); renderProviders(); renderUsers(); renderBookings(); });
+  document.getElementById('globalSearch').addEventListener('input', function (e) { q = e.target.value.toLowerCase(); renderProviders(); renderUsers(); renderBookings(); loadAudit(1); });
   document.getElementById('refreshBtn').addEventListener('click', loadAll);
 
   document.querySelectorAll('[data-tab]').forEach(function (b) {
@@ -203,7 +246,55 @@
     try { var cr = await CF.api('/admin/categories', 'GET'); cats = cr.data || []; } catch (e) { cats = []; }
     try { var rr = await CF.api('/admin/reviews', 'GET'); reviews = rr.data || []; } catch (e) { reviews = []; }
     try { var pr2 = await CF.api('/admin/promos', 'GET'); promos = pr2.data || []; } catch (e) { promos = []; }
+    try { var sr = await CF.api('/admin/services', 'GET'); services = sr.data || []; } catch (e) { services = []; }
+    await loadAudit(1);
     renderAll();
+  }
+
+  /* ---- profile audit log: who changed which bio/phone/name, when ---- */
+  async function loadAudit(page) {
+    try {
+      var qs = '?page=' + (page || 1) + '&limit=20' + (auditFilter !== 'all' ? '&action=' + encodeURIComponent(auditFilter) : '') + (q ? '&search=' + encodeURIComponent(q) : '');
+      var res = await CF.api('/admin/audit-log' + qs, 'GET');
+      auditRows = res.data || res.rows || [];
+      auditPage = res.page || page || 1;
+      auditTotalPages = res.totalPages || 1;
+      auditTotal = res.total || auditRows.length;
+      if (res.migrated === false) {
+        document.getElementById('auditRows').innerHTML = '<tr><td colspan="5"><div class="empty"><b>Audit table not migrated yet.</b><p class="small">Run <code>prisma/migrations_profile_audit.sql</code> against DATABASE_URL, then refresh.</p></div></td></tr>';
+        return;
+      }
+    } catch (e) { auditRows = []; }
+    renderAudit();
+  }
+  function fmtChanges(ch) {
+    var o = ch || {};
+    if (typeof o === 'string') { try { o = JSON.parse(o); } catch (e) { return CF.esc(String(o).slice(0, 120)); } }
+    var keys = Object.keys(o);
+    if (!keys.length) return '<span class="small muted">—</span>';
+    return keys.slice(0, 6).map(function (k) {
+      var v = o[k] || {};
+      var from = v.from != null ? String(v.from).slice(0, 40) : '';
+      var to = v.to != null ? String(v.to).slice(0, 40) : '';
+      return '<div class="small"><b>' + CF.esc(k.replace(/^provider\./, '')) + ':</b> ' +
+        (from ? '<s class="muted">' + CF.esc(from) + '</s> → ' : '') + '<b>' + CF.esc(to || '—') + '</b></div>';
+    }).join('');
+  }
+  function renderAudit() {
+    var box = document.getElementById('auditRows');
+    if (!box) return;
+    document.getElementById('auditCount').textContent = auditTotal + ' changes tracked';
+    document.getElementById('auditPage').textContent = 'Page ' + auditPage + ' of ' + Math.max(1, auditTotalPages);
+    var badge = document.getElementById('navAudit');
+    if (badge) { badge.hidden = !auditTotal; badge.textContent = auditTotal > 99 ? '99+' : auditTotal; }
+    box.innerHTML = auditRows.length ? auditRows.map(function (r) {
+      var when = r.createdAt ? new Date(r.createdAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+      return '<tr><td class="small" style="white-space:nowrap">' + CF.esc(when) + '</td>' +
+        '<td><b>' + CF.esc(r.actorName || '—') + '</b><br /><span class="small muted">' + CF.esc(r.actorRole || '') + '</span></td>' +
+        '<td>' + CF.esc(r.targetName || r.targetUserId || '—') + '</td>' +
+        '<td>' + CF.pillFor(r.action || '') + '</td>' +
+        '<td>' + fmtChanges(r.changes) + '</td></tr>';
+    }).join('') : '<tr><td colspan="5"><div class="empty"><b>No profile changes yet.</b><p class="small">Edits to name, bio or phone appear here live.</p></div></td></tr>';
   }
 
   function renderAll() {
@@ -241,8 +332,92 @@
     }).join('');
 
     renderProviders(); renderUsers(); renderBookings();
-    renderTickets(); renderCats(); renderReviews(); renderPayouts(); renderPromos();
+    renderTickets(); renderCats(); renderReviews(); renderPayouts(); renderPromos(); renderServices();
+    renderAudit();
   }
+
+  /* audit filter + paging + live refresh on every profile change */
+  (function initAuditLive() {
+    var f = document.getElementById('auditFilter');
+    if (f) f.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-af]'); if (!b) return;
+      auditFilter = b.dataset.af;
+      f.querySelectorAll('.chip').forEach(function (x) { x.classList.toggle('on', x === b); });
+      loadAudit(1);
+    });
+    var pv = document.getElementById('auditPrev'), nx = document.getElementById('auditNext');
+    if (pv) pv.addEventListener('click', function () { if (auditPage > 1) loadAudit(auditPage - 1); });
+    if (nx) nx.addEventListener('click', function () { if (auditPage < auditTotalPages) loadAudit(auditPage + 1); });
+    try {
+      CF.onLive('profile_updated', function (d) {
+        CF.toast('Profile updated — ' + ((d && d.user && d.user.firstName) || 'a user') + ' changed ' + ((d && d.changes && d.changes.join(', ')) || 'their profile'));
+        loadAll();
+      });
+      window.addEventListener('cf:profile-updated', function () { loadAll(); });
+    } catch (e) {}
+  })();
+
+  /* ---- services ---- */
+  function renderServices() {
+    var box = document.getElementById('svcRows');
+    if (!box) return;
+    var list = services.filter(function (s) {
+      return matchQ(s.name, fullName((s.provider || {}).user), (s.provider || {}).category);
+    });
+    document.getElementById('svcCount').textContent = list.length + ' total';
+    box.innerHTML = list.length ? list.slice(0, 100).map(function (s) {
+      var n = bookings.filter(function (b) { return (b.serviceId || ((b.service || {}).id)) === s.id; }).length;
+      var pn = fullName((s.provider || {}).user);
+      return '<tr><td><b>' + CF.esc(s.name || '—') + '</b></td><td class="small">' + CF.esc(pn) + (s.provider ? ' · ' + CF.esc(s.provider.category || '') : '') + '</td>' +
+        '<td><b>' + CF.money(s.price) + '</b></td><td>' + n + '</td>' +
+        '<td><button class="btn btn-line btn-sm" data-delsvc="' + CF.esc(s.id) + '" type="button">Remove</button></td></tr>';
+    }).join('') : '<tr><td colspan="5"><div class="empty"><b>No services yet.</b></div></td></tr>';
+  }
+
+  /* ---- edit user modal ---- */
+  function openUserEdit(id) {
+    var u = users.find(function (x) { return x.id === id; });
+    if (!u) {
+      var pr = providers.find(function (x) { return (x.user && x.user.id) === id; });
+      if (pr) u = pr.user;
+    }
+    if (!u) { CF.toast('User not loaded yet — refresh and retry.', 'err'); return; }
+    editId = u.id;
+    document.getElementById('euMail').textContent = u.email || '';
+    document.getElementById('euFirst').value = u.firstName || '';
+    document.getElementById('euLast').value = u.lastName || '';
+    document.getElementById('euPhone').value = u.phone || '';
+    document.getElementById('euCity').value = u.city || '';
+    document.getElementById('euAddr').value = u.address || '';
+    document.getElementById('euStatus').value = u.status || 'active';
+    document.getElementById('euRole').value = u.role === 'provider' ? 'provider' : 'user';
+    document.getElementById('euErr').classList.remove('show');
+    document.getElementById('userVeil').classList.add('show');
+  }
+  document.getElementById('euClose').addEventListener('click', function () { document.getElementById('userVeil').classList.remove('show'); });
+  document.getElementById('userVeil').addEventListener('click', function (e) { if (e.target === this) this.classList.remove('show'); });
+  document.getElementById('euSave').addEventListener('click', async function () {
+    if (!editId) return;
+    var err = document.getElementById('euErr');
+    err.classList.remove('show');
+    var btn = this;
+    btn.disabled = true; btn.classList.add('loading');
+    try {
+      await CF.api('/admin/users/' + editId, 'PATCH', {
+        firstName: document.getElementById('euFirst').value.trim(),
+        lastName: document.getElementById('euLast').value.trim(),
+        phone: document.getElementById('euPhone').value.trim(),
+        city: document.getElementById('euCity').value.trim(),
+        address: document.getElementById('euAddr').value.trim(),
+        status: document.getElementById('euStatus').value,
+        role: document.getElementById('euRole').value
+      });
+      document.getElementById('userVeil').classList.remove('show');
+      CF.toast('User updated.');
+      loadAll();
+    } catch (ex) { err.textContent = ex.message; err.classList.add('show'); }
+    btn.disabled = false; btn.classList.remove('loading'); btn.textContent = 'Save changes';
+  });
 
   /* ---- promos ---- */
   function promoDeal(p) {
@@ -459,9 +634,10 @@
       return '<tr><td><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials((p.user||{}).firstName, (p.user||{}).lastName)) + '</span><span><b>' + CF.esc(nm) + '</b></span></span></td><td>' + CF.esc(p.category || '—') + '</td>' +
         '<td class="small">' + CF.esc((p.user && p.user.email) || '') + (p.user && p.user.phone ? '<br />' + CF.esc(p.user.phone) : '') + '</td>' +
         '<td>' + CF.esc(p.experience || 0) + ' yrs</td>' +
-        '<td>' + (p.verified ? '<span class="pill pill-green">verified</span>' : '<span class="pill pill-amber">pending</span>') + '</td>' +
-        '<td style="white-space:nowrap">' + (!p.verified ? '<button class="btn btn-pine btn-sm" data-verify="' + CF.esc(p.id) + '" type="button">Approve</button> ' : '') +
-        '<button class="btn btn-line btn-sm" data-suspend="' + CF.esc(p.id) + '" type="button">Suspend</button></td></tr>';
+        '<td>' + (p.verified ? '<span class="pill pill-green">verified</span>' : '<span class="pill pill-amber">pending</span>') + ' ' + CF.pillFor((p.user && p.user.status) || 'active') + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn ' + (p.verified ? 'btn-line' : 'btn-pine') + ' btn-sm" data-verify="' + CF.esc(p.id) + '" data-value="' + (p.verified ? 'false' : 'true') + '" type="button">' + (p.verified ? 'Unverify' : 'Approve') + '</button> ' +
+        '<button class="btn btn-line btn-sm" data-suspend="' + CF.esc(p.id) + '" type="button">Suspend</button> ' +
+        ((p.user && p.user.id) ? '<button class="btn btn-line btn-sm" data-resetpw="' + CF.esc(p.user.id) + '" type="button">Reset pw</button>' : '') + '</td></tr>';
     }).join('') : '<tr><td colspan="6"><div class="empty"><b>No providers in this view.</b></div></td></tr>';
   }
 
@@ -473,7 +649,9 @@
       return '<tr><td><span class="cell-main"><span class="cell-avatar" style="background:' + CF.avatarColor(nm) + '">' + CF.esc(CF.initials(u.firstName, u.lastName)) + '</span><span><b>' + CF.esc(nm) + '</b></span></span></td><td class="small">' + CF.esc(u.email || '') + '</td>' +
         '<td>' + CF.esc(u.phone || '—') + '</td><td class="small">' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-GB') : '—') + '</td>' +
         '<td>' + CF.pillFor(u.status || 'active') + '</td>' +
-        '<td><button class="btn btn-line btn-sm" data-deluser="' + CF.esc(u.id) + '" type="button">Remove</button></td></tr>';
+        '<td style="white-space:nowrap"><button class="btn btn-line btn-sm" data-edituser="' + CF.esc(u.id) + '" type="button">Edit</button> ' +
+        '<button class="btn btn-line btn-sm" data-resetpw="' + CF.esc(u.id) + '" type="button">Reset pw</button> ' +
+        '<button class="btn btn-line btn-sm" data-deluser="' + CF.esc(u.id) + '" type="button">Remove</button></td></tr>';
     }).join('') : '<tr><td colspan="6"><div class="empty"><b>No customers yet.</b></div></td></tr>';
   }
 
@@ -502,15 +680,28 @@
     var pb = e.target.closest('[data-paybk]');
     var rb = e.target.closest('[data-refundbk]');
     var dr = e.target.closest('[data-delrev]');
+    var eu = e.target.closest('[data-edituser]');
+    var rp = e.target.closest('[data-resetpw]');
+    var ds = e.target.closest('[data-delsvc]');
     try {
-      if (v) { await CF.api('/admin/providers/' + v.dataset.verify + '/verify', 'PATCH', { verified: true }); CF.toast('Provider approved — they can now receive jobs.'); }
+      if (eu) { openUserEdit(eu.dataset.edituser); return; }
+      if (rp) {
+        var np = prompt('New password for this user (min 8 characters):');
+        if (np === null) return;
+        if (np.length < 8) { CF.toast('Password needs at least 8 characters.', 'err'); return; }
+        await CF.api('/admin/users/' + rp.dataset.resetpw + '/reset-password', 'POST', { password: np });
+        CF.toast('Password reset — share it with the user securely.');
+        return;
+      }
+      if (ds && confirm('Remove this service? Only possible when it has no bookings.')) { await CF.api('/admin/services/' + ds.dataset.delsvc, 'DELETE', {}); CF.toast('Service removed.'); }
+      if (v) { var nextVerified = v.dataset.value !== 'false'; await CF.api('/admin/providers/' + v.dataset.verify + '/verify', 'PATCH', { verified: nextVerified }); CF.toast(nextVerified ? 'Provider approved — they can now receive jobs.' : 'Provider unverified.'); }
       if (s && confirm('Suspend this provider? Their account will be locked.')) { await CF.api('/admin/providers/' + s.dataset.suspend + '/suspend', 'POST', {}); CF.toast('Provider suspended.'); }
       if (d && confirm('Remove this customer? This cannot be undone.')) { await CF.api('/admin/users/' + d.dataset.deluser, 'DELETE'); CF.toast('Customer removed.'); }
       if (c && confirm('Cancel this booking? Both sides will be notified.')) { await CF.api('/admin/bookings/' + c.dataset.cancelbk + '/cancel', 'PATCH', {}); CF.toast('Booking cancelled.'); }
       if (pb && confirm('Mark this booking as paid?')) { await CF.api('/bookings/' + pb.dataset.paybk + '/payment', 'PATCH', { paymentStatus: 'paid' }); CF.toast('Payment marked as paid.'); }
       if (rb && confirm('Refund this payment? Only after returning the money.')) { await CF.api('/bookings/' + rb.dataset.refundbk + '/payment', 'PATCH', { paymentStatus: 'refunded' }); CF.toast('Payment refunded.'); }
       if (dr && confirm('Remove this review? This cannot be undone.')) { await CF.api('/admin/reviews/' + dr.dataset.delrev, 'DELETE'); CF.toast('Review removed.'); }
-      if (v || s || d || c || pb || rb || dr) loadAll();
+      if (v || s || d || c || pb || rb || dr || ds) loadAll();
     } catch (ex) { CF.toast(ex.message, 'err'); }
   });
 

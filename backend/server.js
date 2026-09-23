@@ -23,21 +23,45 @@ if (String(process.env.JWT_SECRET).length < 32) {
 }
 
 // Middleware
-// All origins from env (comma-separated FRONTEND_URLS) or FRONTEND_URL.
-// No hardcoded secrets here — just public site origins.
-const allowedOrigins = [
-  "https://cheapflixnepal.live",
-  "https://cheapflixnepal.netlify.app",
-  "http://localhost:5500",
-  "http://localhost:3000"
-];
-if (process.env.FRONTEND_URLS) {
-  for (const o of String(process.env.FRONTEND_URLS).split(',')) {
-    const clean = o.trim().replace(/\/$/, '');
-    if (clean && !allowedOrigins.includes(clean)) allowedOrigins.push(clean);
-  }
+// Allowed origins: CORS_ORIGIN (comma-separated, authoritative when set),
+// then FRONTEND_URLS / FRONTEND_URL. Public site defaults for local dev only.
+// In production a missing allow-list is a boot error — never "*" and never
+// open to every origin.
+const allowedOrigins = [];
+function addOrigin(o) {
+  const clean = String(o || '').trim().replace(/\/$/, '');
+  if (clean && clean !== '*' && !allowedOrigins.includes(clean)) allowedOrigins.push(clean);
 }
-if (process.env.FRONTEND_URL) allowedOrigins.push(process.env.FRONTEND_URL.replace(/\/$/, ''));
+if (process.env.CORS_ORIGIN) {
+  for (const o of String(process.env.CORS_ORIGIN).split(',')) addOrigin(o);
+} else {
+  addOrigin('https://cheapflixnepal.live');
+  addOrigin('https://cheapflixnepal.netlify.app');
+  addOrigin('http://localhost:5500');
+  addOrigin('http://localhost:3000');
+}
+if (process.env.FRONTEND_URLS) {
+  for (const o of String(process.env.FRONTEND_URLS).split(',')) addOrigin(o);
+}
+if (process.env.FRONTEND_URL) addOrigin(process.env.FRONTEND_URL);
+if (process.env.CORS_ORIGIN && String(process.env.CORS_ORIGIN).split(',').some((o) => o.trim() === '*')) {
+  console.error('[boot] CORS_ORIGIN must not contain "*". Refusing to start with open CORS.');
+  process.exit(1);
+}
+if (process.env.NODE_ENV === 'production' && allowedOrigins.length === 0) {
+  console.error('[boot] No CORS origins configured. Set CORS_ORIGIN (or FRONTEND_URL) and redeploy.');
+  process.exit(1);
+}
+
+// Safe boot report — presence only, never values.
+try {
+  const { neonEnabled, bucket } = require('./utils/storage');
+  console.log('DATABASE configured: ' + (process.env.DATABASE_URL ? 'yes' : 'no'));
+  console.log('Storage configured: ' + (neonEnabled() ? 'yes' : 'no'));
+  console.log('Storage bucket: ' + bucket());
+} catch (e) {
+  console.log('Storage configured: unknown');
+}
 
 app.use(securityHeaders);
 app.use(require('./middleware/analytics').analyticsMiddleware);
@@ -165,6 +189,16 @@ app.use((err, req, res, next) => {
 
 // Hourly upcoming-job reminders (no-op with ENABLE_REMINDERS=false).
 try { require('./utils/reminders').startReminders(); } catch (e) { console.error('[boot] reminders disabled:', e.message); }
+
+// Never die silently: log crashes. Exit in production so the host restarts
+// cleanly; stay up in development so one bad request can't kill the server.
+process.on('unhandledRejection', (reason) => {
+  console.error('[crash] unhandled rejection:', reason && reason.message ? reason.message : reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[crash] uncaught exception:', err && err.message ? err.message : err);
+  if (process.env.NODE_ENV === 'production') process.exit(1);
+});
 
 // Start server
 app.listen(PORT, () => {

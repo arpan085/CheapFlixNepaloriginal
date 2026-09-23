@@ -30,6 +30,20 @@ const validateRegister = [
   nameRule('lastName', 'Last name'),
   body('phone').optional({ checkFalsy: true }).trim()
     .matches(/^9[678]\d{8}$/).withMessage('Phone must be a Nepali mobile (98XXXXXXXX).'),
+  body('city').optional({ checkFalsy: true }).trim()
+    .isLength({ max: 80 }).withMessage('City is too long.'),
+  body('address').optional({ checkFalsy: true }).trim()
+    .isLength({ max: 500 }).withMessage('Address is too long.'),
+  body('avatar').optional({ checkFalsy: true }).trim()
+    .isLength({ max: 500 }).withMessage('Avatar value is too long.')
+    .custom((v) => {
+      if (/^data:/i.test(v)) throw new Error('Upload your photo after signing up — data URLs are not accepted here.');
+      if (/^preset:#[0-9a-fA-F]{3,8}$/.test(v)) return true;
+      if (/^https?:\/\/.+/i.test(v)) return true;
+      if (/^\/uploads\/.+/i.test(v)) return true;
+      if (/^\/api\/files\/.+/i.test(v)) return true;
+      throw new Error('Invalid avatar choice.');
+    }),
   body('userType').optional().isIn(['user', 'provider']).withMessage('Invalid account type.'),
   body('experience').optional().isInt({ min: 0, max: 60 }).withMessage('Experience must be 0–60 years.'),
   body('price').optional().isFloat({ min: 0, max: 1000000 }).withMessage('Price looks invalid.'),
@@ -48,6 +62,7 @@ const validateReset = [
 
 const validateBookingCreate = [
   body('providerId').notEmpty().withMessage('Choose a provider.'),
+  body('serviceId').notEmpty().withMessage('Choose a service.'),
   body('date').notEmpty().withMessage('Pick a date.').isISO8601().withMessage('Invalid date.'),
   body('startTime').trim().notEmpty().withMessage('Pick a start time.').isLength({ max: 40 }),
   body('duration').trim().notEmpty().withMessage('Pick a duration.').isLength({ max: 40 }),

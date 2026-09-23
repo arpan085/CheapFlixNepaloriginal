@@ -8,20 +8,25 @@
   <link rel="icon" type="image/svg+xml" href="../icons/icon.svg" />
   <title>Messages — Cheapflix Nepal</title>
   <meta name="description" content="Chat in real time with your provider or customer about a booking." />
-  <link rel="stylesheet" href="../css/design-system.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="../css/design-system.css?v=5" />
   <script src="../config.js"></script>
-  <script src="../js/app.js" defer></script>
+  <script src="../js/app.js?v=5"></script>
 </head>
 <body>
 <header class="site-nav">
   <div class="nav-inner">
-    <a href="../index.html" class="brand"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
-    <nav class="nav-links"><a href="../index.html#services">Services</a><a href="booking-flow.html">Book</a><a href="chat.html" class="active">Messages</a><a href="support.html">Help</a></nav>
-    <div class="nav-cta" data-nav-cta><a class="btn btn-line btn-sm" href="login.html">Log in</a></div>
-    <button class="burger" id="navBurger" aria-label="Open menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <a href="../index.html" class="brand" aria-label="Cheapflix Nepal home"><span class="brand-mark">Cf</span><span class="brand-name">Cheapflix<small>Nepal</small></span></a>
+    <nav class="nav-links" aria-label="Primary"><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="support.html">Help</a></nav>
+    <div class="nav-cta" data-nav-cta>
+      <a class="btn btn-line btn-sm" href="login.html">Log in</a>
+      <a class="btn btn-pine btn-sm" href="register.html">Get started</a>
+    </div>
+    <button class="burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   </div>
 </header>
-<div class="mobile-menu" id="mobileMenu" hidden><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a></div>
+<div class="mobile-menu" id="mobileMenu" hidden><a href="../index.html#services">Services</a><a href="../index.html#how">How it works</a><a href="../index.html#providers">Providers</a><a href="booking-flow.html">Book</a><a href="chat.html">Messages</a><a href="support.html">Help</a><a href="login.html">Log in</a><a href="register.html">Get started</a></div>
 
 <div class="flow-shell" style="max-width:1080px">
   <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
@@ -35,10 +40,10 @@
     <div class="chat-list" id="convList"><div style="padding:18px"><div class="skel" style="height:64px"></div><div class="skel" style="height:64px;margin-top:8px"></div></div></div>
     <div class="chat-main">
       <div class="chat-head" id="chatHead"><p class="muted small">Select a conversation to start chatting.</p></div>
-      <div class="chat-body" id="chatBody"><div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg></div><b>No thread open</b><p class="small">Pick a booking on the left. New here? <a href="booking-flow.html">Book a service</a> first.</p></div></div>
-      <div class="typing" id="typing" style="padding:0 20px 6px" hidden>typing…</div>
+      <div class="chat-body" id="chatBody" role="log" aria-live="polite" aria-label="Conversation messages"><div class="empty"><div class="empty-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg></div><b>No thread open</b><p class="small">Pick a booking on the left. New here? <a href="booking-flow.html">Book a service</a> first.</p></div></div>
+      <div class="typing" id="typing" role="status" style="padding:0 20px 6px" hidden>typing…</div>
       <form class="chat-input" id="chatForm">
-        <label class="icon-btn" title="Attach photo or PDF" style="border-radius:50%;flex-shrink:0;cursor:pointer">+
+        <label class="icon-btn" aria-label="Attach photo or PDF" title="Attach photo or PDF" style="border-radius:50%;flex-shrink:0;cursor:pointer">+
           <input id="chatFile" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" hidden />
         </label>
         <input id="chatText" type="text" placeholder="Write a message…" autocomplete="off" maxlength="1000" aria-label="Write a message" />
@@ -108,8 +113,11 @@
 
   async function loadConvs(silent) {
     try {
-      var res = await CF.api('/chat', 'GET');
-      var fresh = res.data || [];
+      var results = await Promise.all([
+        CF.api('/chat', 'GET'),
+        CF.api('/chat/unread/count', 'GET')
+      ]);
+      var fresh = results[0].data || [];
       // unread per thread is not returned; derive: last message from other party counts as activity
       convs = fresh;
       if (!silent) renderList();
@@ -118,15 +126,16 @@
         renderList();
       }
       // unread total
-      try {
-        var u = await CF.api('/chat/unread/count', 'GET');
-        var n = u.unreadCount || 0;
-        document.getElementById('unreadPill').textContent = n + ' unread';
-      } catch (e) {}
+      var n = results[1].unreadCount || 0;
+      document.getElementById('unreadPill').textContent = n + ' unread';
       if (activeId && !convs.find(function (c) { return c.bookingId === activeId; })) {
         // deep-linked booking not in list (e.g. other role) — still try to open
       }
     } catch (e) {
+      if (/Invalid or expired token|No token provided/i.test(e.message || '')) {
+        CF.logout();
+        return;
+      }
       if (!silent) document.getElementById('convList').innerHTML = '<div class="empty"><b>Could not load chats.</b><p class="small">' + CF.esc(e.message) + '</p></div>';
     }
   }
@@ -146,11 +155,12 @@
       '<a class="icon-btn chat" id="headChat" title="Booking details" href="' + (user.role === 'provider' ? 'provider-dashboard.html' : 'dashboard.html') + '" style="width:auto;padding:0 14px;gap:8px;font-size:13px;font-weight:700;height:38px">Details</a>';
   }
 
-  async function loadThread(silent) {
+  async function loadThread(silent, before) {
     if (!activeId) return;
     paintHead();
     try {
-      var res = await CF.api('/chat/booking/' + encodeURIComponent(activeId), 'GET');
+      var url = '/chat/booking/' + encodeURIComponent(activeId) + '?limit=50' + (before ? '&before=' + encodeURIComponent(before) : '');
+      var res = await CF.api(url, 'GET');
       var msgs = res.data || [];
       var body = document.getElementById('chatBody');
       var nearBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 120;
@@ -233,12 +243,11 @@
     var c = convs.find(function (x) { return x.bookingId === activeId; });
     var receiverId = c && c.otherParty ? c.otherParty.id : null;
     if (!receiverId) {
-      // resolve via booking detail
       try {
         var b = await CF.api('/bookings/' + encodeURIComponent(activeId), 'GET');
         var d = b.data || b;
-        receiverId = (user.role === 'provider') ? d.userId || (d.user && d.user.id) : (d.provider && (d.provider.userId || (d.provider.user && d.provider.user.id)));
-      } catch (e2) {}
+        receiverId = user.role === 'provider' ? d.userId || (d.user && d.user.id) : (d.provider && (d.provider.userId || (d.provider.user && d.provider.user.id)));
+      } catch (e2) { CF.toast(e2.message, 'err'); }
     }
     if (!receiverId) { CF.toast('Could not find the other person.', 'err'); return; }
     var btn = document.getElementById('sendBtn');
@@ -263,9 +272,37 @@
   });
 
   async function tick() {
+    if (document.hidden) return; // no polling in background tabs — SSE covers it
     await loadConvs(true);
     await loadThread(true);
     await flushOutbox();
+  }
+
+  // Instant delivery over SSE; polling (12s) is only a fallback.
+  function startInstant() {
+    try {
+      if (CF.onLive && CF.startLive) {
+        CF.onLive('chat', function () {
+          showTyping();
+          loadConvs(true);
+          loadThread(true);
+        });
+        CF.onLive('notification', function () { loadConvs(true); });
+        CF.onLive('booking', function () { loadConvs(true); loadThread(true); });
+        CF.onLive('payment', function () { loadConvs(true); });
+        CF.onLive('profile_updated', function () { loadConvs(true); loadThread(true); });
+        CF.startLive();
+      }
+    } catch (e) {}
+  }
+
+  var typingT = null;
+  function showTyping() {
+    var t = document.getElementById('typing');
+    if (!t) return;
+    t.hidden = false;
+    if (typingT) clearTimeout(typingT);
+    typingT = setTimeout(function () { t.hidden = true; }, 2500);
   }
 
   document.addEventListener('DOMContentLoaded', async function () {
@@ -275,7 +312,8 @@
       renderList();
       await loadThread(false);
     }
-    pollT = setInterval(tick, 5000);
+    startInstant();
+    pollT = setInterval(tick, 12000);
   });
   window.addEventListener('beforeunload', function () { if (pollT) clearInterval(pollT); });
 })();
