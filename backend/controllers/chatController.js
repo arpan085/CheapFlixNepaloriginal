@@ -232,7 +232,7 @@ exports.getConversations = async (req, res) => {
       where: { OR: or },
       include: {
         user: { select: { id: true, firstName: true, lastName: true, avatar: true } },
-        provider: { select: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } } },
+        provider: { include: { user: { select: { id: true, firstName: true, lastName: true, avatar: true } } } },
         service: { select: { name: true } },
         messages: {
           orderBy: { createdAt: 'desc' },
@@ -250,7 +250,7 @@ exports.getConversations = async (req, res) => {
 
     const conversations = bookings.map(booking => {
       const lastMessage = booking.messages[0] || null;
-      const otherParty = booking.userId === userId ? booking.provider.user : booking.user;
+      const otherParty = req.user.role === 'provider' ? booking.user : booking.provider.user;
 
       return {
         bookingId: booking.id,

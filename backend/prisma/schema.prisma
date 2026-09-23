@@ -24,6 +24,8 @@ model User {
   city      String?
   role      String     @default("user") // user, provider, admin
   status    String     @default("active") // active, inactive, suspended
+  lastLoginAt DateTime? // set on every successful password login (security migration)
+  lastLoginIp String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -113,6 +115,23 @@ model Booking {
   @@index([providerId, date, startTime])
   @@index([userId, status])
   @@index([status, date])
+
+  @@unique([userId, providerId, serviceId, date, startTime])
+}
+
+model AuthAttempt {
+  id           String   @id @default(cuid())
+  email        String?
+  ipAddress    String?
+  userAgent    String?
+  failedCount  Int      @default(0)
+  blockedUntil DateTime?
+  lastFailedAt DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+  @@index([ipAddress])
 }
 
 // Notification Model - For provider booking requests

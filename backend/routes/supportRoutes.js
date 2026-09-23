@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const supportController = require('../controllers/supportController');
-const { authMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { validateTicket } = require('../middleware/validate');
 const { writeLimiter } = require('../middleware/security');
 
@@ -16,7 +16,7 @@ router.get('/', supportController.getUserTickets);
 
 // Get all tickets (admin only). Keep this before /:ticketId so "admin"
 // is not interpreted as a ticket id.
-router.get('/admin/all', supportController.getAllTickets);
+router.get('/admin/all', adminMiddleware, supportController.getAllTickets);
 
 // Get single ticket
 router.get('/:ticketId', supportController.getTicket);
@@ -25,6 +25,6 @@ router.get('/:ticketId', supportController.getTicket);
 router.post('/:ticketId/messages', supportController.addMessage);
 
 // Update ticket status (admin only)
-router.patch('/:ticketId/status', supportController.updateTicketStatus);
+router.patch('/:ticketId/status', adminMiddleware, supportController.updateTicketStatus);
 
 module.exports = router;

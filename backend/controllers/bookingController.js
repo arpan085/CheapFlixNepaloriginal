@@ -1,7 +1,10 @@
 const prisma = require('../config/database');
 const { expectedTotal, validatePromo, recordPromoUse } = require('../utils/promos');
+const { logSecurityEvent } = require('../utils/securityLogger');
 
 const DEFAULT_STATUS = 'pending';
+
+const safeString = (value) => (value === undefined || value === null ? '' : String(value).trim());
 
 // Check a promo/referral code without booking (shows discount + total).
 exports.validatePromoCode = async (req, res) => {
@@ -36,21 +39,18 @@ exports.createBooking = async (req, res) => {
       promoCode
     } = req.body;
 
-    if (!providerId || !serviceId || !date || !startTime || !duration || totalAmount === undefined) {
-      return res.status(400).json({
-        error: 'Missing required fields',
-        required: ['providerId', 'serviceId', 'date', 'startTime', 'duration', 'totalAmount']
-      });
-    }
-
-    const userId = String(req.user.id);
-    const safeProviderId = String(providerId);
-    const safeServiceId = String(serviceId);
+    const userId = safeString(req.user.id);
+    const safeProviderId = safeString(providerId);
+    const safeServiceId = safeString(serviceId);
+    const safeStartTime = safeString(startTime);
+    const safeDuration = safeString(duration);
+    const safeLocation = safeString(location);
+    const safeNotes = notes ? safeString(notes).slice(0, 500) : null;
+    const safePaymentMethod = paymentMethod ? safeString(paymentMethod) : null;
     const safeAmount = Number(totalAmount);
-    const safeDuration = String(duration);
 
-    if (Number.isNaN(safeAmount)) {
-      return res.status(400).json({ error: 'Invalid totalAmount' });
+    if (!safeProviderId || !safeServiceId || !date || !safeStartTime || !safeDuration || Number.isNaN(safeAmount) || safeAmount <= 0) {
+      return res.status(400).json({ error: 'Missing or invalid booking data' });
     }
 
     const bookingDate = new Date(date);
@@ -126,6 +126,29 @@ exports.createBooking = async (req, res) => {
     if (Math.abs(safeAmount - finalTotal) > 2) {
       return res.status(400).json({ error: 'Total mismatch — refresh the estimate and try again.' });
     }
+    // Double-booking guard (the DB @@unique is the final backstop).
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        userId,
+        providerId: safeProviderId,
+        serviceId: safeServiceId,
+        date: bookingDate,
+        startTime: safeStartTime
+      }
+    });
+
+    if (existingBooking) {
+      logSecurityEvent('duplicate_booking_attempt', {
+        userId,
+        providerId: safeProviderId,
+        serviceId: safeServiceId,
+        date: bookingDate.toISOString(),
+        startTime: safeStartTime,
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      return res.status(409).json({ error: 'A booking already exists for this service at the selected time.' });
+    }
 
     let bookingRef;
     for (let i = 0; i < 5; i++) {
@@ -145,12 +168,12 @@ exports.createBooking = async (req, res) => {
           serviceId: safeServiceId,
           status: DEFAULT_STATUS,
           date: bookingDate,
-          startTime: String(startTime),
+          startTime: safeStartTime,
           duration: safeDuration,
-          location: location || '',
-          notes: notes || null,
+          location: safeLocation || '',
+          notes: safeNotes,
           totalAmount: finalTotal,
-          paymentMethod: paymentMethod || null
+          paymentMethod: safePaymentMethod
         },
         include: {
           provider: { include: { user: { select: { firstName: true, lastName: true, avatar: true, phone: true } } } },
@@ -187,7 +210,10 @@ exports.createBooking = async (req, res) => {
     return res.status(201).json({ success: true, data: createdBooking });
   } catch (error) {
     console.error('Create booking error:', error);
-    return res.status(500).json({ error: 'Failed to create booking', details: error.message });
+    if (error.code === 'P2002') {
+      return res.status(409).json({ error: 'A duplicate booking already exists.' });
+    }
+    return res.status(500).json({ error: 'Failed to create booking' });
   }
 };
 
@@ -380,12 +406,16 @@ exports.cancelBooking = async (req, res) => {
     const { bookingId } = req.params;
     const { reason } = req.body;
 
-    const booking = await prisma.booking.findUnique({ where: { id: String(bookingId) } });
+    const booking = await prisma.booking.findUnique({ where: { id: String(bookingId) }, include: { provider: true } });
     if (!booking) return res.status(404).json({ error: 'Booking not found' });
 
-    // Only the customer (or admin) can cancel
-    if (req.user.role !== 'admin' && booking.userId !== String(req.user.id)) {
-      return res.status(403).json({ error: 'Only the customer can cancel this booking' });
+    // Customer, assigned provider, or admin can cancel
+    const isOwner = String(req.user.id) === booking.userId;
+    const isProvider = booking.provider && String(req.user.id) === booking.provider.userId;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isProvider && !isAdmin) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
 
     if (!['pending', 'confirmed'].includes(booking.status)) {
@@ -394,7 +424,7 @@ exports.cancelBooking = async (req, res) => {
 
     const updated = await prisma.booking.update({
       where: { id: String(bookingId) },
-      data: { status: 'cancelled', notes: reason || 'Cancelled by user' }
+      data: { status: 'cancelled', notes: reason ? safeString(reason).slice(0, 500) : 'Cancelled by user' }
     });
 
     try {

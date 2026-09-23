@@ -8,10 +8,20 @@ async function seed() {
   try {
     console.log('🌱 Starting seed...');
 
+    const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD;
+    const seedProviderPassword = process.env.SEED_PROVIDER_PASSWORD;
+
+    if (!seedAdminPassword) {
+      throw new Error('Missing SEED_ADMIN_PASSWORD environment variable');
+    }
+    if (!seedProviderPassword) {
+      throw new Error('Missing SEED_PROVIDER_PASSWORD environment variable');
+    }
+
     // =========================
     // CREATE ADMIN USER
     // =========================
-    const adminPassword = await bcrypt.hash('admin@123', 10);
+    const adminPassword = await bcrypt.hash(seedAdminPassword, 10);
     
     const admin = await prisma.user.upsert({
       where: { email: 'admin@cheapflix.com' },
@@ -30,7 +40,7 @@ async function seed() {
 
     console.log('✅ Created admin account');
     console.log('📧 Admin Email: admin@cheapflix.com');
-    console.log('🔐 Admin Password: admin@123');
+    console.log('🔐 Admin password loaded from SEED_ADMIN_PASSWORD environment variable');
 
     // =========================
     // PROVIDERS DATA
@@ -39,7 +49,6 @@ async function seed() {
       {
         id: 'provider_1',
         email: 'rajesh@cheapflix.com',
-        password: 'password123',
         firstName: 'Rajesh',
         lastName: 'Maharjan',
         phone: '+977-9841000001',
@@ -52,7 +61,6 @@ async function seed() {
       {
         id: 'provider_2',
         email: 'kiran@cheapflix.com',
-        password: 'password123',
         firstName: 'Kiran',
         lastName: 'Thapa',
         phone: '+977-9841000002',
@@ -65,7 +73,6 @@ async function seed() {
       {
         id: 'provider_3',
         email: 'binod@cheapflix.com',
-        password: 'password123',
         firstName: 'Binod',
         lastName: 'Shrestha',
         phone: '+977-9841000003',
@@ -78,7 +85,6 @@ async function seed() {
       {
         id: 'provider_4',
         email: 'dinesh@cheapflix.com',
-        password: 'password123',
         firstName: 'Dinesh',
         lastName: 'Lama',
         phone: '+977-9841000004',
@@ -94,7 +100,7 @@ async function seed() {
     // CREATE USERS + PROVIDERS
     // =========================
     for (const p of providers) {
-      const hashedPassword = await bcrypt.hash(p.password, 10);
+      const hashedPassword = await bcrypt.hash(seedProviderPassword, 10);
 
       // USER TABLE
       const user = await prisma.user.upsert({

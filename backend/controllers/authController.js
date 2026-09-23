@@ -1,6 +1,12 @@
 const prisma = require('../config/database');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { getAttemptStatus, recordFailedAttempt, clearAttempts } = require('../middleware/authAttempt');
+const { logSecurityEvent } = require('../utils/securityLogger');
+
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+const getClientIp = (req) => req.ip || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+const getUserAgent = (req) => req.get('User-Agent') || 'unknown';
 
 /* =========================
    REGISTER USER
@@ -23,7 +29,9 @@ exports.register = async (req, res) => {
       bio
     } = req.body;
 
-    if (!email || !password || !firstName || !lastName) {
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!normalizedEmail || !password || !firstName || !lastName) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -33,11 +41,11 @@ exports.register = async (req, res) => {
     }
 
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email: normalizedEmail }
     });
 
     if (existingUser) {
-      return res.status(400).json({ error: 'Email already registered' });
+      return res.status(409).json({ error: 'Account already exists with this email.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -53,11 +61,11 @@ exports.register = async (req, res) => {
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
-        firstName,
-        lastName,
-        phone: phone || null,
+        firstName: String(firstName).trim(),
+        lastName: String(lastName).trim(),
+        phone: phone ? String(phone).trim() || null : null,
         city: (typeof city === 'string' && city.trim()) ? city.trim().slice(0, 80) : null,
         address: (typeof address === 'string' && address.trim()) ? address.trim().slice(0, 500) : null,
         avatar: signupAvatar,
@@ -80,7 +88,7 @@ exports.register = async (req, res) => {
         data: {
           userId: user.id,
           category: String(category).trim(),
-          bio: bio || '',
+          bio: bio ? String(bio).trim().slice(0, 500) : '',
           experience: expYears,
           verified: false,
           rating: 0
@@ -92,9 +100,9 @@ exports.register = async (req, res) => {
       await prisma.service.create({
         data: {
           providerId: provider.id,
-          name: `${category} Services`,
-          description: bio || `Professional ${category} services`,
-          price: parseFloat(price || 0),
+          name: `${String(category).trim()} Services`,
+          description: bio ? String(bio).trim().slice(0, 500) : `Professional ${String(category).trim()} services`,
+          price: Number.isFinite(Number(price)) ? Number(price) : 0,
           duration: 60
         }
       });
@@ -140,10 +148,12 @@ exports.register = async (req, res) => {
         providerId
       }
     });
-
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: error.message });
+    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      return res.status(409).json({ error: 'Account already exists with this email.' });
+    }
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 };
 
@@ -153,29 +163,59 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = normalizeEmail(email);
+    const ipAddress = getClientIp(req);
+    const userAgent = getUserAgent(req);
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
+    // Brute-force gate is best-effort until the AuthAttempt table is migrated.
+    let attemptStatus = null;
+    try { attemptStatus = await getAttemptStatus({ email: normalizedEmail, ipAddress }); } catch (e) {}
+
+    if (attemptStatus?.blockedUntil && new Date(attemptStatus.blockedUntil) > new Date()) {
+      return res.status(429).json({ error: 'Too many failed login attempts. Try again later.' });
+    }
+
     const user = await prisma.user.findUnique({
-      where: { email }
+      where: { email: normalizedEmail }
     });
 
-    if (!user) {
+    const isMatch = user ? await bcrypt.compare(password, user.password) : false;
+
+    if (!user || !isMatch) {
+      // Brute-force tracking is best-effort: login must survive a DB that
+      // hasn't migrated the AuthAttempt table yet.
+      try {
+        await recordFailedAttempt({ email: normalizedEmail, ipAddress, userAgent });
+        logSecurityEvent('failed_login_attempt', {
+          email: normalizedEmail,
+          ip: ipAddress,
+          userAgent,
+          path: req.originalUrl
+        });
+      } catch (e) { /* never fail login on tracking errors */ }
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    try { await clearAttempts({ email: normalizedEmail, ipAddress }); } catch (e) {}
 
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          lastLoginAt: new Date(),
+          lastLoginIp: ipAddress
+        }
+      });
+    } catch (e) { /* columns arrive with the security migration; login works without them */ }
 
     const { issuePair } = require('../utils/tokens');
     const pair = await issuePair(user);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Login successful',
       token: pair.token,
       refreshToken: pair.refreshToken,
@@ -192,10 +232,9 @@ exports.login = async (req, res) => {
         providerId: user.role === 'provider' ? (await prisma.provider.findUnique({ where: { userId: user.id }, select: { id: true } }))?.id : null
       }
     });
-
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 };
 

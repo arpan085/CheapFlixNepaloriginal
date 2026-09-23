@@ -98,6 +98,16 @@ const validateTicket = [
 
 module.exports = {
   handleValidation,
+  // Alias used by the security-hardening routes: same 400 contract shape
+  // they expect ({ error, details }) while reusing the chain above.
+  handleValidationErrors: (req, res, next) => {
+    const errors = validationResult(req);
+    if (errors.isEmpty()) return next();
+    return res.status(400).json({
+      error: 'Invalid input',
+      details: errors.array().map((err) => ({ field: err.param, message: err.msg })),
+    });
+  },
   validateRegister,
   validateLogin,
   validateForgot,
